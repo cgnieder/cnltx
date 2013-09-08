@@ -18,29 +18,35 @@
  suffix_3p "\\nohyperpage{\\,ff.}"
 \end{filecontents*}
 \indexsetup{othercode=\footnotesize}
-\makeindex[options={-s \jobname.ist},intoc,columns=3,columnsep=1em]
+\makeindex[options={-s \jobname.ist},intoc,columns=2,columnsep=1em]
 
-\setcnltxample{
-  class = cnltxample ,
+\setcnltx{
+  name     = cnltx ,
+  title    = the cnltx bundle ,
+  version  = \csname cnltx@@version\endcsname ,
+  date     = \csname cnltx@@date\endcsname ,
   subtitle = Documentation for \LaTeXe\ Packages or Classes ,
   info     = \LaTeX\ examples the \texorpdfstring{\textsc{cn}}{CN} way ,
   authors  = Clemens Niederberger ,
   email    = contact@mychemistry.eu ,
-  url      = https://github.com/cgnieder/cnltxample ,
+  url      = https://github.com/cgnieder/cnltx ,
   abstract = {%
-    A bundle of a package and a class for consistent format of control
+    A bundle of packages and classes for consistent format of control
     sequences, package options, source code with examples, writing a package
     manual (including an index containing the explained control sequences,
     options, \ldots).%
   } ,
   add-cmds = {
+    cnltx@define@colorscheme,
     code,codefont,command,cs,csidx,
-    Default,default,
+    darg,Default,default,
     env,environment,
     key,keybool,keychoice,keyval,
-    marg,oarg,darg,sarg,
+    marg,
+    newarg,
+    oarg,
     opt,option,
-    setcnltxample
+    sarg,setcnltx
   },
   add-envs = {
     commands,
@@ -54,7 +60,7 @@
 }
 
 \makeatletter
-\def\cnltx{\cnltx@package@name@format{cnltx}}
+\def\cnltxbase{\cnltx@package@name@format{cnltx-base}}
 \def\cnltxexample{\cnltx@package@name@format{cnltx-example}}
 \def\cnltxdoc{\cnltx@package@name@format{cnltx-doc}}
 
@@ -75,31 +81,48 @@
 
 \section{Background}
 
-The \cnltx\ bundle contains of a package and a class both with the same
-name.  I developed them as a successor of a class that I used for writing the
-documentation of my packages with the intention of a cleaner interface and
-less unnecessary ballast.  Hence the separation into package and class.  The
-package provides a source code environment that also prints the output and
-defines quite a number of macros for formatting of control sequence names,
-package names, package options and so on.  The best documentation for the
-bundle as always is the source code but I'm trying to provide a documentation
-as comprehensive as possible.
+The \cnltx\ bundle contains of different packages and classes.  I developed
+them as a successor of a class that I used for writing the documentation of my
+packages with the intention of a cleaner interface and less unnecessary
+ballast.  Hence the separation into package and class.  The package provides a
+source code environment that also prints the output and defines quite a number
+of macros for formatting of control sequence names, package names, package
+options and so on.  The best documentation for the bundle as always is the
+source code but I'm trying to provide a documentation as comprehensive as
+possible.
+
+\section{Bundled Packages and Classes}
+
+The \cnltx\ bundle currently bundles the following packages and classes:
+\begin{itemize}
+  \item \cnltxbase\ -- defines base macros for error-messaging and expansion
+    control.  It also provides color definitions and defines a few color
+    schemes for the \cnltxdoc\ class.  All other packages and classes of the
+    bundle load this package.
+  \item \cnltxexample\ -- defines macros and environments for describing
+    control sequences and options and for including source code.
+  \item \cnltxdoc\ -- a class for writing package manuals.  Loads
+    \cnltxexample.
+\end{itemize}
 
 \section{License and Requirements}\label{sec:license}
 \license
 
-The \cnltx\ package loads the following packages:
-\pkg{etoolbox}\footnote{\CTANurl{etoolbox}},
-\pkg{xcolor}\footnote{\CTANurl{xcolor}},
+The \cnltxbase\ package loads the following packages:
 \pkg{pgfopts}\footnote{\CTANurl{pgfopts}},
-\pkg{listings}\footnote{\CTANurl{listings}},
-\pkg{trimspaces}\footnote{\CTANurl{trimspaces}},
+\pkg{etoolbox}\footnote{\CTANurl{etoolbox}},
+\pkg{trimspaces}\footnote{\CTANurl{trimspaces}} and
+\pkg{xcolor}\footnote{\CTANurl{xcolor}}.
+
+The \cnltxexample\ package loads the following packages:
+\cnltxbase, \pkg{listings}\footnote{\CTANurl{listings}},
 \pkg{accsupp}\footnote{\CTANurl[macros/latex/contrib/oberdiek]{accsupp}},
 \pkg{mdframed}\footnote{\CTANurl{mdframed}} and
 \pkg{idxcmds}\footnote{\CTANurl{idxcmds}}.
 
-The \cnltx\ class loads the package with the same name and additionally
-the following packages: \pkg{ulem}\footnote{\CTANurl{ulem}},
+The \cnltxdoc\ class loads the package with the same name and additionally
+the following packages: \cnltxbase, \cnltxexample,
+\pkg{ulem}\footnote{\CTANurl{ulem}},
 \pkg{multicol}\footnote{\CTANurl[macros/latex/required/tools]{multicol}},
 \pkg{ragged2e}\footnote{\CTANurl[macros/latex/contrib/ms]{ragged2e}},
 \pkg{marginnote}\footnote{\CTANurl{marginnote}} and
@@ -110,17 +133,17 @@ Like all of my packages \cnltx\ implicitly relies on an up to date \TeX\
 distribution.
 
 \section{Options and Setup}
-The \cnltx\ bundle has a number of options.  The package knows most of
-them as package option, the class only knows the \option{load-preamble}
-(described in section~\ref{sec:preamble}).  All options except the one class
-option regardless if they're defined by the package or the class can be set
-with a setup command:
+The \cnltx\ bundle has a number of options.  The \cnltxdoc\ class only knows
+the \option{load-preamble} (described in section~\ref{sec:preamble}) as a
+\emph{class} option.  All other options regardless if they're defined by a
+package or a class can be set with a setup command:
 \begin{commands}
-  \command{setcnltxample}[\marg{options}]
+  \command{setcnltx}[\marg{options}]
     setup command for \cnltx.
 \end{commands}
-The source code environments also have optional arguments that can be used to
-set the options for the environment locally.
+The source code environments defined by the \cnltxexample\ package also have
+optional arguments that can be used to set the options for the environment
+locally.
 
 \section{Available Commands}
 \subsection{Description of Macros, Environments and  Options}\label{sec:cmds:macros}
@@ -287,7 +310,7 @@ defined by the \cnltx\ package except where indicated differently.
 \end{options}
 
 \begin{example}
-  \setcnltxample{code-font=\sffamily\itshape}
+  \setcnltx{code-font=\sffamily\itshape}
   \code{foo} and \cs*{bar}, option \option{baz}
 \end{example}
 
@@ -450,6 +473,9 @@ Both environments can be influenced by options:
     the output on the right.  Side by side examples are typeset in
     \env*{minipage} environments with all consequences that come with them
     (think of \cs*{parindent} \ldots).
+  \keyval{code-sep}{definition}\Default{\cs*{hrulefill}}
+    Code that is inserted between a source code and the corresponding output
+    when printed below each other.
 \end{options}
 
 The same example again, this time using \option{side-by-side}:
@@ -464,7 +490,7 @@ course possible to customize it:
   \keyval{add-frame-options}{\pkg{mdframed} options}\Default
     Add options to the predefined ones.
   \keyval{frame-options}{\pkg{mdframed} options}{}
-    \Default{backgroundcolor=cnltxamplebg,linecolor=cnltxample,roundcorner=5pt}
+    \Default{backgroundcolor=cnltxbg,linecolor=cnltx,roundcorner=5pt}
     Overwrite the options with new ones.
 \end{options}
 
@@ -472,7 +498,7 @@ The source code is formatted using the \pkg{listings} package.  Similar
 options exist to adapt \pkg{listings}' options that are used for formatting
 the source code.  The predifined style has many options that will not be
 mentioned here.  If you're interested you can find them in
-\file{cnltxample.sty}.
+\file{cnltx-example.sty}.
 \begin{options}
   \keyval{gobble}{integer}\Default{2}
     The number of initial characters that is gobbled from each line.
@@ -511,14 +537,19 @@ the following options.  They are used to build the title page of the manual.
 \begin{options}
   \keyval{package}{package}
     The name of the package that is described.  Either this option or
-    \option{class} should always be given.  This command also defines a
-    command sequence from the package name that formats the package name with
-    color and small caps like \cnltx.
+    \option{class} or \option{name} should always be given.  This command also
+    defines a command sequence from the package name that formats the package
+    name with color and small caps like \cnltx.
   \keyval{class}{class}
     The name of the class that is described.  Either this option or
-    \option{package} should always be given.  This command also defines a
-    command sequence from the class name that formats the class name with
-    color and small caps like \cnltx.
+    \option{package} or \option{name} should always be given.  This command
+    also defines a command sequence from the class name that formats the class
+    name with color and small caps like \cnltx.
+  \keyval{name}{name}
+    The name of the class/package that is described.  Either this option or
+    \option{package} or \option{class} should always be given.  This command
+    also defines a command sequence from the class name that formats the class
+    name with color and small caps like \cnltx.
   \keyval{authors}{author list}
     Comma separated list of package/class authors.
   \keyval{version}{version number}
@@ -591,9 +622,9 @@ Using the option will include the following code:
   \RequirePackage{fnpct}
   \RequirePackage[english]{babel}
   \renewcommand*\othersectionlevelsformat[3]{%
-    \textcolor{cnltxample}{#3\autodot}\enskip}
+    \textcolor{cnltx}{#3\autodot}\enskip}
   \renewcommand*\partformat{%
-    \textcolor{cnltxample}{\partname~\thepart\autodot}}
+    \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
 \end{sourcecode}
 
@@ -601,6 +632,115 @@ Using the option will include the following code:
 
 %TODO
 
+\section{Internal Helper Commands}
+
+The commands in this section are only described for the sake of completeness.
+They are not meant to be used in a document.
+
+\subsection{Defined by \cnltxbase}
+
+\begin{commands}
+  \command{cnltx\at\at date}
+    The creation date of the current version of the bundle.
+  \command{cnltx\at\at version}
+    The version number of the bundle.
+  \command{cnltx\at\at info}
+    The short description of the bundle.
+  \command{cnltx\at create\at message}%
+    [\marg{module}\code{\{\choices{Error,Warning,WarningNoLine,Info}\}}]
+    Create suiting error and warning messaging commands for the module
+    \meta{module}.
+  \command{cnltx\at base\at error}[\marg{message}]
+    Issue an error message using \cs*{PackageError}.
+  \command{cnltx\at base\at warning}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarning}.
+    \command{cnltx\at base\at warningnoline}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarningNoLine}.
+  \command{cnltx\at base\at info}[\marg{message}]
+    Issue a message using \cs*{PackageInfo}.
+  \command{cnltx\at fullexpand\at onearg}[\marg{cs}\marg{argument}]
+    Exhaustive expansion of \meta{argument} before it is passed as argument to
+    \meta{cs}.
+  \command{cnltx\at fullexpand\at twoargs}[\marg{cs}\marg{argument1}\marg{argument2}]
+    Exhaustive expansion of \meta{argument1} and \meta{argument2} before
+    they're passed as argumenst to \meta{cs}.
+  \command{cnltx\at stripbs}
+    A shortcut for \lstinline[style=cnltx]+\expandafter\@gobble\string+.
+  \command{cnltx\at define\at colorscheme}[\marg{name}\marg{scheme definition}]
+    Command that can be used to define a color scheme.
+\end{commands}
+
+The `default' color scheme is defined as follows:
+\begin{sourcecode}
+  \cnltx@define@colorscheme{default}{
+    cs          => brown ,
+    option      => cnltxyellow ,
+    comment     => cnltxgray ,
+    beginend    => red ,
+    env         => black ,
+    argument    => black ,
+    meta        => black!80 ,
+    cnltx       => cnltxred ,
+    cnltxbg     => white ,
+    link        => black!90 ,
+    versionnote => black!75
+  }
+\end{sourcecode}
+
+\subsection{Defined by \cnltxexample}
+
+\begin{commands}
+  \command{cnltx\at example\at error}[\marg{message}]
+    Issue an error message using \cs*{PackageError}.
+  \command{cnltx\at example\at warning}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarning}.
+    \command{cnltx\at example\at warningnoline}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarningNoLine}.
+  \command{cnltx\at example\at info}[\marg{message}]
+    Issue a message using \cs*{PackageInfo}.
+  \command{at}
+    Robust command that typesets `\at'.  An @ in command names confuses the
+    indexing of the command names.  Either one uses another symbol for
+    makeindex's ``actual'' recognition and also tells \pkg{idxcmds} about it
+    or one uses \cs{at} in \cs{cs} and friends.
+  \command{bang}
+    Robust command that typesets `\bang'.
+  \command{equal}
+    Robust command that typesets `\equal'.
+  \command{cnltx\at equal}
+    Used in definitions of the key/value option typesetting commands.
+  \command{indexcs}
+    Version of \cs{csidx} that takes care of a \cs*{textcompwordmark} inserted
+    by listings.  Used to index commands in the \env{sourcecode} and
+    \env{example} environments that have been added with \option{add-cmds}.
+  \command{newarg}[\marg{cs}\marg{left delim}\marg{right delim}]
+    Command used to define the argument commands:
+    \lstinline[style=cnltx]+\newarg\marg{\{}{\}}+
+  \command{MakePercentComment}
+    Sets the category code of \code{\%} to 14.
+  \command{cnltx\at copyablespace}
+    Prints a space that is also copyable.  Uses the \pkg{accsupp}.
+  \command{cnltx\at predefined\at control\at sequences}
+    A comma-separated list of predefind `silent' control sequence names.
+  \command{cnltx\at mdframed\at options}
+    Predefined option list for the \pkg{mdframed} style \code{cnltx}.
+  \command{cnltx\at listings\at style}
+    Predefined option list for the \pkg{listings} style \code{cnltx}.
+\end{commands}
+
+\subsection{Defined by \cnltxdoc}
+
+\begin{commands}
+  \command{cnltx\at doc\at error}[\marg{message}]
+    Issue an error message using \cs*{PackageError}.
+  \command{cnltx\at doc\at warning}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarning}.
+    \command{cnltx\at doc\at warningnoline}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarningNoLine}.
+  \command{cnltx\at doc\at info}[\marg{message}]
+    Issue a message using \cs*{PackageInfo}.
+\end{commands}
+  
 \printindex
 
 \end{document}

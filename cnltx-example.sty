@@ -34,13 +34,10 @@
 \ProvidesPackage{cnltx-example}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox}
 
-\PassOptionsToPackage{space=true}{accsupp}
-\RequirePackage{accsupp}
-\newcommand\cnpkg@copyablespace{%
-  \BeginAccSupp{method=hex,unicode,ActualText=00A0}%
-  \ %
-\EndAccSupp{}%
-}
+\cnltx@create@message{example}{Error}
+\cnltx@create@message{example}{Warning}
+\cnltx@create@message{example}{WarningNoLine}
+\cnltx@create@message{example}{Info}
 
 % --------------------------------------------------------------------------
 \RequirePackage{listings}
@@ -164,6 +161,14 @@
     expl-format/.code = \renewcommand*\exampleformat{#1} ,
 }
 
+\PassOptionsToPackage{space=true}{accsupp}
+\RequirePackage{accsupp}
+\newcommand\cnltx@copyablespace{%
+\BeginAccSupp{method=hex,unicode,ActualText=00A0}%
+  \ %
+\EndAccSupp{}%
+}
+
 \lst@RequireAspects{writefile}
 \providecommand*\MakePercentComment{\catcode`\%14\relax}
 
@@ -240,7 +245,7 @@
 }
 
 \def\cnltx@predefined@control@sequences{%
-  -,@,
+  -,@,@empty,@gobble,@ifnextchar,@ifstar,
   addtokomafont,ae,AE,alph,Alph,author,autodot,arabic,
   baselineskip,begingroup,bfseries,bgroup,
   c,caption,cb,centering,chapter,cleardoublepage,clearpage,cref,
@@ -295,13 +300,13 @@
 
 \cnltx@fullexpand@twoargs
   \lstdefinestyle
-  {cnltxample}
+  {cnltx}
   {\expandonce\cnltx@listings@style}
 
 \def\cnltx@addcmds#1{%
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
-      {cnltxample}
+      {cnltx}
       {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}%
@@ -311,7 +316,7 @@
 \def\cnltx@addsilentcmds#1{%
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
-      {cnltxample}
+      {cnltx}
       {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
@@ -324,7 +329,7 @@
 \def\cnltx@addenvs#1{%
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
-      {cnltxample}
+      {cnltx}
       {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
@@ -334,7 +339,7 @@
 \def\cnltx@addlistingsoptions#1{%
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
-      {cnltxample}
+      {cnltx}
       {\expandonce\cnltx@listings@style,\unexpanded{#1}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{#1}%
@@ -358,19 +363,19 @@
 
 \def\cnltx@mdframed@options
   {
-    backgroundcolor = cnltxamplebg ,
-    linecolor       = cnltxample ,
+    backgroundcolor = cnltxbg ,
+    linecolor       = cnltx ,
     roundcorner     = 5pt
   }
 \cnltx@fullexpand@twoargs
   \mdfdefinestyle
-  {cnltxample}
+  {cnltx}
   {\expandonce\cnltx@mdframed@options}
 
 \def\cnltx@addmdframedoptions#1{%
   \cnltx@fullexpand@twoargs
     \mdfdefinestyle
-      {cnltxample}
+      {cnltx}
       {\expandonce\cnltx@mdframed@options,\unexpanded{#1}}%
 }
 
@@ -381,13 +386,14 @@
   cnltx/.cd,
     side-by-side/.is if        = cnltx@sidebyside ,
     code-only/.is if           = cnltx@codeonly ,
+    code-sep/.code             = \def\cnltx@examplesep{#1} ,
     add-frame-options/.code    = \cnltx@addmdframedoptions{#1} ,
-    frame-options/.code        = \mdfdefinestyle{cnltxample}{#1} ,
+    frame-options/.code        = \mdfdefinestyle{cnltx}{#1} ,
     gobble/.code               = \def\cnltx@gobble{#1} ,
     add-cmds/.code             = \cnltx@addcmds{#1} ,
     add-silent-cmds/.code      = \cnltx@addsilentcmds{#1} ,
     add-listings-options/.code = \cnltx@addlistingsoptions{#1} ,
-    listings-options/.code     = \lstdefinestyle{cnltxample}{#1} ,
+    listings-options/.code     = \lstdefinestyle{cnltx}{#1} ,
     add-envs/.code             = \cnltx@addenvs{#1} ,
 }
 
@@ -398,9 +404,9 @@
   {%
     % set options
     \pgfqkeys{/cnltx}{#1}%
-    \lstset{style=cnltxample}%
+    \lstset{style=cnltx}%
     %
-    \mdframed[style=cnltxample]%
+    \mdframed[style=cnltx]%
       \ifbool{cnltx@codeonly}{}{%
         \ifbool{cnltx@sidebyside}
           {\minipage[c]{.49\linewidth}}
@@ -427,9 +433,9 @@
   {%
     % set options
     \pgfqkeys{/cnltx}{#1}%
-    \lstset{style=cnltxample}%
+    \lstset{style=cnltx}%
     %
-    \mdframed[style=cnltxample]%
+    \mdframed[style=cnltx]%
       \lst@BeginAlsoWriteFile{\jobname.tmp}
   }
   {%
@@ -451,9 +457,5 @@
     pkg-format/.code = \renewcommand*\packageformat{#1} ,
     cls-format/.code = \renewcommand*\classformat{#1}
 }
-
-\newrobustcmd\setcnltxample[1]{\pgfqkeys{/cnltx}{#1}}
-
-\ProcessPgfOptions{/cnltx}
 
 \endinput

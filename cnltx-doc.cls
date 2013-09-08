@@ -34,6 +34,11 @@
 \ProvidesClass{cnltx-doc}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \LoadClassWithOptions{scrartcl}
 
+\cnltx@create@message{doc}{Error}
+\cnltx@create@message{doc}{Warning}
+\cnltx@create@message{doc}{WarningNoLine}
+\cnltx@create@message{doc}{Info}
+
 \RequirePackage{cnltx-example}
 \newbool{cnltx@load@preamble}
 \DeclareOption{load-preamble}{\booltrue{cnltx@load@preamble}}
@@ -50,9 +55,9 @@
   \RequirePackage{fnpct}
   \RequirePackage[english]{babel}
   \renewcommand*\othersectionlevelsformat[3]{%
-    \textcolor{cnltxample}{#3\autodot}\enskip}
+    \textcolor{cnltx}{#3\autodot}\enskip}
   \renewcommand*\partformat{%
-    \textcolor{cnltxample}{\partname~\thepart\autodot}}
+    \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
 }{}
 
@@ -89,6 +94,8 @@
 \def\cnltx@package@date{??}
 \def\cnltx@package@version{??}
 \def\cnltx@package@info{??}
+\def\cnltx@package@title{??}
+\newbool{cnltx@package@title}
 \def\cnltx@package@subtitle{??}
 \newbool{cnltx@package@subtitle}
 \def\cnltx@package@url{??}
@@ -98,7 +105,7 @@
 \def\cnltx@package@abstract{??}
 \newbool{cnltx@package@abstract}
 
-\def\cnltx@package@name@format#1{\textcolor{cnltxample}{\textsc{#1}}}
+\def\cnltx@package@name@format#1{\textcolor{cnltx}{\textsc{#1}}}
 
 % --------------------------------------------------------------------------
 % authors an other names:
@@ -160,6 +167,13 @@
       \gdef\cnltx@package@name{#1}
       \cnltx@getfileinfo{#1}{cls}
       \booltrue{cnltx@package@name} ,
+    name/.code =
+      \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}
+      \gdef\cnltx@package@name{#1}
+      \booltrue{cnltx@package@name} ,
+    title/.code =
+      \gdef\cnltx@package@title{#1}
+      \booltrue{cnltx@package@title} ,
     subtitle/.code =
       \gdef\cnltx@package@subtitle{#1}
       \booltrue{cnltx@package@subtitle} ,
@@ -357,7 +371,7 @@
     \ifbool{cnltx@package@name}
       {\cnltx@title@information}
       {%
-        \cnltx@warning{%
+        \cnltx@doc@warning{%
           No package/class name given. Hence I won't create an
           automatic title%b
         }%
@@ -370,9 +384,11 @@
   \begin{center}
     \Huge
     \scalebox{1.5}{%
-      \color{cnltxample}%
+      \color{cnltx}%
       \bfseries\scshape
-      \cnltx@package@name
+      \ifbool{cnltx@package@title}
+        {\cnltx@package@title}
+        {\cnltx@package@name}%
     }%
     \par\vskip.5cm\relax
     \large
