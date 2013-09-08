@@ -1,0 +1,264 @@
+% --------------------------------------------------------------------------
+% the CNLTX bundle
+%
+%   LaTeX source code and output
+%
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/cnltx/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2013 Clemens Niederberger
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The cnltx bundle consists of the files
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty
+%  - cnltx_en.tex, cnltx_en.pdf
+%  - README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+
+\RequirePackage{cnltx-base}
+\ProvidesPackage{cnltx-csnames}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
+
+\def\cnltx@predefined@control@sequences{%
+  % symbols:
+  -,@,
+  % csnames neginning with @:
+  @empty,@gobble,@ifnextchar,@ifstar,
+  % A:
+  addtokomafont,
+  ae,AE,
+  AfterEndPreamble,AfterPreamble,AfterEndDocument,AfterEndEnvironment,
+  alph,Alph,
+  author,
+  autodot,
+  arabic,
+  AtBeginDocument,AtBeginEnvironment,AtEndDocument,AtEndEnvironment,
+    AtEndPreamble,
+  % B
+  baselineskip,
+  BeforeBeginEnvironment,
+  begingroup,
+  bfseries,
+  bgroup,
+  % C
+  c,
+  caption,
+  cb,
+  centering,
+  chapter,
+  cleardoublepage,
+  clearpage,
+  cref,
+  % D
+  d,
+  date,
+  dh,
+  DH,
+  DeclareRobustCommand,
+  deffootnote,deffootnotemark,
+  descriptionlabel,
+  discretionary,
+  dj,DJ,
+  documentclass,
+  % E
+  egroup,
+  emph,
+  endgroup,
+  endnote,
+  enlargethispage,
+  % F
+  fbox,
+  fontsize,fontshape,
+  footnote,footnotesize,footnotetext,
+  foreignlanguage,
+  frenchspacing,
+  % G
+  global,
+  % H
+  H,
+  hskip,
+  hspace,
+  huge,Huge,
+  hypersetup,
+  hyphenation,
+  % I
+  ignorespaces,ignorespacesafterend,
+  include,includeonly,
+  indent,
+  input,InputIfFileExists,
+  item,
+  itshape,
+  % J
+  j,
+  % K
+  k,
+  KOMAoption,
+  KOMAoptions,
+  % L
+  l,L,
+  labelenumi,labelenumii,labelenumiii,labelenumiv,
+  label,
+  labelitemi,labelitemii,labelitemiii,labelitemiv,
+  labelsep,
+  large,Large,LARGE,
+  LaTeX,LaTeXe,
+  linebreak,linewidth,
+  LoadClassWithOptions,LoadClass,
+  % M
+  maketitle,
+  mbox,
+  mdseries,
+  % N
+  NeedsTeXFormat,
+  newcommand,
+  newcounter,
+  newlabel,
+  newline,
+  newpage,
+  newrobustcmd,
+  ng,NG,
+  nolinebreak,
+  nonfrenchspacing,
+  noindent,
+  nopagebreak,
+  normalsize,normalfont,
+  % O
+  o,O,oe,OE,
+  othersectionlevelsformat,
+  % P
+  P,
+  pagebreak,
+  par,
+  paragraph,
+  parindent,
+  part,partformat,partname,
+  pounds,
+  printacronyms,
+  printbibliography,
+  printendnotes,
+  printindex,
+  protected,
+  protecting,
+  providecommand,providerobustcmd,
+  ProvidesClass,
+  ProvidesPackage,
+  % Q
+  % R
+  r,
+  raggedright,raggedleft,RaggedRight,
+  ref,
+  refstepcounter,
+  relax,
+  renewcommand,renewrobustcmd,
+  RequirePackage,
+  rightarrow,
+  robustify,
+  roman,Roman,
+  rmfamily,
+  % S
+  S,
+  samepage,
+  scriptsize,
+  scshape,
+  section,
+  selectfont,
+  selectlanguage,
+  setcounter,
+  setfnpct,
+  setkomafont,
+  setlength,
+  setmainfont,
+  setmainlanguage,
+  setotherlanguage,
+  setotherlanguages,
+  shorthandoff,
+  shorthandon,
+  sidenote,
+  sffamily,
+  slshape,
+  small,
+  ss,SS,
+  stepcounter,
+  subparagraph,
+  subsection,
+  subsubsection,
+  % T
+  t,
+  tableofcontents,
+  TeX,
+  test,
+  textasciicircum,
+  textasciitilde,
+  textasteriskcentered,
+  textbackslash,
+  textbar,
+  textbf,
+  textbraceleft,
+  textbraceright,
+  textcolor,
+  textcompwordmark,
+  textdollar,
+  textemdash,textendash,
+  textenglish,
+  textexclamdown,
+  textgreater,
+  textit,
+  textless,
+  textmd,
+  textogonekcentered,
+  textrm,
+  textsc,
+  textsf,
+  textquestiondown,
+  textquotedbl,textquotedblleft,textquotedblright,
+  textquoteleft,textquoteright,
+  textsc,
+  textsection,
+  textsl,
+  textsubscript,
+  textsuperscript,
+  textsterling,
+  texttt,
+  textunderscore,
+  textup,
+  textwidth,
+  th,TH,
+  the,
+  theendnotes,
+  theenumi,theenumii,theenumiii,theenumiv,
+  thefootnotemark,
+  thepart,
+  tiny,
+  title,
+  today,
+  ttfamily,
+  % U
+  usecounter,
+  usepackage,
+  upshape,
+  % V
+  v,
+  vskip,vspace,
+  % W
+  % X
+  xdefinecolor
+  % Y
+  % Z
+}
+
+\endinput

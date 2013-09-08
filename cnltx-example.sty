@@ -23,7 +23,7 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls,
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty
 %  - cnltx_en.tex, cnltx_en.pdf
 %  - README
 % --------------------------------------------------------------------------
@@ -32,7 +32,7 @@
 % --------------------------------------------------------------------------
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx-example}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
-\RequirePackage{pgfopts,etoolbox}
+\RequirePackage{cnltx-csnames}
 
 \cnltx@create@message{example}{Error}
 \cnltx@create@message{example}{Warning}
@@ -68,9 +68,21 @@
 % see http://tex.stackexchange.com/a/114580/5049 for reference on the `nolig'
 % trick, thanks to @egreg!
 
+\makeatother
+\expandafter\def\csname cnltx@other@at\endcsname{@}
+\makeatletter
+
 \newcommand\indexcs[1]{%
-  \begingroup\let\lst@nolig\@empty
-  \ifstrequal{#1}{@}{\csidx{\at}}{\csidx{#1}}\endgroup}
+  \begingroup
+    \let\lst@nolig\@empty
+    \def\cnltx@tmp@index{#1}%
+    \expandafter\cnltx@replace@all
+      \expandafter\cnltx@tmp@index
+      \expandafter{\cnltx@other@at}{\at}%
+    \cnltx@replace@all\cnltx@tmp@index{@}{\at}%
+    \expandafter\csidx\expandafter{\cnltx@tmp@index}%
+  \endgroup
+}
 
 % \env
 \newidxcmd\env{\code{#1}}[\ (environment)]
@@ -244,60 +256,6 @@
   % also prove different classes for indexing
 }
 
-\def\cnltx@predefined@control@sequences{%
-  -,@,@empty,@gobble,@ifnextchar,@ifstar,
-  addtokomafont,ae,AE,alph,Alph,author,autodot,arabic,
-  baselineskip,begingroup,bfseries,bgroup,
-  c,caption,cb,centering,chapter,cleardoublepage,clearpage,cref,
-  d,date,dh,DH,DeclareRobustCommand,
-    deffootnote,deffootnotemark,descriptionlabel,
-    discretionary,dj,DJ,
-    documentclass,
-  egroup,emph,endgroup,endnote,enlargethispage,
-  fbox,fontsize,fontshape,footnote,footnotesize,foreignlanguage,
-    frenchspacing,
-  global,
-  H,hskip,hspace,huge,Huge,hypersetup,hyphenation,
-  ignorespaces,ignorespacesafterend,indent,item,itshape,
-  j,
-  k,KOMAoption,KOMAoptions,
-  l,L,labelenumi,labelenumii,labelenumiii,labelenumiv,
-    label,labelitemi,labelitemii,labelitemiii,labelitemiv,labelsep,
-    large,Large,LARGE,LaTeX,LaTeXe,linebreak,linewidth,
-  maketitle,mbox,mdseries,
-  newcounter,newlabel,newline,newpage,ng,NG,nolinebreak,nonfrenchspacing,
-    noindent,nopagebreak,normalsize,normalfont,
-  o,O,oe,OE,othersectionlevelsformat,
-  P,pagebreak,par,paragraph,parindent,part,partformat,partname,pounds,
-    printacronyms,printbibliography,printendnotes,
-  r,raggedright,raggedleft,RaggedRight,ref,refstepcounter,relax,
-    RequirePackage,
-    rightarrow,roman,Roman,
-    rmfamily,
-  S,samepage,scriptsize,scshape,section,selectfont,selectlanguage,
-    setcounter,setfnpct,setkomafont,setlength,setmainfont,
-    setmainlanguage,setotherlanguage,setotherlanguages,
-    shorthandoff,shorthandon,sidenote,
-    sffamily,slshape,small,
-    ss,SS,stepcounter,subparagraph,subsection,subsubsection,
-  t,tableofcontents,TeX,test,textasciicircum,textasciitilde,
-    textasteriskcentered,textbackslash,
-    textbar,textbf,textbraceleft,textbraceright,textcolor,textcompwordmark,
-    textdollar,textemdash,textendash,textenglish,
-    textexclamdown,textgreater,textit,
-    textless,textogonekcentered,textsc,textquestiondown,textquotedbl,
-    textquotedblleft,textquotedblright,textquoteleft,textquoteright,
-    textsection,textsubscript,textsuperscript,textsterling,textunderscore,
-    textrm,textsf,texttt,textbf,textmd,textup,textit,textsl,textsc,
-    textwidth,th,TH,the,theendnotes,
-    theenumi,theenumii,theenumiii,theenumiv,
-    thefootnotemark,thepart,
-    tiny,title,today,ttfamily,
-  usecounter,usepackage,upshape,
-  v,vskip,vspace,
-  xdefinecolor
-}
-
 \cnltx@fullexpand@twoargs
   \lstdefinestyle
   {cnltx}
@@ -449,8 +407,8 @@
 \newcommand*\packageformat{\sffamily}
 \newcommand*\classformat{\sffamily}
 
-\newidxcmd\pkg{{\packageformat#1}}
-\newidxcmd\cls{{\classformat#1}}
+\newidxcmd\pkg{{\packageformat#1}}[\ (package)]
+\newidxcmd\cls{{\classformat#1}}[\ (class)]
 
 \pgfkeys{
   cnltx/.cd,

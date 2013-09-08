@@ -23,7 +23,7 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls,
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty
 %  - cnltx_en.tex, cnltx_en.pdf
 %  - README
 % --------------------------------------------------------------------------
@@ -59,20 +59,25 @@
   \renewcommand*\partformat{%
     \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
+  \pagestyle{headings}
+  \setcapindent{1.5em}
+  \setkomafont{caption}{\normalfont\footnotesize\sffamily}
+  \setkomafont{captionlabel}{\normalfont\footnotesize\sffamily\scshape}
 }{}
-
-\def\cnltx@stripbs{\expandafter\@gobble\string}
 
 % --------------------------------------------------------------------------
 % license information:
 \newcommand*\lppl{\textsc{lppl}\index{LPPL@\textsc{lppl}}}
 \newcommand*\LPPL{\LaTeX{} Project Public License\index{LPPL@\textsc{lppl}}}
 
-\newcommand\license{%
+\def\cnltx@par{\par}
+
+\newcommand\license{\@ifstar{\cnltx@license}{\cnltx@license\cnltx@par}}
+\def\cnltx@license{%
   Permission is granted to copy, distribute and/or modify this software under
   the terms of the \LPPL, version 1.3 or later
   (\url{http://www.latex-project.org/lppl.txt}). The package has the status
-  ``maintained.''\@ifstar{}{\par}%
+  ``maintained.''%
 }
 
 % CTAN:
@@ -160,12 +165,12 @@
     package/.code =
       \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}
       \gdef\cnltx@package@name{#1}
-      \cnltx@getfileinfo{#1}{sty}
+      \@ifpackageloaded{#1}{\cnltx@getfileinfo{#1}{sty}}{}
       \booltrue{cnltx@package@name} ,
     class/.code =
       \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}
       \gdef\cnltx@package@name{#1}
-      \cnltx@getfileinfo{#1}{cls}
+      \@ifclassloaded{#1}{\cnltx@getfileinfo{#1}{cls}}{}
       \booltrue{cnltx@package@name} ,
     name/.code =
       \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}

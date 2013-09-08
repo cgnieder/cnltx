@@ -62,6 +62,7 @@
 \makeatletter
 \def\cnltxbase{\cnltx@package@name@format{cnltx-base}}
 \def\cnltxexample{\cnltx@package@name@format{cnltx-example}}
+\def\cnltxcsnames{\cnltx@package@name@format{cnltx-csnames}}
 \def\cnltxdoc{\cnltx@package@name@format{cnltx-doc}}
 
 \newrobustcmd\bypackage{%
@@ -73,6 +74,13 @@
 \makeatother
 
 \newcommand*\file[1]{\code{#1}}
+
+\newenvironment{colors}
+  {%
+    \def\colour##1{\item\code{\textcolor{##1}{##1}}}%
+    \cnltxlist
+  }
+  {\endcnltxlist}
 
 % \usepackage{showframe}
 % \usepackage{kantlipsum}
@@ -95,12 +103,14 @@ possible.
 
 The \cnltx\ bundle currently bundles the following packages and classes:
 \begin{itemize}
-  \item \cnltxbase\ -- defines base macros for error-messaging and expansion
-    control.  It also provides color definitions and defines a few color
-    schemes for the \cnltxdoc\ class.  All other packages and classes of the
-    bundle load this package.
+  \item \cnltxbase\ -- defines base macros for error-messaging, expansion
+    control and tokenlist manipulation.  It also provides color definitions
+    and defines a few color schemes for the \cnltxdoc\ class.  All other
+    packages and classes of the cnbundle load this package.
   \item \cnltxexample\ -- defines macros and environments for describing
     control sequences and options and for including source code.
+  \item \cnltxcsnames\ -- defines a list of highlighted control sequence
+    names, loaded by \cnltxexample.
   \item \cnltxdoc\ -- a class for writing package manuals.  Loads
     \cnltxexample.
 \end{itemize}
@@ -498,7 +508,7 @@ The source code is formatted using the \pkg{listings} package.  Similar
 options exist to adapt \pkg{listings}' options that are used for formatting
 the source code.  The predifined style has many options that will not be
 mentioned here.  If you're interested you can find them in
-\file{cnltx-example.sty}.
+\file{cnltx-csnames.sty}.
 \begin{options}
   \keyval{gobble}{integer}\Default{2}
     The number of initial characters that is gobbled from each line.
@@ -626,11 +636,94 @@ Using the option will include the following code:
   \renewcommand*\partformat{%
     \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
+  \pagestyle{headings}
+  \setcapindent{1.5em}
+  \setkomafont{caption}{\normalfont\footnotesize\sffamily}
+  \setkomafont{captionlabel}{\normalfont\footnotesize\sffamily\scshape}
 \end{sourcecode}
 
 \section{Predefined Colors and Color-Schemes}\label{sec:colors}
+\subsection{Explicitly Defined Colors}\label{sec:colors:definitions}
 
-%TODO
+The \cnltxbase\ package defines a number of colors:
+\begin{colors}
+  \colour{cnltxbrown}
+    Per default used for the control sequences.
+  \colour{cnltxblue}
+    Unused per default.
+  \colour{cnltxred}
+    Per default used as base color in various places.
+  \colour{cnltxgreen}
+    Unused per default.
+  \colour{cnltxgray}
+    Per default used for formatting comments.
+  \colour{cnltxyellow}
+    Per default used for options.
+  \colour{cnltxformalblue}
+    Unused per default.
+  \colour{cnltxformalred}
+    Unused per default.
+\end{colors}
+
+\subsection{Actual Used Color Names and Color Schemes}
+
+The colors defined in section~\ref{sec:colors:definitions} are not directly
+used with those names.  Instead colors are used whose names describe their
+function rather than the color.  For this the color names are mapped to actual
+colors and saved as a coloring scheme.  There are currently three predefined
+color schemes whose definitions are given below.  Those definitions also show
+the actually used color names:
+
+The `default' color scheme is defined as follows:
+\begin{sourcecode}
+  \cnltx@define@colorscheme{default}{
+    cs          => cnltxbrown , % command sequences
+    option      => cnltxyellow ,% options
+    comment     => cnltxgray ,  % comments
+    beginend    => red ,        % \begin and \end
+    env         => black ,      % environment names
+    argument    => black ,      % argument delimiters
+    meta        => black!80 ,   % arguments of \meta
+    cnltx       => cnltxred ,   % base color
+    cnltxbg     => white ,      % source code box background
+    link        => black!90 ,   % hyperlinks
+    versionnote => black!75     % versioning notes text 
+  }
+\end{sourcecode}
+
+The `blue' color scheme is defined this way:
+\begin{sourcecode}
+  \cnltx@define@colorscheme{blue}{
+    cs          => cnltxbrown ,
+    option      => cnltxgreen ,
+    comment     => cnltxgray ,
+    beginend    => red ,
+    env         => black ,
+    argument    => black ,
+    meta        => black!80 ,
+    cnltx       => cnltxblue ,
+    cnltxbg     => yellow!10 ,
+    link        => cnltx ,
+    versionnote => black!75
+  }
+\end{sourcecode}
+
+Finally the `formal' color scheme is defined like this:
+\begin{sourcecode}
+  \cnltx@define@colorscheme{formal}{
+    cs          => black ,
+    option      => cnltxformalblue ,
+    comment     => cnltxgray ,
+    beginend    => red ,
+    env         => black ,
+    argument    => black ,
+    meta        => black!80 ,
+    cnltx       => cnltxformalblue ,
+    cnltxbg     => white ,
+    link        => black!90 ,
+    versionnote => black!75
+  }
+\end{sourcecode}
 
 \section{Internal Helper Commands}
 
@@ -638,6 +731,9 @@ The commands in this section are only described for the sake of completeness.
 They are not meant to be used in a document.
 
 \subsection{Defined by \cnltxbase}
+
+Especially \cnltxbase\ defines some useful helper macros that are also used by
+the other packages and classes.
 
 \begin{commands}
   \command{cnltx\at\at date}
@@ -666,26 +762,18 @@ They are not meant to be used in a document.
     they're passed as argumenst to \meta{cs}.
   \command{cnltx\at stripbs}
     A shortcut for \lstinline[style=cnltx]+\expandafter\@gobble\string+.
+  \command{cnltx\at if\at in}[\marg{tokenlist}\marg{search}\marg{true}\marg{false}]
+    Places \meta{true} in the input stream if \meta{search} is found in
+    \meta{tokenlist} and \meta{false} if it isn't.
+  \command{cnltx\at replace\at once}[\marg{cs}\marg{search}\marg{replace}]
+    Replaces the first occurence of \meta{search} in the first expansion of
+    \meta{cs} with \meta{replace}.
+  \command{cnltx\at replace\at all}[\marg{cs}\marg{search}\marg{replace}]
+    Replaces all occurences of \meta{search} in the first expansion of
+    \meta{cs} with \meta{replace}.
   \command{cnltx\at define\at colorscheme}[\marg{name}\marg{scheme definition}]
     Command that can be used to define a color scheme.
 \end{commands}
-
-The `default' color scheme is defined as follows:
-\begin{sourcecode}
-  \cnltx@define@colorscheme{default}{
-    cs          => brown ,
-    option      => cnltxyellow ,
-    comment     => cnltxgray ,
-    beginend    => red ,
-    env         => black ,
-    argument    => black ,
-    meta        => black!80 ,
-    cnltx       => cnltxred ,
-    cnltxbg     => white ,
-    link        => black!90 ,
-    versionnote => black!75
-  }
-\end{sourcecode}
 
 \subsection{Defined by \cnltxexample}
 
@@ -711,7 +799,8 @@ The `default' color scheme is defined as follows:
     Used in definitions of the key/value option typesetting commands.
   \command{indexcs}
     Version of \cs{csidx} that takes care of a \cs*{textcompwordmark} inserted
-    by listings.  Used to index commands in the \env{sourcecode} and
+    by listings. Also replaces all occurences of @ with category code 11 or 12
+    with \cs{at}. Used to index commands in the \env{sourcecode} and
     \env{example} environments that have been added with \option{add-cmds}.
   \command{newarg}[\marg{cs}\marg{left delim}\marg{right delim}]
     Command used to define the argument commands:
@@ -720,8 +809,6 @@ The `default' color scheme is defined as follows:
     Sets the category code of \code{\%} to 14.
   \command{cnltx\at copyablespace}
     Prints a space that is also copyable.  Uses the \pkg{accsupp}.
-  \command{cnltx\at predefined\at control\at sequences}
-    A comma-separated list of predefind `silent' control sequence names.
   \command{cnltx\at mdframed\at options}
     Predefined option list for the \pkg{mdframed} style \code{cnltx}.
   \command{cnltx\at listings\at style}
@@ -739,8 +826,31 @@ The `default' color scheme is defined as follows:
     Issue a warning message using \cs*{PackageWarningNoLine}.
   \command{cnltx\at doc\at info}[\marg{message}]
     Issue a message using \cs*{PackageInfo}.
+  \command{cnltx\at getfileinfo}[\marg{file name}\marg{file extension}]
+    Extract the date, version and background information for a package or a
+    class.
+  \command{cnltx\at newname}[\marg{cs}\marg{first name}{last name}]
+    Defines \meta{cs} to write out the name and add an index entry.  Also
+    defines a starred variant that only writes the last name but still adds an
+    index entry.
+  \command{cnltx\at version\at note}[\marg{note}]
+    Command that is used for the versioning notes interally.  Sets
+    \cs*{reversemarginpar} and then writes the note \meta{note} to the margin
+    with corresponding formatting.
 \end{commands}
-  
+\begin{environments}
+  \environment{cnltxlist}
+    The list environment that is used by the environments \env{commands},
+    \env{options} and \env{environments}.
+\end{environments}
+
+\subsection{Defined by \cnltxcsnames}
+
+\begin{commands}
+  \command{cnltx\at predefined\at control\at sequences}
+    A comma-separated list of predefind `silent' control sequence names.
+\end{commands}
+
 \printindex
 
 \end{document}
