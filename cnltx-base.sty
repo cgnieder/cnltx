@@ -1,0 +1,129 @@
+\def\cnltx@@date{2013/09/08}
+\def\cnltx@@version{v0.0}
+\def\cnltx@@info{LaTeX examples the CN way}
+\ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
+\RequirePackage{pgfopts,etoolbox}
+
+% --------------------------------------------------------------------------
+% message handling
+\def\cnltx@error@message{%
+  For details have a look at the `translations' manual.}
+
+\def\cnltx@create@message#1{%
+  \ifstrequal{#1}{Error}
+    {%
+      \lowercase{\csdef{cnltx@#1}}##1{%
+        \csuse{Package#1}{cnltxample}{##1}{\cnltx@error@message}}%
+    }{%
+      \lowercase{\csdef{cnltx@#1}}##1{%
+        \csuse{Package#1}{cnltxample}{##1}}%
+    }}
+\cnltx@create@message{Error}
+\cnltx@create@message{Warning}
+\cnltx@create@message{WarningNoLine}
+\cnltx@create@message{Info}
+
+% --------------------------------------------------------------------------
+% expansion helper:
+% \exp_args:Nx
+\def\cnltx@fullexpand@onearg#1#2{%
+  \begingroup
+  \edef\cnltx@x{\endgroup
+    \noexpand#1{#2}%
+  }%
+  \cnltx@x
+}
+
+% \exp_args:Nxx
+\def\cnltx@fullexpand@twoargs#1#2#3{%
+  \begingroup
+  \edef\cnltx@x{\endgroup
+    \noexpand#1{#2}{#3}%
+  }%
+  \cnltx@x
+}
+
+% --------------------------------------------------------------------------
+% colors definitions:
+\RequirePackage{xcolor}
+\RequirePackage{trimspaces}
+
+\xdefinecolor{cnltxbrown}{rgb}{0.60,0.25,0.15}
+\xdefinecolor{cnltxblue}{rgb}{0.02,0.04,0.48}
+\xdefinecolor{cnltxred}{rgb}{0.65,0.04,0.07}
+\xdefinecolor{cnltxgreen}{rgb}{0.06,0.44,0.08}
+\xdefinecolor{cnltxgray}{gray}{0.5}
+\colorlet{cnltxyellow}{yellow!40!brown}
+\xdefinecolor{cnltxformalblue}{rgb}{0,0.2,0.6}
+\xdefinecolor{cnltxformalred}{rgb}{0.8,0.1,0.2}
+
+% set a color-scheme for the manual:
+\def\cnltx@define@colorscheme#1#2{%
+  \csgdef{cnltx@color@scheme@#1}{}%
+  \forcsvlist{\cnltx@get@color{#1}}{#2}%
+}
+\def\cnltx@get@color#1#2{\cnltx@get@color@aux{#1}#2\q@stop}
+\def\cnltx@get@color@aux#1#2=>#3\q@stop{%
+  \listcsgadd{cnltx@color@scheme@#1}{%
+    \colorlet{\trim@spaces{#2}}{\trim@spaces{#3}}%
+  }%
+}
+
+\def\cnltx@use@colorscheme#1{%
+  \forlistcsloop{\@firstofone}{cnltx@color@scheme@#1}%
+}
+
+\pgfkeys{
+  cnltx/.cd,
+    color-scheme/.code = \cnltx@use@colorscheme{#1}
+}
+
+
+
+% predefined color-schemes:
+\cnltx@define@colorscheme{default}{
+  cs           => brown ,
+  option       => cnltxyellow ,
+  comment      => cnltxgray ,
+  beginend     => red ,
+  env          => black ,
+  argument     => black ,
+  meta         => black!80 ,
+  cnltxample   => cnltxred ,
+  cnltxamplebg => white ,
+  link         => black!90 ,
+  versionnote  => black!75
+}
+
+\cnltx@define@colorscheme{blue}{
+  cs           => brown ,
+  option       => cnltxgreen ,
+  comment      => cnltxgray ,
+  beginend     => red ,
+  env          => black ,
+  argument     => black ,
+  meta         => black!80 ,
+  cnltxample   => cnltxblue ,
+  cnltxamplebg => yellow!10 ,
+  link         => cnltxample ,
+  versionnote  => black!75
+}
+
+\cnltx@define@colorscheme{formal}{
+  cs           => black ,
+  option       => cnltxformalblue ,
+  comment      => cnltxgray ,
+  beginend     => red ,
+  env          => black ,
+  argument     => black ,
+  meta         => black!80 ,
+  cnltxample   => cnltxformalblue ,
+  cnltxamplebg => white ,
+  link         => black!90 ,
+  versionnote  => black!75
+}
+
+% set the default:
+\pgfkeys{/cnltx/color-scheme=default}
+
+\endinput
