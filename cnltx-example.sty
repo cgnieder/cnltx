@@ -47,9 +47,13 @@
 
 % --------------------------------------------------------------------------
 % who knows what they might be good for -- well, for indexing:
-\newrobustcmd*\at{@}
-\newrobustcmd*\bang{!}
-\newrobustcmd*\equal{=}
+\newrobustcmd*\cnltxat{@}
+\let\cnltxletterat\cnltxat
+\makeatother
+\newrobustcmd*\cnltxotherat{@}
+\makeatletter
+\newrobustcmd*\cnltxbang{!}
+\newrobustcmd*\cnltxequal{=}
 
 % --------------------------------------------------------------------------
 % \code
@@ -68,18 +72,14 @@
 % see http://tex.stackexchange.com/a/114580/5049 for reference on the `nolig'
 % trick, thanks to @egreg!
 
-\makeatother
-\expandafter\def\csname cnltx@other@at\endcsname{@}
-\makeatletter
-
 \newcommand\indexcs[1]{%
   \begingroup
     \let\lst@nolig\@empty
     \def\cnltx@tmp@index{#1}%
     \expandafter\cnltx@replace@all
       \expandafter\cnltx@tmp@index
-      \expandafter{\cnltx@other@at}{\at}%
-    \cnltx@replace@all\cnltx@tmp@index{@}{\at}%
+      \expandafter{\cnltxotherat}{\cnltxat}%
+    \cnltx@replace@all\cnltx@tmp@index{@}{\cnltxat}%
     \expandafter\csidx\expandafter{\cnltx@tmp@index}%
   \endgroup
 }
@@ -93,15 +93,26 @@
 
 % --------------------------------------------------------------------------
 % option descriptions:
-\def\cnltx@equal{%
+\def\cnltx@isvalue{%
   \nobreak\hskip.3333em plus .1667em =\hskip.3333em plus .1667em }
 
 % \option
 \newidxcmd\option{\code{\textcolor{option}{#1}}}
 \newcommand*\key{\@ifstar{\cnltx@key@star}{\cnltx@key@nostar}}
 
-\def\cnltx@key@star#1#2{\code{\option{#1}\cnltx@equal\meta{#2}}}
-\def\cnltx@key@nostar#1#2{\code{\option{#1}\cnltx@equal\marg{#2}}}
+\def\cnltx@key@star{%
+  \cnltx@ifdash
+    {\cnltx@key@aux*\meta}
+    {\cnltx@key@aux*\marg}%
+}
+\def\cnltx@key@nostar{%
+  \cnltx@ifdash
+    {\cnltx@key@aux{}\meta}
+    {\cnltx@key@aux{}\marg}%
+}
+\def\cnltx@key@aux#1#2#3#4{%
+  \code{\option#1{#3}\cnltx@isvalue#2{#4}}%
+}
 
 % \DeclareListParser*\cnltx@choices{|}
 \newcommand*\choices[1]{%
@@ -118,9 +129,9 @@
     {\cnltx@choicekey@nostar}%
 }
 \def\cnltx@choicekey@star#1#2{%
-  \code{\option*{#1}\cnltx@equal\choices{#2}}}
+  \code{\option*{#1}\cnltx@isvalue\choices{#2}}}
 \def\cnltx@choicekey@nostar#1#2{%
-  \code{\option{#1}\cnltx@equal\choices{#2}}}
+  \code{\option{#1}\cnltx@isvalue\choices{#2}}}
 
 \newcommand*\boolkey{%
   \@ifstar
@@ -227,17 +238,6 @@
   moretexcs        = [2]{begin,end},
   % environments:
   texcsstyle       = [3]\color{env},
-  moretexcs        = [3]
-    {
-      center,
-      description,document,
-      enumerate,
-      figure,flushleft,flushright,
-      itemize,
-      labeling,
-      otherlanguage,
-      table,tabu,tabular
-    },
   index            = [3][texcs3],
   indexstyle       = [3]\@gobble,
   % control sequences:
@@ -280,9 +280,9 @@
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
   }%
 }
-
-\expandafter\cnltx@addsilentcmds\expandafter{%
-  \cnltx@predefined@control@sequences}
+\cnltx@expand@arg
+  \cnltx@addsilentcmds
+  \cnltx@predefined@control@sequences
 
 \def\cnltx@addenvs#1{%
   \cnltx@fullexpand@twoargs
@@ -293,6 +293,20 @@
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
   }%
 }
+
+\def\cnltx@addsilentenvs#1{%
+  \cnltx@fullexpand@twoargs
+    \lstdefinestyle
+      {cnltx}
+      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
+  \edef\cnltx@listings@style{%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}%
+  }%
+}
+
+\cnltx@expand@arg
+  \cnltx@addsilentenvs
+  \cnltx@predefined@environments
 
 \def\cnltx@addlistingsoptions#1{%
   \cnltx@fullexpand@twoargs
@@ -353,6 +367,7 @@
     add-listings-options/.code = \cnltx@addlistingsoptions{#1} ,
     listings-options/.code     = \lstdefinestyle{cnltx}{#1} ,
     add-envs/.code             = \cnltx@addenvs{#1} ,
+    add-silent-envs/.code      = \cnltx@addsilentenvs{#1} ,
 }
 
 \newcommand*\cnltx@examplesep{\hrulefill}

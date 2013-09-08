@@ -37,17 +37,19 @@
     options, \ldots).%
   } ,
   add-cmds = {
-    cnltx@define@colorscheme,
+    changedversion,
+    cnltx@define@colorscheme,cnltxat,cnltxbang,cnltxequal,
     code,codefont,command,cs,csidx,
     darg,Default,default,
     env,environment,
     key,keybool,keychoice,keyval,
     marg,
-    newarg,
+    newarg,newname,newnote,newpackagename,
     oarg,
     opt,option,
-    sarg,setcnltx
+    sarg,setcnltx,sinceversion
   },
+  add-silent-cmds = {at,carlisle,foothree} ,
   add-envs = {
     commands,
     environments,
@@ -59,19 +61,13 @@
   }
 }
 
-\makeatletter
-\def\cnltxbase{\cnltx@package@name@format{cnltx-base}}
-\def\cnltxexample{\cnltx@package@name@format{cnltx-example}}
-\def\cnltxcsnames{\cnltx@package@name@format{cnltx-csnames}}
-\def\cnltxdoc{\cnltx@package@name@format{cnltx-doc}}
+\newpackagename\cnltxbase{cnltx-base}
+\newpackagename\cnltxexample{cnltx-example}
+\newpackagename\cnltxcsnames{cnltx-csnames}
+\newpackagename\cnltxdoc{cnltx-doc}
 
-\newrobustcmd\bypackage{%
-  \cnltx@version@note{provided by the \cnltxexample\ package}%
-}
-\newrobustcmd\byclass{%
-  \cnltx@version@note{provided by the \cnltxdoc\ class}%
-}
-\makeatother
+\newnote*\bypackage{provided by the \cnltxexample\ package}
+\newnote*\byclass{provided by the \cnltxdoc\ class}
 
 \newcommand*\file[1]{\code{#1}}
 
@@ -82,8 +78,9 @@
   }
   {\endcnltxlist}
 
-% \usepackage{showframe}
-% \usepackage{kantlipsum}
+\def\at{\cnltxat}
+\def\bang{\cnltxbang}
+\def\equal{\cnltxequal}
 
 \begin{document}
 
@@ -106,11 +103,19 @@ The \cnltx\ bundle currently bundles the following packages and classes:
   \item \cnltxbase\ -- defines base macros for error-messaging, expansion
     control and tokenlist manipulation.  It also provides color definitions
     and defines a few color schemes for the \cnltxdoc\ class.  All other
-    packages and classes of the cnbundle load this package.
+    packages and classes of the cnbundle load this package.\par
+    This package can be loaded alone.
   \item \cnltxexample\ -- defines macros and environments for describing
-    control sequences and options and for including source code.
+    control sequences and options and for including source code.\par
+    This package can be loaded alone.
   \item \cnltxcsnames\ -- defines a list of highlighted control sequence
-    names, loaded by \cnltxexample.
+    names, loaded by \cnltxexample.\par
+    It does not make sense to load this package directly: it only defines a
+    single macro containing the list of control sequence names.  The package
+    only exists for maintanance reasons.\par
+    The list is by no means comprehensive.  If you like to extend it feel free
+    to fork the github repo (\url{\csname cnltx@package@url\endcsname}).
+    That would be very much appreciated.
   \item \cnltxdoc\ -- a class for writing package manuals.  Loads
     \cnltxexample.
 \end{itemize}
@@ -123,6 +128,8 @@ The \cnltxbase\ package loads the following packages:
 \pkg{etoolbox}\footnote{\CTANurl{etoolbox}},
 \pkg{trimspaces}\footnote{\CTANurl{trimspaces}} and
 \pkg{xcolor}\footnote{\CTANurl{xcolor}}.
+
+The \cnltxcsnames\ package only loads \cnltxbase.
 
 The \cnltxexample\ package loads the following packages:
 \cnltxbase, \pkg{listings}\footnote{\CTANurl{listings}},
@@ -197,10 +204,11 @@ macros, options and the like.
     corresponding index entry.  The starred form does not add an index entry.
   \command{optionidx}[\marg{name}]
     Adds an index entry but does not typeset the option \meta{name}.
-  \command{key}[\sarg\marg{name}\marg{values}]
-    A key \meta{name} with values \meta{values},
+  \command{key}[\sarg\code{-}\marg{name}\marg{values}]
+    A key \meta{name} with values \meta{values}, the optional star prevents an
+    index entry, the  optional \code{-} strips the braces around \meta{value};
     \cs{key}\code{\{key\}}\code{\{value\}}: \key{key}{value};
-    \cs{key}\sarg\code{\{key\}}\code{\{value\}}: \key*{key}{value}
+    \cs{key}\code{-}\code{\{key\}}\code{\{value\}}: \key-{key}{value}
   \command{choices}[\marg{clist of choices}]
     A list of choices, \cs{choices}\code{\{one,two,three\}}:
     \choices{one,two,three}
@@ -230,6 +238,17 @@ world wide web.
     \sinceversion{0.0}Gives a sidenote like the one on the left.
   \command{changedversion}[\marg{version}]
     \changedversion{0.0}Gives a sidenote like the one on the left.
+  \command{newnote}[\sarg\marg{cs}\oarg{num}\marg{definition}]
+    Defines a note like \cs{sinceversion}.  The star makes the note macro
+    short, \meta{num} defines the number of mandatory arguments.  Optional
+    arguments are not possible.  \cs{sinceversion} was defined as follows:
+    \lstinline[style=cnltx]+\newnote*\sinceversion[1]{Introduced in version~#1}+
+  \command{newpackagename}[\marg{cs}\marg{name}]
+    Define a comand \meta{cs} that prints \meta{name} formatted like \cnltx.
+  \command{newname}[\marg{cs}\marg{first name}\marg{second name}]
+    Defines \meta{cs} to write out the full name and add an index entry sorted
+    by the last name.  Also defines a starred variant of \meta{cs} that only
+    writes the last name but still adds the full index entry.
   \command{lppl}
     Typesets ``\lppl'' and adds a corresponding index entry.
   \command{LPPL}
@@ -250,10 +269,21 @@ world wide web.
     starred variant adds nothing to the index.
   \command{clsidx}[\marg{class}]
     \bypackage Add an index entry for the class \meta{class}.
-  \command{CTANurl}[\oarg[directory]\marg{name}]
+  \command{CTANurl}[\oarg{directory}\marg{name}]
     Writes a \ctan\ link like the ones in section~\ref{sec:license} in the
-    footnotes.  The predefined directory is \code{macros/latex/contrib}.
+    footnotes.  The predefined directory is \code{macros/latex/contrib}.  The
+    link address will be:\par
+    \code{http://mirrors.ctan.org/\meta{directory}/\meta{name}/}.
 \end{commands}
+
+\begin{example}
+  \newpackagename{\foothree}{foo-3}%
+  now \foothree\ looks like \cnltx.
+
+  \newname\carlisle{David}{Carlisle}%
+  \carlisle\ is a well-known member of the \LaTeX\ community.  \carlisle* is
+  the author of many packages such as \pkg*{longtable}.
+\end{example}
 
 \subsection{Formatting Commands}\label{sec:cmds:formatting}
 
@@ -403,8 +433,10 @@ different kinds of options.
 \begin{commands}
   \command{opt}[\sarg]
     An option.  The star prevents an index entry.
-  \command{keyval}[\sarg\marg{key}\marg{value}]
-    A key/value option.  The star prevents an index entry.
+  \command{keyval}[\sarg\code{-}\marg{key}\marg{value}]
+    A key/value option.  The optional star prevents an index entry.  The
+    optional \code{-} strips the braces around \meta{value}, see the example
+    below.
   \command{keychoice}[\sarg\marg{key}\marg{list of choices}]
     A key/value option where the value is one of a list of choices.  The star
     prevents an index entry.
@@ -425,6 +457,9 @@ different kinds of options.
       This makes stuff.  Let's add a few more words so that the line gets
       filled and we can see how the output actually looks.
     \keyval*{foo}{bar}
+      This makes stuff.  Let's add a few more words so that the line gets
+      filled and we can see how the output actually looks.
+    \keyval-{foo}{bar}
       This makes stuff.  Let's add a few more words so that the line gets
       filled and we can see how the output actually looks.
     \keychoice{foo}{one,two,three}
@@ -534,6 +569,8 @@ mentioned here.  If you're interested you can find them in
     style from scratch.
   \keyval{add-envs}{list of environment names}\Default
     Like \option{add-cmds} but for environment names.
+  \keyval{add-silent-envs}{list of environment names}
+    Like \option{add-silent-cmds} but for environment names.
 \end{options}
 
 
@@ -754,12 +791,21 @@ the other packages and classes.
     Issue a warning message using \cs*{PackageWarningNoLine}.
   \command{cnltx\at base\at info}[\marg{message}]
     Issue a message using \cs*{PackageInfo}.
-  \command{cnltx\at fullexpand\at onearg}[\marg{cs}\marg{argument}]
+  \command{cnltx\at ifsym}[\marg{token}\marg{true}marg{false}]
+    A generic version of \LaTeX's \cs*{@ifstar} that checks if \meta{token}
+    follows if the input stream.  If yes it is removed and \meta{true} is
+    placed in the input stream else \meta{false}.
+  \command{cnltx\at ifdash}[\marg{true}\marg{false}]
+    A wrapper for \lstinline[style=cnltx]+\cnltx@ifsym{-}+.
+  \command{cnltx\at expand\at arg}[\marg{cs}\marg{macro}]
+    Expands \meta{macro} once before it is passed as argument to \meta{cs}.
+  \command{cnltx\at fullexpand\at arg}[\marg{cs}\marg{argument}]
     Exhaustive expansion of \meta{argument} before it is passed as argument to
     \meta{cs}.
   \command{cnltx\at fullexpand\at twoargs}[\marg{cs}\marg{argument1}\marg{argument2}]
     Exhaustive expansion of \meta{argument1} and \meta{argument2} before
-    they're passed as argumenst to \meta{cs}.
+    they're passed as argumenst to \meta{cs}.  This is an alias of the kernel
+    command \cs*{@expandtwoargs} defined for the sake of consistency.
   \command{cnltx\at stripbs}
     A shortcut for \lstinline[style=cnltx]+\expandafter\@gobble\string+.
   \command{cnltx\at if\at in}[\marg{tokenlist}\marg{search}\marg{true}\marg{false}]
@@ -786,21 +832,33 @@ the other packages and classes.
     Issue a warning message using \cs*{PackageWarningNoLine}.
   \command{cnltx\at example\at info}[\marg{message}]
     Issue a message using \cs*{PackageInfo}.
-  \command{at}
-    Robust command that typesets `\at'.  An @ in command names confuses the
-    indexing of the command names.  Either one uses another symbol for
-    makeindex's ``actual'' recognition and also tells \pkg{idxcmds} about it
-    or one uses \cs{at} in \cs{cs} and friends.
-  \command{bang}
-    Robust command that typesets `\bang'.
-  \command{equal}
-    Robust command that typesets `\equal'.
-  \command{cnltx\at equal}
-    Used in definitions of the key/value option typesetting commands.
+  \command{cnltxat}
+    Robust command that typesets `\at' with category code 11.  An @ in command
+    names confuses the indexing of the command names.  Either one uses another
+    symbol for makeindex's ``actual'' recognition and also tells \pkg{idxcmds}
+    about it or one uses \cs{cnltxat} in \cs{cs} and friends.  For the
+    sake of convenience you can define a command like \cs*{at} that expands to
+    it\footnote{This is important.  If you \cs*{let} it to \cs{cnltxat} index
+      entries may be sorted differently! Remember: \cs{cnltxat} is robust.}.
+    In order not to overwrite any such existing macro it is not defined by
+    \cnltxexample.  This document for example defines
+    \lstinline[style=cnltx]+\def\at{\cnltxat}+.
+  \command{cnltxletterat}
+    An alias of \cs{cnltxat}.
+  \command{cnltxotherat}
+    The same as \cs{cnltxat} but with a `\at' with category code 12.
+  \command{cnltxbang}
+    The same as \cs{cnltxotherat} except that it contains a `\bang'.
+  \command{cnltxequal}
+    The same as \cs{cnltxotherat} except that it contains a `\equal'.
+  \command{cnltx\at isvalue}
+    Used in definitions of the key/value option typesetting commands.  Inserts
+    a \code{=} with some stretchable space around and a legal break-point
+    after it.
   \command{indexcs}
     Version of \cs{csidx} that takes care of a \cs*{textcompwordmark} inserted
     by listings. Also replaces all occurences of @ with category code 11 or 12
-    with \cs{at}. Used to index commands in the \env{sourcecode} and
+    with \cs{cnltxat}. Used to index commands in the \env{sourcecode} and
     \env{example} environments that have been added with \option{add-cmds}.
   \command{newarg}[\marg{cs}\marg{left delim}\marg{right delim}]
     Command used to define the argument commands:
@@ -829,10 +887,6 @@ the other packages and classes.
   \command{cnltx\at getfileinfo}[\marg{file name}\marg{file extension}]
     Extract the date, version and background information for a package or a
     class.
-  \command{cnltx\at newname}[\marg{cs}\marg{first name}{last name}]
-    Defines \meta{cs} to write out the name and add an index entry.  Also
-    defines a starred variant that only writes the last name but still adds an
-    index entry.
   \command{cnltx\at version\at note}[\marg{note}]
     Command that is used for the versioning notes interally.  Sets
     \cs*{reversemarginpar} and then writes the note \meta{note} to the margin
@@ -849,6 +903,8 @@ the other packages and classes.
 \begin{commands}
   \command{cnltx\at predefined\at control\at sequences}
     A comma-separated list of predefind `silent' control sequence names.
+  \command{cnltx\at predefined\at environments}
+    A comma-separated list of predefind `silent' environment names.
 \end{commands}
 
 \printindex

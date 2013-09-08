@@ -112,6 +112,11 @@
 
 \def\cnltx@package@name@format#1{\textcolor{cnltx}{\textsc{#1}}}
 
+\def\cnltx@newpackagename#1#2{%
+  \newcommand*#1{\cnltx@package@name@format{#2}}%
+}
+\newrobustcmd*\newpackagename{\cnltx@newpackagename}
+
 % --------------------------------------------------------------------------
 % authors an other names:
 \newcommand*\cnltx@name@first[1]{#1}
@@ -132,11 +137,18 @@
     }%
 }
 \def\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
- 
-\newcommand*\cnltx@newname[3]{%
+
+\newrobustcmd*\cnltx@newname[3]{%
   \csdef{\cnltx@stripbs#1@short}{\cnltx@name@base{#3}\cnltx@name@idx{#3, #2}}%
   \csdef{\cnltx@stripbs#1@long}{\cnltx@name@base{#2 #3}\cnltx@name@idx{#3, #2}}%
-  \newcommand*#1{\@ifstar{\csuse{\cnltx@stripbs#1@short}}{\csuse{\cnltx@stripbs#1@long}}}}
+  \newrobustcmd*#1{%
+    \@ifstar
+      {\csuse{\cnltx@stripbs#1@short}}
+      {\csuse{\cnltx@stripbs#1@long}}%
+    }%
+}
+
+\newrobustcmd*\newname{\cnltx@newname}
 
 \def\cnltx@package@author@list{}
 \def\cnltx@new@author#1{%
@@ -163,17 +175,17 @@
 \pgfkeys{
   cnltx/.cd,
     package/.code =
-      \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}
+      \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
       \@ifpackageloaded{#1}{\cnltx@getfileinfo{#1}{sty}}{}
       \booltrue{cnltx@package@name} ,
     class/.code =
-      \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}
+      \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
       \@ifclassloaded{#1}{\cnltx@getfileinfo{#1}{cls}}{}
       \booltrue{cnltx@package@name} ,
     name/.code =
-      \ifcsdef{#1}{}{\csdef{#1}{\cnltx@package@name@format{#1}}}
+      \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
       \booltrue{cnltx@package@name} ,
     title/.code =
@@ -268,14 +280,25 @@
 % option descriptions:
 \def\@cnltx@option@item#1{%
   \@ifstar
-    {\@cnltx@option@item@aux{#1}{*}}
-    {\@cnltx@option@item@aux{#1}{}}%
+    {\@cnltx@option@item@aux@star{#1}}
+    {\@cnltx@option@item@aux@nostar{#1}}%
 }
 
-\def\@cnltx@option@item@aux#1#2#3{%
+\def\@cnltx@option@item@aux@star#1{%
+  \cnltx@ifdash
+    {\@cnltx@option@item@aux{#1}*-}
+    {\@cnltx@option@item@aux{#1}*{}}%
+}
+\def\@cnltx@option@item@aux@nostar#1{%
+  \cnltx@ifdash
+    {\@cnltx@option@item@aux{#1}{}-}
+    {\@cnltx@option@item@aux{#1}{}{}}%
+}
+
+\def\@cnltx@option@item@aux#1#2#3#4{%
   \@ifnextchar\bgroup
-    {\@cnltx@option@two{#1#2}{#3}}
-    {\@cnltx@option@one{#1#2}{#3}}%
+    {\@cnltx@option@two{#1#2#3}{#4}}
+    {\@cnltx@option@one{#1#2#3}{#4}}%
 }
 
 \def\@cnltx@option@one#1#2{%
@@ -437,7 +460,7 @@
     version-note-format/.code = \renewcommand*\versionnoteformat{#1} ,
 }
 
-\def\cnltx@version@note#1{%
+\long\def\cnltx@version@note#1{%
   \@bsphack
   \begingroup
     \reversemarginpar
@@ -450,13 +473,27 @@
   \@esphack
 }
 
-\newrobustcmd\sinceversion[1]{%
-  \cnltx@version@note{Introduced in version\nobreakspace #1}%
+\def\cnltx@newnote{%
+  \@ifstar
+    {\cnltx@newnote@aux{*}}
+    {\cnltx@newnote@aux{}}%
 }
 
-\newrobustcmd\changedversion[1]{%
-  \cnltx@version@note{Changed in version\nobreakspace #1}%
+\def\cnltx@newnote@aux#1#2{%
+  \@ifnextchar[%]
+    {\cnltx@newnote@aux@i{#1}{#2}}
+    {\cnltx@newnote@aux@i{#1}{#2}[0]}%
 }
+\long\def\cnltx@newnote@aux@i#1#2[#3]#4{%
+  \ifblank{#1}
+    {\newrobustcmd#2[#3]{\cnltx@version@note{#4}}}
+    {\newrobustcmd*#2[#3]{\cnltx@version@note{#4}}}%
+}
+
+\newrobustcmd\newnote{\cnltx@newnote}
+
+\newnote*\sinceversion[1]{Introduced in version~#1}
+\newnote*\changedversion[1]{Changed in version~#1}
 
 % --------------------------------------------------------------------------
 % hyperlinks:

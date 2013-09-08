@@ -31,7 +31,7 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \def\cnltx@@date{2013/09/08}
-\def\cnltx@@version{v0.0}
+\def\cnltx@@version{v0.1}
 \def\cnltx@@info{LaTeX examples the CN way}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox}
@@ -60,9 +60,13 @@
 \newrobustcmd\setcnltx[1]{\pgfqkeys{/cnltx}{#1}}
 
 % --------------------------------------------------------------------------
-% expansion helper:
+% expansion helpers and tokenlist manipulation:
+
+\def\cnltx@ifsym#1#2{\@ifnextchar#1{\@firstoftwo{#2}}}
+\def\cnltx@ifdash{\cnltx@ifsym{-}}
+
 % \exp_args:Nx
-\def\cnltx@fullexpand@onearg#1#2{%
+\long\def\cnltx@fullexpand@arg#1#2{%
   \begingroup
   \edef\cnltx@x{\endgroup
     \noexpand#1{#2}%
@@ -71,12 +75,11 @@
 }
 
 % \exp_args:Nxx
-\def\cnltx@fullexpand@twoargs#1#2#3{%
-  \begingroup
-  \edef\cnltx@x{\endgroup
-    \noexpand#1{#2}{#3}%
-  }%
-  \cnltx@x
+\let\cnltx@fullexpand@twoargs\@expandtwoargs
+
+% \exp_args:NV
+\long\def\cnltx@expand@arg#1#2{%
+  \expandafter#1\expandafter{#2}%
 }
 
 \def\cnltx@stripbs{\expandafter\@gobble\string}
