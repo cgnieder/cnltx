@@ -2,6 +2,8 @@
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
+\usepackage{array,booktabs}
+
 \usepackage{filecontents}
 
 \usepackage{imakeidx}
@@ -17,8 +19,8 @@
  suffix_2p "\\nohyperpage{\\,f.}"
  suffix_3p "\\nohyperpage{\\,ff.}"
 \end{filecontents*}
-\indexsetup{othercode=\footnotesize}
-\makeindex[options={-s \jobname.ist},intoc,columns=2,columnsep=1em]
+\indexsetup{othercode=\footnotesize,level=\section}
+\makeindex[options={-s \jobname.ist},columns=2,columnsep=1em]
 
 \setcnltx{
   name     = cnltx ,
@@ -38,7 +40,9 @@
   } ,
   add-cmds = {
     changedversion,
-    cnltx@define@colorscheme,cnltxat,cnltxbang,cnltxequal,
+    cnltx@define@colorscheme,cnltx@gobble,cnltx@ifsym,
+    cnltx@listings@style,cnltx@mdframed@options,
+    cnltxat,cnltxbang,cnltxequal,
     code,codefont,command,cs,csidx,
     darg,Default,default,
     env,environment,
@@ -47,9 +51,13 @@
     newarg,newname,newnote,newpackagename,
     oarg,
     opt,option,
-    sarg,setcnltx,sinceversion
+    sarg,setcnltx,sinceversion,sourceformat
   },
-  add-silent-cmds = {at,carlisle,foothree} ,
+  add-silent-cmds = {
+    at,
+    carlisle,
+    foothree
+  } ,
   add-envs = {
     commands,
     environments,
@@ -64,12 +72,18 @@
 \newpackagename\cnltxbase{cnltx-base}
 \newpackagename\cnltxexample{cnltx-example}
 \newpackagename\cnltxcsnames{cnltx-csnames}
+\newpackagename\cnltxtools{cnltx-tools}
 \newpackagename\cnltxdoc{cnltx-doc}
 
-\newnote*\bypackage{provided by the \cnltxexample\ package}
+\newnote*\bypackage[1]{provided by the \csname cnltx#1\endcsname\ package}
 \newnote*\byclass{provided by the \cnltxdoc\ class}
 
+\newname\oberdiek{Heiko}{Oberdiek}
+
 \newcommand*\file[1]{\code{#1}}
+\newcommand*\latin[1]{\textit{#1}}
+
+\newcommand*\PDF{\cnltxacronym{PDF}{pdf}}
 
 \newenvironment{colors}
   {%
@@ -84,70 +98,92 @@
 
 \begin{document}
 
+\part{About The Bundle}
+
 \section{Background}
 
-The \cnltx\ bundle contains of different packages and classes.  I developed
-them as a successor of a class that I used for writing the documentation of my
-packages with the intention of a cleaner interface and less unnecessary
-ballast.  Hence the separation into package and class.  The package provides a
-source code environment that also prints the output and defines quite a number
-of macros for formatting of control sequence names, package names, package
-options and so on.  The best documentation for the bundle as always is the
-source code but I'm trying to provide a documentation as comprehensive as
-possible.
+The \cnltx\ bundle contains different packages and classes.  I developed
+it as a successor of my class \cls{cnpkgdoc} that I used for writing the
+documentation of my packages.   The intention behind this is a cleaner
+interface and less unnecessary ballast, hence the separation into packages and
+classes.  The bundle provides source code environments that also print the
+output and defines quite a number of macros for formatting of control sequence
+names, package names, package options and so on.
+
+Part of the motivation is also that users have asked me how I created the
+manuals for my packages.  Now I can refer to this bundle.
+
+Another reason for the splitting into separate packages is -- besides the
+advantage of easier maintenance -- is that I may want to add programming tools
+that I use often into \cnltxbase\ which may allow me (and others) to use them
+for other packages, too, without having to define them each time.  So it is
+quite possible that \cnltxbase\ will get extended in the future.
+
+The best documentation for the bundle as always is the source code of the
+\file{sty} and \file{cls} files but I'm trying to provide a documentation as
+comprehensive as possible.  This is one of the reasons why this documentation
+is noticeably longer than the one for \cls{cnpkgdoc}.
+
+The bundle reflects the fact that I haven't started using literate
+programming, yet.  I don't use \code{docstrip} and don't write \file{dtx}
+files but always write the \file{sty} or \code{cls} files directly.  The
+manual is always created parallel but separately.  While I'm entirely aware of
+the advantages of literate programming I never could bring myself to start
+to use it myself.  As a consequence I have no idea if this bundle can be used
+for it or not.
 
 \section{Bundled Packages and Classes}
 
 The \cnltx\ bundle currently bundles the following packages and classes:
 \begin{itemize}
-  \item \cnltxbase\ -- defines base macros for error-messaging, expansion
-    control and tokenlist manipulation.  It also provides color definitions
-    and defines a few color schemes for the \cnltxdoc\ class.  All other
-    packages and classes of the cnbundle load this package.\par
+  \item \cnltxbase\ -- a package that defines base macros for error-messaging,
+    expansion control and tokenlist manipulation.  It also provides color
+    definitions and defines a few color schemes for the \cnltxdoc\ class.  All
+    other packages and classes of the cnbundle load this package.\par
     This package can be loaded alone.
-  \item \cnltxexample\ -- defines macros and environments for describing
-    control sequences and options and for including source code.\par
+  \item \cnltxexample\ -- a package that defines macros and environments for
+    describing control sequences and options and for including source code.\par
     This package can be loaded alone.
-  \item \cnltxcsnames\ -- defines a list of highlighted control sequence
-    names, loaded by \cnltxexample.\par
+  \item \cnltxcsnames\ -- a package that defines a list of highlighted control
+    sequence names, loaded by \cnltxexample.\par
     It does not make sense to load this package directly: it only defines a
     single macro containing the list of control sequence names.  The package
     only exists for maintanance reasons.\par
     The list is by no means comprehensive.  If you like to extend it feel free
     to fork the github repo (\url{\csname cnltx@package@url\endcsname}).
     That would be very much appreciated.
+  \item \cnltxtools\ -- a package that defines tools used by \cnltxdoc\ that
+    are unrelated to \LaTeX\ documentation \latin{per se}.
   \item \cnltxdoc\ -- a class for writing package manuals.  Loads
-    \cnltxexample.
+    \cnltxexample\ and \cnltxtools.
 \end{itemize}
 
 \section{License and Requirements}\label{sec:license}
 \license
 
-The \cnltxbase\ package loads the following packages:
-\pkg{pgfopts}\footnote{\CTANurl{pgfopts}},
-\pkg{etoolbox}\footnote{\CTANurl{etoolbox}},
-\pkg{trimspaces}\footnote{\CTANurl{trimspaces}} and
-\pkg{xcolor}\footnote{\CTANurl{xcolor}}.
+The \cnltxbase\ package loads the following packages: \needpackage{pgfopts},
+\needpackage{etoolbox}, \needpackage{trimspaces} and \needpackage{xcolor}.
 
 The \cnltxcsnames\ package only loads \cnltxbase.
 
 The \cnltxexample\ package loads the following packages:
-\cnltxbase, \pkg{listings}\footnote{\CTANurl{listings}},
-\pkg{accsupp}\footnote{\CTANurl[macros/latex/contrib/oberdiek]{accsupp}},
-\pkg{mdframed}\footnote{\CTANurl{mdframed}} and
-\pkg{idxcmds}\footnote{\CTANurl{idxcmds}}.
+\cnltxbase, \cnltxtools, \needpackage{translations}, \needpackage{listings},
+\needpackage{mdframed} and \needpackage{idxcmds}.
+
+The \cnltxtools\ package loads \cnltxbase\ and
+\needpackage[macros/latex/contrib/oberdiek]{accsupp}.
 
 The \cnltxdoc\ class loads the package with the same name and additionally
-the following packages: \cnltxbase, \cnltxexample,
-\pkg{ulem}\footnote{\CTANurl{ulem}},
-\pkg{multicol}\footnote{\CTANurl[macros/latex/required/tools]{multicol}},
-\pkg{ragged2e}\footnote{\CTANurl[macros/latex/contrib/ms]{ragged2e}},
-\pkg{marginnote}\footnote{\CTANurl{marginnote}} and
-\pkg{hyperref}\footnote{\CTANurl{hyperref}}. It is a wrapper class for the
+the following packages: \cnltxbase, \cnltxexample, \pkg{translations},
+\needpackage{ulem}, \needpackage[macros/latex/required/tools]{multicol},
+\needpackage[macros/latex/contrib/ms]{ragged2e}, \needpackage{marginnote} and
+\needpackage{hyperref}.  It is a wrapper class for the
 \KOMAScript\ class \cls{scrartcl}\footnote{\CTANurl{koma-script}}.
 
 Like all of my packages \cnltx\ implicitly relies on an up to date \TeX\
 distribution.
+
+\part{Details of Available Commands, Environments and Options}
 
 \section{Options and Setup}
 The \cnltx\ bundle has a number of options.  The \cnltxdoc\ class only knows
@@ -166,62 +202,80 @@ locally.
 \subsection{Description of Macros, Environments and  Options}\label{sec:cmds:macros}
 
 The commands described in this section all are provided by the \cnltx\
-package\bypackage.  They all are related to the typesetting of provided
-macros, options and the like.
+package\bypackage{example}.  They all are related to the typesetting of
+provided macros, options and the like.
 
 \begin{commands}
   \command{code}[\marg{arg}]
     Formatting of source code.  This is \emph{no} verbatim command.  Used
     internally in the following commands.
+  \command{verbcode}[\meta{delim}\meta{code}\meta{delim}]
+    \sinceversion{0.2}A verbatim command that uses the same formatting as the
+    source code example environments.  This is a wrapper for \cs*{lstinline}
+    which loads the corresponding style.
   \command{cs}[\sarg\marg{name}]
-    Format the control sequence \meta{name}, \cs{cs}\code{\{name\}}:
+    Format the control sequence \meta{name}, \cs{cs}\Marg{name}:
     \cs*{name}.  Adds a corresponding index entry.  The starred form does not
     add an index entry.
   \command{csidx}[\marg{name}]
     Adds an index entry but does not typeset the control sequence
     \meta{name}.
   \command{env}[\sarg\marg{name}]
-    Format the environment \meta{name}, \cs{env}\code{\{name\}}:
+    Format the environment \meta{name}, \cs{env}\Marg{name}:
     \env*{name}.  Adds a corresponding index entry with a hint that the entry
     refers to an environment.  The starred form does not add an index entry.
   \command{envidx}[\marg{name}]
     Adds an index entry but does not typeset the environment \meta{name}.
   \command{meta}[\marg{meta}]
-    Description of an argument, \cs{meta}\code{\{meta\}}: \meta{meta}.
+    Description of an argument, \cs{meta}\Marg{meta}: \meta{meta}.
   \command{marg}[\marg{arg}]
     A mandatory argument. \meta{arg} is formatted with \cs{meta} if it is not
-    blank, \cs{marg}\code{\{arg\}}: \marg{arg}.
+    blank, \cs{marg}\Marg{arg}: \marg{arg}.
+  \command{Marg}[\marg{arg}]
+    \sinceversion{0.2}A mandatory argument. \meta{arg} is formatted with
+    \cs{code} if it is not blank, \cs{Marg}\Marg{arg}: \Marg{arg}.
   \command{oarg}[\marg{arg}]
     An optional argument. \meta{arg} is formatted with \cs{meta} if it is not
-    blank, \cs{oarg}\code{\{arg\}}: \oarg{arg}.
+    blank, \cs{oarg}\Marg{arg}: \oarg{arg}.
+  \command{Oarg}[\marg{arg}]
+    \sinceversion{0.2}An optional argument. \meta{arg} is formatted with
+    \cs{code} if it is not blank, \cs{Oarg}\Marg{arg}: \Oarg{arg}.
   \command{darg}[\marg{arg}]
     An argument with parentheses as delimiters. \meta{arg} is formatted with
-    \cs{meta} if it is not blank, \cs{darg}\code{\{arg\}}: \darg{arg}.
+    \cs{meta} if it is not blank, \cs{darg}\Marg{arg}: \darg{arg}.
+  \command{Darg}[\marg{arg}]
+    \sinceversion{0.2}An argument with parentheses as delimiters. \meta{arg}
+    is formatted with \cs{code} if it is not blank, \cs{Darg}\Marg{arg}:
+    \Darg{arg}.
   \command{sarg}
     An optional star argument, \cs{sarg}: \sarg.
   \command{option}[\sarg\marg{name}]
-    An option \meta{name}, \cs{option}\code{\{name\}}: \option{name}.  Adds a
+    An option \meta{name}, \cs{option}\Marg{name}: \option{name}.  Adds a
     corresponding index entry.  The starred form does not add an index entry.
   \command{optionidx}[\marg{name}]
     Adds an index entry but does not typeset the option \meta{name}.
-  \command{key}[\sarg\code{-}\marg{name}\marg{values}]
-    A key \meta{name} with values \meta{values}, the optional star prevents an
+  \command{key}[\sarg\code{-}\marg{name}\marg{value}]
+    A key \meta{name} with value \meta{value}, the optional star prevents an
     index entry, the  optional \code{-} strips the braces around \meta{value};
-    \cs{key}\code{\{key\}}\code{\{value\}}: \key{key}{value};
-    \cs{key}\code{-}\code{\{key\}}\code{\{value\}}: \key-{key}{value}
+    \cs{key}\Marg{key}\Marg{value}: \key{key}{value};
+    \cs{key}\code{-}\Marg{key}\Marg{value}: \key-{key}{value}
+  \command{keyis}[\sarg\marg{name}\marg{value}]
+    \sinceversion{0.2}A key \meta{name} set to value \meta{value}, the
+    optional star prevents an index entry, \cs{key}\Marg{keyis}\Marg{value}:
+    \keyis{key}{value}.
   \command{choices}[\marg{clist of choices}]
-    A list of choices, \cs{choices}\code{\{one,two,three\}}:
+    A list of choices, \cs{choices}\Marg{one,two,three}:
     \choices{one,two,three}
   \command{choicekey}[\marg{name}\marg{clist of choices}]
     A key \meta{name} with a list of possible values,
-    \cs{choicekey}\code{\{key\}\{one,two,three\}}:
+    \cs{choicekey}\Marg{key}\Marg{one,two,three}:
     \choicekey{key}{one,two,three}
   \command{boolkey}[\marg{name}]
     A boolean key \meta{name} with choices \code{true} and \code{false},
-    \cs{boolkey}\code{\{key\}}: \boolkey{key}
+    \cs{boolkey}\Marg{key}: \boolkey{key}
   \command{default}[\marg{value}]
     Markup for a default choice,
-    \cs{choices}\code{\{one,\cs{default}\{two\},three\}}:
+    \cs{choices}\Marg{one,\cs{default}\Marg{two},three}:
     \choices{one,\default{two},three}
 \end{commands}
 
@@ -242,38 +296,53 @@ world wide web.
     Defines a note like \cs{sinceversion}.  The star makes the note macro
     short, \meta{num} defines the number of mandatory arguments.  Optional
     arguments are not possible.  \cs{sinceversion} was defined as follows:
-    \lstinline[style=cnltx]+\newnote*\sinceversion[1]{Introduced in version~#1}+
+    \verbcode+\newnote*\sinceversion[1]{Introduced in version~#1}+
   \command{newpackagename}[\marg{cs}\marg{name}]
     Define a comand \meta{cs} that prints \meta{name} formatted like \cnltx.
   \command{newname}[\marg{cs}\marg{first name}\marg{second name}]
-    Defines \meta{cs} to write out the full name and add an index entry sorted
-    by the last name.  Also defines a starred variant of \meta{cs} that only
-    writes the last name but still adds the full index entry.
+    \bypackage{tools}Defines \meta{cs} to write out the full name and add an
+    index entry sorted by the last name.  Also defines a starred variant of
+    \meta{cs} that only writes the last name but still adds the full index
+    entry.
   \command{lppl}
     Typesets ``\lppl'' and adds a corresponding index entry.
   \command{LPPL}
     Typesets ``\LPPL'' and adds a the same index entry as \cs{lppl}.
-  \command{license}[\sarg]
-    Typesets `\license*'.  The un-starred variant adds a \cs*{par}.
+  \command{license}[\sarg\oarg{maintenance status}]\Default{maintained}
+    \changedversion{0.2}Typesets `\license*'.  The un-starred variant adds a
+    \cs*{par}.
   \command{ctan}
     Typesets ``\ctan'' and adds a corresponding index entry.
   \command{CTAN}
     Typesets ``\CTAN'' and adds the same index entry as \cs{ctan}.
+  \command{cnltxacronym}[\marg{pdf and sort string}\marg{acronym}]
+    \bypackage{tools}Typesets \meta{acronym} with small caps and uses
+    \meta{pdf and sort string} as \PDF\ string and for sorting the index entry
+    that is added.  This command was used to define \cs{lppl} and \cs{ctan}.
+    \emph{This is not intended as a replacement for packages like \pkg*{acro}
+      or \pkg*{glossaries}!}  In fact it is a ``poor man's'' solution that
+    allows me not to require one of those packages.
   \command{pkg}[\sarg\marg{package}]
-    \bypackage Format the package name \meta{package} and add an index entry.
-    The starred variant adds nothing to the index.
+    \bypackage{example}Format the package name \meta{package} and add an
+    index entry.  The starred variant adds nothing to the index.
   \command{pkgidx}[\marg{package}]
-    \bypackage Add an index entry for the package \meta{package}.
+    \bypackage{example}Add an index entry for the package \meta{package}.
   \command{cls}[\sarg\marg{class}]
-    \bypackage Format the class name \meta{class} and add an index entry.  The
-    starred variant adds nothing to the index.
+    \bypackage{example}Format the class name \meta{class} and add an index
+    entry.  The starred variant adds nothing to the index.
   \command{clsidx}[\marg{class}]
-    \bypackage Add an index entry for the class \meta{class}.
+    \bypackage{example}Add an index entry for the class \meta{class}.
   \command{CTANurl}[\oarg{directory}\marg{name}]
     Writes a \ctan\ link like the ones in section~\ref{sec:license} in the
     footnotes.  The predefined directory is \code{macros/latex/contrib}.  The
     link address will be:\par
     \code{http://mirrors.ctan.org/\meta{directory}/\meta{name}/}.
+  \command{needpackage}[\oarg{directory}\marg{name}]
+    \sinceversion{0.2}A wrapper for
+    \verbcode+\pkg{#2}\footnote{\CTANurl[#1]{#2}}+
+  \command{needclass}[\oarg{directory}\marg{name}]
+    \sinceversion{0.2}A wrapper for
+    \verbcode+\cls{#2}\footnote{\CTANurl[#1]{#2}}+
 \end{commands}
 
 \begin{example}
@@ -283,75 +352,6 @@ world wide web.
   \newname\carlisle{David}{Carlisle}%
   \carlisle\ is a well-known member of the \LaTeX\ community.  \carlisle* is
   the author of many packages such as \pkg*{longtable}.
-\end{example}
-
-\subsection{Formatting Commands}\label{sec:cmds:formatting}
-
-One of the goals I wanted to achieve with this package is a consistent look
-and an easy interface for customization.  No font choice and no color choice
-is fixed.  In this section ways to change the formatting are shown.
-
-The formatting of the different commands provided by \cnltx\ can be
-changed in two ways: either by redefining the internal commands that are used
-for the formatting or by setting a corresponding option.  Both variants are
-described in the next subsections.
-
-How the colors should be changed is described in section~\ref{sec:colors}.
-
-\subsubsection{Formatting by Redefining Hooks}
-
-You can change the formatting by redefining the following commands.  They're
-all defined by the \cnltx\ package except where indicated differently.
-
-\begin{commands}
-  \command{codefont}\Default{\cs*{ttfamily}}
-    This command is used for all formatting of source code.
-  \command{sourceformat}\Default{\cs{codefont}\cs*{small}}
-    Formatting of the listings.
-  \command{exampleformat}\Default
-    Special formatting of the output of a listing.
-  \command{versionnoteformat}\Default{\cs*{footnotesize}\cs*{sffamily}\cs*{RaggedRight}}
-    \byclass Formatting of the notes introduced in section~\ref{sec:cmds:versioning}.
-  \command{packageformat}\Default{\cs*{sffamily}}
-    The formatting of package names.
-  \command{classformat}\Default{\cs*{sffamily}}
-    The formatting of class names.
-  \command{argumentformat}\Default{\cs*{normalfont}\cs*{itshape}}
-    The formatting of \cs{meta}\marg{meta}.
-\end{commands}
-
-\begin{example}
-  \renewcommand*\codefont{\sffamily\bfseries}
-  \code{foo} and \cs*{bar}, option \option{baz}
-\end{example}
-
-\subsubsection{Formatting by Setting Options}
-
-You can change the formatting by setting the following options.  They're all
-defined by the \cnltx\ package except where indicated differently.
-
-\begin{options}
-  \keyval{code-font}{definition}\Default{\cs*{ttfamily}}
-    Used for all formatting of source code.
-  \keyval{source-format}{definition}\Default{\cs{codefont}\cs*{small}}
-    Formatting of the listings.
-  \keyval{expl-format}{definition}\Default
-    Special formatting of the output of a listing.
-  \keyval{version-note-format}{definition}%
-  \Default{\cs*{footnotesize}\cs*{sffamily}\cs*{RaggedRight}}
-    \byclass Formatting of the notes introduced in
-    section~\ref{sec:cmds:versioning}.
-  \keyval{pkg-format}{definition}\Default{\cs*{sffamily}}
-    The formatting of package names.
-  \keyval{cls-format}{definition}\Default{\cs*{sffamily}}
-    The formatting of class names.
-  \keyval{arg-format}{definition}\Default{\cs*{normalfont}\cs*{itshape}}
-    The formatting of \cs{meta}\marg{meta}.
-\end{options}
-
-\begin{example}
-  \setcnltx{code-font=\sffamily\itshape}
-  \code{foo} and \cs*{bar}, option \option{baz}
 \end{example}
 
 \section{Available Environments}\label{sec:envs}
@@ -367,6 +367,10 @@ others are defined by the class.
     This environment is a formatted verbatim environment that also inputs the
     output of the inputted code.  This environment is described in
     section~\ref{sec:usage:examples}.
+  \environment{example*}[\oarg{options}]
+    This environment is a formatted verbatim environment that also inputs the
+    output of the inputted code.  Source and output are printed side-by-side.
+    This environment is described in section~\ref{sec:usage:examples}.
   \environment{sourcecode}[\oarg{options}]
     This environment is a formatted verbatim environment.  This environment is
     described in section~\ref{sec:usage:examples}.
@@ -399,6 +403,21 @@ this list can be changed via an option:
     \env{environments} environments.
 \end{options}
 
+\sinceversion{0.2}In each of these environments certain hooks are provided
+that can be used to add definitions you like:
+\begin{options}
+  \keyval{pre-code}{definitions}
+    \meta{definitions} are placed before the source code is inserted.
+  \keyval{after-code}{definitions}
+    \meta{definitions} are placed after the source code is inserted.
+  \keyval{pre-source}{definitions}
+    \meta{definitions} are placed before the output of the source code is
+    inserted.
+  \keyval{after-source}{definitions}
+    \meta{definitions} are placed after the output of the source code is
+    inserted.
+\end{options}
+
 \section{Usage}
 \subsection{Command Descriptions}\label{sec:usage:commands}
 Inside of the environment \env{commands} that was introduced in
@@ -427,7 +446,6 @@ section~\ref{sec:envs} items are input via the following command:
 \end{example}
 
 \subsection{Option Descriptions}\label{sec:usage:options}
-
 The \env{options} environment knows a few more commands to meet all the
 different kinds of options.
 \begin{commands}
@@ -472,7 +490,6 @@ different kinds of options.
 \end{example}
 
 \subsection{Environment Descriptions}\label{sec:usage:environments}
-
 Environment descriptions are made -- unsurprisingly -- with the
 \env{environments} environment.  It knows the command \cs{environment}:
 
@@ -492,7 +509,6 @@ Environment descriptions are made -- unsurprisingly -- with the
 \end{example}
 
 \subsection{Example Code}\label{sec:usage:examples}
-
 Example code can be included through the \env{example} environment or the
 \env{sourcecode} environment.
 \begin{sourcecode}
@@ -517,15 +533,25 @@ Both environments can be influenced by options:
     Typeset source and output side by side.  The code is input on the left and
     the output on the right.  Side by side examples are typeset in
     \env*{minipage} environments with all consequences that come with them
-    (think of \cs*{parindent} \ldots).
+    (think of \cs*{parindent}, page breaks \ldots).
+  \keybool{code-left}\Default{true}
+    If \code{true} and the option \option{side-by-side} is chosen the source
+    code is printed on the right side else on the left.
   \keyval{code-sep}{definition}\Default{\cs*{hrulefill}}
     Code that is inserted between a source code and the corresponding output
     when printed below each other.
 \end{options}
 
-The same example again, this time using \option{side-by-side}:
+The same example again, this time using  \option{side-by-side} (which is the
+same as using the \env{example*} environment):
 
 \begin{example}[side-by-side]
+  a \LaTeX\ code example
+\end{example}
+
+\option{side-by-side} and \keyis{code-left}{false}:
+
+\begin{example}[side-by-side,code-left=false]
   a \LaTeX\ code example
 \end{example}
 
@@ -543,9 +569,9 @@ The source code is formatted using the \pkg{listings} package.  Similar
 options exist to adapt \pkg{listings}' options that are used for formatting
 the source code.  The predifined style has many options that will not be
 mentioned here.  If you're interested you can find them in
-\file{cnltx-csnames.sty}.
+\file{cnltx-csnames.sty} or in section~\ref{sec:known:csnames}.
 \begin{options}
-  \keyval{gobble}{integer}\Default{2}
+  \keyval-{gobble}{integer}\Default{2}
     The number of initial characters that is gobbled from each line.
   \keyval{add-cmds}{list of csnames}\Default
     A list of control sequence names that should be recognized as a command
@@ -573,11 +599,85 @@ mentioned here.  If you're interested you can find them in
     Like \option{add-silent-cmds} but for environment names.
 \end{options}
 
+\section{Formatting Possibilities}\label{sec:cmds:formatting}
 
+One of the goals I wanted to achieve with this package is a consistent look
+and an easy interface for customization.  No font choice and no color choice
+is fixed.  In this section ways to change the formatting are shown.
+
+The formatting of the different commands provided by \cnltx\ can be
+changed in two ways: either by redefining the internal commands that are used
+for the formatting or by setting a corresponding option.  Both variants are
+described in the next subsections.
+
+How the colors should be changed is described in section~\ref{sec:colors}.
+
+\subsection{Formatting by Redefining Hooks}
+
+You can change the formatting by redefining the following commands.  They're
+all defined by the \cnltxexample\ package except where indicated differently.
+
+\begin{commands}
+  \command{codefont}\Default{\cs*{ttfamily}}
+    This command is used for all formatting of source code.
+  \command{sourceformat}\Default{\cs{codefont}\cs*{small}}
+    Formatting of the listings.
+  \command{exampleformat}\Default
+    Special formatting of the output of a listing.
+  \command{versionnoteformat}\Default{\cs*{footnotesize}\cs*{sffamily}\cs*{RaggedRight}}
+    \byclass Formatting of the notes introduced in section~\ref{sec:cmds:versioning}.
+  \command{packageformat}\Default{\cs*{sffamily}}
+    The formatting of package names.
+  \command{classformat}\Default{\cs*{sffamily}}
+    The formatting of class names.
+  \command{argumentformat}\Default{\cs*{normalfont}\cs*{itshape}}
+    The formatting of \cs{meta}\marg{meta}.
+\end{commands}
+
+\begin{example}
+  \renewcommand*\codefont{\sffamily\bfseries}
+  \code{foo} and \cs*{bar}, option \option{baz}
+\end{example}
+
+\subsection{Formatting by Setting Options}
+
+You can change the formatting by setting the following options.  They're all
+defined by the \cnltxexample\ package except where indicated differently.
+
+\begin{options}
+  \keyval{title-format}{definition}\Default{\cs*{bfseries}\cs*{scshape}}
+    \sinceversion{0.2}Formatting of the document title.
+  \keyval{code-font}{definition}\Default{\cs*{ttfamily}}
+    Used for all formatting of source code.
+  \keyval{source-format}{definition}\Default{\cs{codefont}\cs*{small}}
+    Formatting of the listings.
+  \keyval{expl-format}{definition}\Default
+    Special formatting of the output of a listing.
+  \keyval{version-note-format}{definition}%
+  \Default{\cs*{footnotesize}\cs*{sffamily}\cs*{RaggedRight}}
+    \byclass Formatting of the notes introduced in
+    section~\ref{sec:cmds:versioning}.
+  \keyval{acronym-format}{definition}\Default{\cs*{scshape}}
+    \bypackage{tools}Formatting of the acronyms as typeset with
+    \cs{cnltxacronym}.
+  \keyval{pkg-format}{definition}\Default{\cs*{sffamily}}
+    The formatting of package names.
+  \keyval{cls-format}{definition}\Default{\cs*{sffamily}}
+    The formatting of class names.
+  \keyval{arg-format}{definition}\Default{\cs*{normalfont}\cs*{itshape}}
+    The formatting of \cs{meta}\marg{meta}.
+  \keyval{default-format}{code}\Default{\cs*{uline}}
+    \sinceversion{0.2}The formatting of \cs{default}'s argument.
+    \meta{code}'s last macro should take one argument.
+\end{options}
+
+\begin{example}
+  \setcnltx{code-font=\sffamily\itshape}
+  \code{foo} and \cs*{bar}, option \option{baz}
+\end{example}
   
 \section{Package or Class Information,  Building of the Manuals Title Page}
 \subsection{Package or Class Information}
-
 A manual for a package or a class needs some information like the package
 name, the version number, the date and so on.  This information is given with
 the following options.  They are used to build the title page of the manual.
@@ -662,7 +762,9 @@ Using the option will include the following code:
 
 \begin{sourcecode}
   \RequirePackage[oldstyle]{libertine}
-  \RequirePackage{libertinehologopatch}% not on CTAN, yet!
+  % `libertinehologopatch' is not on CTAN, yet!
+  % you can get it at https://bitbucket.org/cgnieder/libertinehologopatch
+  \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
   \RequirePackage{microtype}
   \RequirePackage[scaled=.83]{beramono}
@@ -678,6 +780,115 @@ Using the option will include the following code:
   \setkomafont{caption}{\normalfont\footnotesize\sffamily}
   \setkomafont{captionlabel}{\normalfont\footnotesize\sffamily\scshape}
 \end{sourcecode}
+
+The effect of this preamble is demonstrated by the document you're reading at
+this moment.
+
+\section{Predefined \pkg*{listings} and \pkg*{mdframed} Styles}
+
+\subsection{\pkg*{mdframed}}
+
+The source code environments (see section~\ref{sec:usage:examples}) all get a
+frame with the help of the \pkg{mdframed} package.  For this a custom style is
+defined called \code{cnltx}.  The options \option{frame-options} and
+\option{add-frame-options} mentioned in section~\ref{sec:usage:examples}
+manipulate this style.  It is predefined with these values:
+
+\begin{sourcecode}
+  \def\cnltx@mdframed@options
+    {
+      backgroundcolor = cnltxbg ,
+      linecolor       = cnltx ,
+      roundcorner     = 5pt
+    }
+\end{sourcecode}
+
+\subsection{\pkg*{listings}}
+
+The code of the source code environments (see
+section~\ref{sec:usage:examples}) is formatted with the help of the
+\pkg{listings} package.  A \pkg{listings} style is defined called
+\code{cnltx}.  The options \option{add-cmds}, \option{add-silent-cmds},
+\option{add-envs}, \option{add-silent-envs}, \option{listings-options} and
+\option{add-listings-options} manipulate this style.  It is predefined as
+follows:
+
+\begin{sourcecode}
+  \def\cnltx@listings@style{
+    language         = [LaTeX]TeX,
+    basicstyle       = {\sourceformat},
+    numbers          = left,
+    numberstyle      = \tiny,
+    xleftmargin      = 1em,
+    numbersep        = .5em,
+    gobble           = \cnltx@gobble ,
+    columns          = fullflexible,
+    literate         =
+      {ä}{{\"a}}1
+      {ö}{{\"o}}1
+      {ü}{{\"u}}1
+      {Ä}{{\"A}}1
+      {Ö}{{\"O}}1
+      {Ü}{{\"U}}1
+      {ß}{{\ss}}1 ,
+    breaklines       = true,
+    keepspaces       = true,
+    breakindent      = 1em,
+    commentstyle     = \color{comment},
+    keywordstyle     = \color{cs},
+    deletetexcs      =
+      {
+        a,o,u,A,O,U,
+        begin,
+        center,
+        description,document,
+        end,enumerate,
+        figure,flushleft,flushright,
+        itemize,
+        otherlanguage,
+        table,tabu,tabular
+      },
+    % \begin, \end:
+    texcsstyle       = [2]\color{beginend},
+    index            = [2][texcs2],
+    indexstyle       = [2]\@gobble,
+    moretexcs        = [2]{begin,end},
+    % environments:
+    texcsstyle       = [3]\color{env},
+    index            = [3][texcs3],
+    indexstyle       = [3]\@gobble,
+    % control sequences:
+    texcsstyle       = [4]\color{cs},
+    index            = [4][texcs4],
+    indexstyle       = [4]\@gobble ,
+    % added control sequences:
+    texcsstyle       = [5]\color{cs},
+    index            = [5][texcs5],
+    indexstyle       = [5]\indexcs,
+    % added environments:
+    texcsstyle       = [6]\color{env},
+    index            = [6][texcs6],
+    indexstyle       = [6]\envidx,
+  }
+\end{sourcecode}
+
+\section{\PDF\ Strings and \pkg*{hyperref}}
+
+Since the formatting and indexing commands \cs{cs}, \cs{env}, \cs{option},
+\cs{pkg}, \cs{cls} and \cs{key} are robust they are ignored in \PDF\
+strings.  For this reason you should \emph{only use the starred variants} in
+places where \PDF\ bookmarks are built from such as section titles when you
+use \pkg{hyperref}.  Since \cnltxdoc\ loads \pkg{hyperref} this means you
+should do so, too, when you use \cnltxdoc.  This is important for two reasons:
+\begin{enumerate}
+  \item Indexing in strings that get written to the table of contents does
+    noch make much sense, anyway, so the starred versions should be used in
+    section titles even if you don't use \pkg{hyperref}.
+  \item When \pkg{hyperref} is loaded the mentioned commands are disabled in
+    \PDF\ strings in a way that \emph{expects} them to be followed by a star.
+    This means leaving the star out will result in \code{doesn't match its
+      definition} errors.
+\end{enumerate}
 
 \section{Predefined Colors and Color-Schemes}\label{sec:colors}
 \subsection{Explicitly Defined Colors}\label{sec:colors:definitions}
@@ -762,6 +973,47 @@ Finally the `formal' color scheme is defined like this:
   }
 \end{sourcecode}
 
+\section{Language Support}
+
+\noindent\sinceversion{0.2}The \cnltxdoc\ and the \cnltxexample\ package both
+rely on the \pkg{translations} package for providing some document language
+dependent strings.  Currently only translations for English and German are
+provided.  Others can be added and the existing ones changed with the
+following command provided by the \pkg{translations} package:
+
+\begin{commands}
+  \command{DeclareTranslation}[\marg{language}\marg{keyword}\marg{translation}]
+    Provide translations for the string identified by the \textsc{id}
+    \meta{keyword}.
+\end{commands}
+
+The defined strings are listed in table~\ref{tab:language:strings}.  They are
+used in indexing strings and in different parts of the document.
+
+\begin{table}[htb]
+  \centering
+  \caption{Overview over available internationalization key words.}
+  \label{tab:language:strings}
+  \begin{tabular}{l>{\ttfamily}lp{.5\linewidth}}
+    \toprule
+      Package       & key word          & English version \\
+    \midrule
+      \cnltxexample & cnltx-package     & \GetTranslation{cnltx-package} \\
+      \cnltxexample & cnltx-class       & \GetTranslation{cnltx-class} \\
+      \cnltxexample & cnltx-environment & \GetTranslation{cnltx-environment} \\
+      \cnltxdoc     & cnltx-default     & \GetTranslation{cnltx-default} \\
+      \cnltxdoc     & cnltx-empty       & \GetTranslation{cnltx-empty} \\
+      \cnltxdoc     & cnltx-toc         & \GetTranslation{cnltx-toc} \\
+      \cnltxdoc     & cnltx-license     & \GetTranslation{cnltx-license} \\
+      \cnltxdoc     & cnltx-introduced  & \GetTranslation{cnltx-introduced} \\
+      \cnltxdoc     & cnltx-changed     & \GetTranslation{cnltx-changed} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\part{Appendix}
+\appendix
+
 \section{Internal Helper Commands}
 
 The commands in this section are only described for the sake of completeness.
@@ -780,23 +1032,27 @@ the other packages and classes.
   \command{cnltx\at\at info}
     The short description of the bundle.
   \command{cnltx\at create\at message}%
-    [\marg{module}\code{\{\choices{Error,Warning,WarningNoLine,Info}\}}]
-    Create suiting error and warning messaging commands for the module
-    \meta{module}.
+    [\sarg\marg{module}\Marg{\choices{Error,Warning,WarningNoLine,Info}}]
+    \changedversion{0.2}Create suiting error and warning messaging commands
+    for the module \meta{module}.  The starred version creates messages for a
+    class the un-starred version messages for a package.
   \command{cnltx\at base\at error}[\marg{message}]
-    Issue an error message using \cs*{PackageError}.
+    Issue an error message using \cs*{PackageError}\Marg{cnltx-base}.
   \command{cnltx\at base\at warning}[\marg{message}]
-    Issue a warning message using \cs*{PackageWarning}.
+    Issue a warning message using \cs*{PackageWarning}\Marg{cnltx-base}.
     \command{cnltx\at base\at warningnoline}[\marg{message}]
-    Issue a warning message using \cs*{PackageWarningNoLine}.
+    Issue a warning message using \cs*{PackageWarningNoLine}\Marg{cnltx-base}.
   \command{cnltx\at base\at info}[\marg{message}]
-    Issue a message using \cs*{PackageInfo}.
-  \command{cnltx\at ifsym}[\marg{token}\marg{true}marg{false}]
+    Issue a message using \cs*{PackageInfo}\Marg{cnltx-base}.
+  \command{cnltx\at par}
+    Expands to \cs*{par}.  Sometimes you need to smuggle a \cs*{par} in a
+    short macro \ldots
+  \command{cnltx\at ifsym}[\marg{token}\marg{true}\marg{false}]
     A generic version of \LaTeX's \cs*{@ifstar} that checks if \meta{token}
     follows if the input stream.  If yes it is removed and \meta{true} is
     placed in the input stream else \meta{false}.
   \command{cnltx\at ifdash}[\marg{true}\marg{false}]
-    A wrapper for \lstinline[style=cnltx]+\cnltx@ifsym{-}+.
+    A wrapper for \verbcode+\cnltx@ifsym{-}+.
   \command{cnltx\at expand\at arg}[\marg{cs}\marg{macro}]
     Expands \meta{macro} once before it is passed as argument to \meta{cs}.
   \command{cnltx\at fullexpand\at arg}[\marg{cs}\marg{argument}]
@@ -807,7 +1063,7 @@ the other packages and classes.
     they're passed as argumenst to \meta{cs}.  This is an alias of the kernel
     command \cs*{@expandtwoargs} defined for the sake of consistency.
   \command{cnltx\at stripbs}
-    A shortcut for \lstinline[style=cnltx]+\expandafter\@gobble\string+.
+    A shortcut for \verbcode+\expandafter\@gobble\string+.
   \command{cnltx\at if\at in}[\marg{tokenlist}\marg{search}\marg{true}\marg{false}]
     Places \meta{true} in the input stream if \meta{search} is found in
     \meta{tokenlist} and \meta{false} if it isn't.
@@ -825,13 +1081,13 @@ the other packages and classes.
 
 \begin{commands}
   \command{cnltx\at example\at error}[\marg{message}]
-    Issue an error message using \cs*{PackageError}.
+    Issue an error message using \cs*{PackageError}\Marg{cnltx-example}.
   \command{cnltx\at example\at warning}[\marg{message}]
-    Issue a warning message using \cs*{PackageWarning}.
+    Issue a warning message using \cs*{PackageWarning}\Marg{cnltx-example}.
     \command{cnltx\at example\at warningnoline}[\marg{message}]
-    Issue a warning message using \cs*{PackageWarningNoLine}.
+    Issue a warning message using \cs*{PackageWarningNoLine}\Marg{cnltx-example}.
   \command{cnltx\at example\at info}[\marg{message}]
-    Issue a message using \cs*{PackageInfo}.
+    Issue a message using \cs*{PackageInfo}\Marg{cnltx-example}.
   \command{cnltxat}
     Robust command that typesets `\at' with category code 11.  An @ in command
     names confuses the indexing of the command names.  Either one uses another
@@ -842,7 +1098,7 @@ the other packages and classes.
       entries may be sorted differently! Remember: \cs{cnltxat} is robust.}.
     In order not to overwrite any such existing macro it is not defined by
     \cnltxexample.  This document for example defines
-    \lstinline[style=cnltx]+\def\at{\cnltxat}+.
+    \verbcode+\def\at{\cnltxat}+.
   \command{cnltxletterat}
     An alias of \cs{cnltxat}.
   \command{cnltxotherat}
@@ -860,30 +1116,51 @@ the other packages and classes.
     by listings. Also replaces all occurences of @ with category code 11 or 12
     with \cs{cnltxat}. Used to index commands in the \env{sourcecode} and
     \env{example} environments that have been added with \option{add-cmds}.
-  \command{newarg}[\marg{cs}\marg{left delim}\marg{right delim}]
-    Command used to define the argument commands:
-    \lstinline[style=cnltx]+\newarg\marg{\{}{\}}+
+  \command{newarg}[\oarg{arg formatting}\marg{cs}\marg{left delim}\marg{right delim}]{}
+    \Default{\cs{meta}}
+    \changedversion{0.2}Command used to define the argument commands:
+    \verbcode+\newarg\marg{\{}{\}}+.  The optional argument determines how the
+    argument of the new command will be formatted.  This is done with
+    \cs{meta} per default.  \verbcode+\newarg[\code]\Marg{\{}{\}}+
   \command{MakePercentComment}
     Sets the category code of \code{\%} to 14.
   \command{cnltx\at copyablespace}
-    Prints a space that is also copyable.  Uses the \pkg{accsupp}.
+    Prints a space that is also copyable.  Uses the \pkg{accsupp} package by
+    \oberdiek.
   \command{cnltx\at mdframed\at options}
     Predefined option list for the \pkg{mdframed} style \code{cnltx}.
   \command{cnltx\at listings\at style}
     Predefined option list for the \pkg{listings} style \code{cnltx}.
 \end{commands}
 
+\subsection{Defined by \cnltxtools}
+
+\begin{commands}
+  \command{cnltx\at tools\at error}[\marg{message}]
+    Issue an error message using \cs*{PackageError}\Marg{cnltx-tools}.
+  \command{cnltx\at tools\at warning}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarning}\Marg{cnltx-tools}.
+    \command{cnltx\at tools\at warningnoline}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarningNoLine}\Marg{cnltx-tools}.
+  \command{cnltx\at tools\at info}[\marg{message}]
+    Issue a message using \cs*{PackageInfo}\Marg{cnltx-tools}.
+  \command{cnltx\at accsupp}[\marg{actual text}\marg{additional
+    options}\marg{\TeX\ text}]
+    A wrapper for package \pkg{accsupp}'s \cs*{BeginAccSupp}\Marg{ActualText
+      = \meta{actual text}} \meta{\TeX\ text} \cs*{EndAccSupp}\marg{}.
+\end{commands}
+  
 \subsection{Defined by \cnltxdoc}
 
 \begin{commands}
   \command{cnltx\at doc\at error}[\marg{message}]
-    Issue an error message using \cs*{PackageError}.
+    Issue an error message using \cs*{ClassError}\Marg{cnltx-doc}.
   \command{cnltx\at doc\at warning}[\marg{message}]
-    Issue a warning message using \cs*{PackageWarning}.
+    Issue a warning message using \cs*{ClassWarning}\Marg{cnltx-doc}.
     \command{cnltx\at doc\at warningnoline}[\marg{message}]
-    Issue a warning message using \cs*{PackageWarningNoLine}.
+    Issue a warning message using \cs*{ClassWarningNoLine}\Marg{cnltx-doc}.
   \command{cnltx\at doc\at info}[\marg{message}]
-    Issue a message using \cs*{PackageInfo}.
+    Issue a message using \cs*{ClassInfo}\Marg{cnltx-doc}.
   \command{cnltx\at getfileinfo}[\marg{file name}\marg{file extension}]
     Extract the date, version and background information for a package or a
     class.
@@ -902,10 +1179,38 @@ the other packages and classes.
 
 \begin{commands}
   \command{cnltx\at predefined\at control\at sequences}
-    A comma-separated list of predefind `silent' control sequence names.
+    A comma-separated list of predefined `silent' control sequence names.
   \command{cnltx\at predefined\at environments}
-    A comma-separated list of predefind `silent' environment names.
+    A comma-separated list of predefined `silent' environment names.
+  \command{listsilentcmds}
+    Prints all known control sequence names formatted and separated with a
+    comma.
+  \command{listsilentenvs}
+    Prints all known environment names formatted and separated with a
+    comma.
 \end{commands}
+
+\section{List of Known \LaTeX\ Control Sequences}\label{sec:known:csnames}
+
+Below are listed all \emph{predefined} control sequence names that are treated
+as ``silent'' names by \cnltx, that is, those defined by \cnltxcsnames.  You
+may notice that the list does not cover all control sequences that are
+formatted.  That is because \pkg{listings} already has a number of known
+control sequence names.  This list probably overlaps with those on some parts,
+though.
+
+\begin{multicols}{3}
+  \RaggedRight\listsilentcmds
+\end{multicols}
+
+\section{List of Known \LaTeX\  Environments}\label{sec:known:environments}
+
+Below are listed all \emph{predefined} control sequence names that are treated
+as ``silent'' names by \cnltx, that is, those defined by \cnltxcsnames.
+
+\begin{multicols}{3}
+  \RaggedRight\listsilentenvs
+\end{multicols}
 
 \printindex
 

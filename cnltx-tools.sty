@@ -1,0 +1,137 @@
+% --------------------------------------------------------------------------
+% the CNLTX bundle
+%
+%   LaTeX source code and output
+%
+% --------------------------------------------------------------------------
+% Clemens Niederberger
+% Web:    https://github.com/cgnieder/cnltx/
+% E-Mail: contact@mychemistry.eu
+% --------------------------------------------------------------------------
+% Copyright 2013 Clemens Niederberger
+%
+% This work may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either version 1.3
+% of this license or (at your option) any later version.
+% The latest version of this license is in
+%   http://www.latex-project.org/lppl.txt
+% and version 1.3 or later is part of all distributions of LaTeX
+% version 2005/12/01 or later.
+%
+% This work has the LPPL maintenance status `maintained'.
+%
+% The Current Maintainer of this work is Clemens Niederberger.
+% --------------------------------------------------------------------------
+% The cnltx bundle consists of the files
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
+%    cnltx-tools.sty
+%  - cnltx_en.tex, cnltx_en.pdf
+%  - README
+% --------------------------------------------------------------------------
+% If you have any ideas, questions, suggestions or bugs to report, please
+% feel free to contact me.
+% --------------------------------------------------------------------------
+\RequirePackage{cnltx-base}
+\ProvidesPackage{cnltx-tools}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
+
+% --------------------------------------------------------------------------
+\cnltx@create@message{tools}{Error}
+\cnltx@create@message{tools}{Warning}
+\cnltx@create@message{tools}{WarningNoLine}
+\cnltx@create@message{tools}{Info}
+
+% --------------------------------------------------------------------------
+\newcommand*\cnltx@name@first[1]{#1}
+\newcommand*\cnltx@name@last[1]{\textsc{#1}}
+\newcommand*\cnltx@name@base[1]{#1}
+
+\pgfkeys{
+  cnltx/.cd,
+    last-name-format/.code = \def\cnltx@name@last##1{#1} ,
+    first-name-format/.code = \def\cnltx@name@first##1{#1} ,
+    name-format/.code = \def\cnltx@name@base##1{#1}
+}
+
+\newcommand*\cnltx@name@idx[1]{\index{#1@#1}}
+\newrobustcmd*\cnltx@name@star[2][]{%
+  \ifblank{#1}
+    {\cnltx@name@base{\cnltx@name@last{#2}}}
+    {\cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}}%
+}
+\newrobustcmd*\cnltx@name@nostar[2][]{%
+  \ifblank{#1}
+    {\cnltx@name@base{\cnltx@name@last{#2}}\cnltx@name@idx{#2}}
+    {%
+      \cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}%
+      \cnltx@name@idx{#2, #1}%
+    }%
+}
+\def\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
+
+\newrobustcmd*\cnltx@newname[3]{%
+  \csdef{\cnltx@stripbs#1@short}{\cnltx@name@base{#3}\cnltx@name@idx{#3, #2}}%
+  \csdef{\cnltx@stripbs#1@long}{\cnltx@name@base{#2 #3}\cnltx@name@idx{#3, #2}}%
+  \newrobustcmd*#1{%
+    \@ifstar
+      {\csuse{\cnltx@stripbs#1@short}}
+      {\csuse{\cnltx@stripbs#1@long}}%
+    }%
+}
+
+\newrobustcmd*\newname{\cnltx@newname}
+
+% --------------------------------------------------------------------------
+\PassOptionsToPackage{space=true}{accsupp}
+\RequirePackage{accsupp}
+% #1: actual text
+% #2: other options
+% #3: TeX text
+\newrobustcmd\cnltx@accsupp[3]{%
+  \begingroup
+  \BeginAccSupp{ ActualText = #1 , #2 }%
+    #3%
+  \EndAccSupp{}%
+  \endgroup
+}
+
+\AtBeginDocument{%
+  \@ifpackageloaded{hyperref}
+    {}
+    {\providecommand\texorpdfstring[2]{#1}}%
+}
+
+\def\cnltx@acronym@format{\scshape}
+
+\pgfkeys{
+  cnltx/.cd,
+    acronym-format/.code = \def\cnltx@acronym@format{#1}
+}
+
+\newcommand*\cnltx@acronym[2]{%
+  \ifblank{#1}
+    {%
+      \texorpdfstring
+        {%
+          \cnltx@accsupp{#2}{}{\cnltx@acronym@format#2}%
+          \index{#2@{\cnltx@acronym@format#2}}%
+        }
+        {#2}%
+    }
+    {%
+      \texorpdfstring
+        {%
+          \cnltx@accsupp{#1}{}{\cnltx@acronym@format#2}%
+          \index{#1@{\cnltx@acronym@format#2}}%
+        }
+        {#1}%
+    }%
+}
+
+\newcommand*\cnltxacronym{\cnltx@acronym}
+
+\endinput
+
+% --------------------------------------------------------------------------
+HISTORY:
+
+2013/09/10 v0.2 - first published version

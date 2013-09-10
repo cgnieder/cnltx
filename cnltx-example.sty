@@ -23,7 +23,8 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
+%    cnltx-tools.sty
 %  - cnltx_en.tex, cnltx_en.pdf
 %  - README
 % --------------------------------------------------------------------------
@@ -40,6 +41,7 @@
 \cnltx@create@message{example}{Info}
 
 % --------------------------------------------------------------------------
+\RequirePackage{translations}
 \RequirePackage{listings}
 \PassOptionsToPackage{framemethod=tikz}{mdframed}
 \RequirePackage{mdframed}
@@ -58,10 +60,11 @@
 % --------------------------------------------------------------------------
 % \code
 \newcommand*\code[1]{\begingroup\codefont#1\endgroup}
+\newcommand*\verbcode{\lstinline[style=cnltx-inline]}
 \newcommand*\codefont{\ttfamily}
 \pgfkeys{
   cnltx/.cd,
-    code-font/.code = \renewcommand*\codefont{#1} ,
+    code-font/.code = \def\codefont{#1} ,
 }
 
 % --------------------------------------------------------------------------
@@ -85,7 +88,7 @@
 }
 
 % \env
-\newidxcmd\env{\code{#1}}[\ (environment)]
+\newidxcmd\env{\code{#1}}[\ (\GetTranslation{cnltx-environment})]
 % \begin, \end
 \newidxcmd\beginend{\code{\textbackslash\textcolor{beginend}{#1}}}
 \def\beginenv{\@ifstar{\beginend*{begin}}{\beginend{begin}}}
@@ -114,6 +117,13 @@
   \code{\option#1{#3}\cnltx@isvalue#2{#4}}%
 }
 
+\newcommand*\keyis{%
+  \@ifstar
+    {\cnltx@key@aux*\@firstofone}
+    {\cnltx@key@aux{}\@firstofone}%
+}
+
+
 % \DeclareListParser*\cnltx@choices{|}
 \newcommand*\choices[1]{%
   \def\cnltx@choice@sep{\def\cnltx@choice@sep{|\hskip\z@}}%
@@ -122,6 +132,11 @@
 
 \RequirePackage[normalem]{ulem}
 \newcommand*\default[1]{\uline{#1}}
+
+\pgfkeys{
+  cnltx/.cd,
+    default-value/.code = \def\default##1{#1{##1}}
+}
 
 \newcommand*\choicekey{%
   \@ifstar
@@ -159,16 +174,19 @@
     arg-format/.code = \renewcommand*\argumentformat{#1} ,
 }
 
-\newcommand*\newarg[3]{%
-  \newcommand*#1[1]{%
+\newcommand*\newarg[4][\meta]{%
+  \newcommand*#2[1]{%
     \code{\textcolor{argument}{%
-      #2\textnormal{\ifblank{##1}{}{\meta{##1}}}#3}}%
+      #3\textnormal{\ifblank{##1}{}{#1{##1}}}#4}}%
   }%
 }
 
 \newarg\marg{\{}{\}}
+\newarg[\code]\Marg{\{}{\}}
 \newarg\oarg{[}{]}
+\newarg[\code]\Oarg{[}{]}
 \newarg\darg{(}{)}
+\newarg[\code]\Darg{(}{)}
 \newcommand*\sarg{\textcolor{argument}{\code{*}}}
 
 % --------------------------------------------------------------------------
@@ -184,12 +202,9 @@
     expl-format/.code = \renewcommand*\exampleformat{#1} ,
 }
 
-\PassOptionsToPackage{space=true}{accsupp}
-\RequirePackage{accsupp}
+% this command is undocumented and not used; it requires `cnltx-tools':
 \newcommand\cnltx@copyablespace{%
-\BeginAccSupp{method=hex,unicode,ActualText=00A0}%
-  \ %
-\EndAccSupp{}%
+  \cnltx@accsupp{00A0}{method=hex,unicode}{\ }%
 }
 
 \lst@RequireAspects{writefile}
@@ -204,6 +219,7 @@
   numbers          = left,
   numberstyle      = \tiny,
   xleftmargin      = 1em,
+  numbersep        = .5em,
   gobble           = \cnltx@gobble ,
   columns          = fullflexible,
   literate         =
@@ -252,14 +268,19 @@
   texcsstyle       = [6]\color{env},
   index            = [6][texcs6],
   indexstyle       = [6]\envidx,
-  %  moretexcs    = {keyword,cs,code,marg}% add possibility to add more
-  % also prove different classes for indexing
 }
 
 \cnltx@fullexpand@twoargs
   \lstdefinestyle
   {cnltx}
   {\expandonce\cnltx@listings@style}
+
+\lstdefinestyle
+  {cnltx-inline}
+  {
+    style=cnltx,
+    basicstyle = \codefont
+  }
 
 \def\cnltx@addcmds#1{%
   \cnltx@fullexpand@twoargs
@@ -352,13 +373,30 @@
 }
 
 \newbool{cnltx@sidebyside}
+\newbool{cnltx@codeleft}
+\booltrue{cnltx@codeleft}
 \newbool{cnltx@codeonly}
+
+\newsavebox\cnltx@example@box
+
+\newcommand*\cnltx@examplesep{\hrulefill}
+
+\newcommand*\cnltx@pre@source@hook{}
+\newcommand*\cnltx@after@source@hook{}
+\newcommand*\cnltx@pre@example@hook{}
+\newcommand*\cnltx@after@example@hook{}
+
 
 \pgfkeys{
   cnltx/.cd,
     side-by-side/.is if        = cnltx@sidebyside ,
     code-only/.is if           = cnltx@codeonly ,
+    code-left/.is if           = cnltx@codeleft ,
     code-sep/.code             = \def\cnltx@examplesep{#1} ,
+    pre-code/.code             = \def\cnltx@pre@source@hook{#1} ,
+    after-code/.code           = \def\cnltx@after@source@hook{#1} ,
+    pre-output/.code           = \def\cnltx@pre@example@hook{#1} ,
+    after-output/.code         = \def\cnltx@after@example@hook{#1} ,
     add-frame-options/.code    = \cnltx@addmdframedoptions{#1} ,
     frame-options/.code        = \mdfdefinestyle{cnltx}{#1} ,
     gobble/.code               = \def\cnltx@gobble{#1} ,
@@ -370,60 +408,103 @@
     add-silent-envs/.code      = \cnltx@addsilentenvs{#1} ,
 }
 
-\newcommand*\cnltx@examplesep{\hrulefill}
+\newcommand*\cnltx@example@start[1]{%
+  \pgfqkeys{/cnltx}{#1}%
+  \lstset{style=cnltx}%
+  \mdframed[style=cnltx]%
+  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+    {\setbox\cnltx@example@box=\hbox\bgroup}{\cnltx@pre@source@hook}%
+    \lst@BeginAlsoWriteFile{\jobname.tmp}%
+}
+
+\newcommand\cnltx@example@end{%
+    \lst@EndWriteFile
+  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+    {\egroup}{\cnltx@after@source@hook}%
+  \ifbool{cnltx@codeonly}
+    {}
+    {%
+      \ifbool{cnltx@sidebyside}
+        {%
+          \ifbool{cnltx@codeleft}
+            {%
+              \minipage[c]{%
+                \dimexpr
+                  .49\linewidth
+                  -.75\lst@xleftmargin
+                \relax
+              }%
+                \cnltx@pre@source@hook
+                \unhbox\cnltx@example@box
+                \cnltx@after@source@hook
+              \endminipage\hfill
+              \minipage[c]{%
+                \dimexpr
+                  .49\linewidth
+                  -.75\lst@xleftmargin
+                \relax
+              }%
+                \cnltx@pre@example@hook
+                \cnltx@example@input
+                \cnltx@after@example@hook
+              \endminipage
+            }
+            {%
+              \minipage[c]{%
+                \dimexpr
+                  .49\linewidth
+                  -.75\lst@xleftmargin
+                \relax
+              }%
+                \cnltx@pre@example@hook
+                \cnltx@example@input
+                \cnltx@after@example@hook
+              \endminipage\hfill
+              \minipage[c]{%
+                \dimexpr
+                  .49\linewidth
+                  -.75\lst@xleftmargin
+                \relax
+              }%
+                \cnltx@pre@source@hook
+                \unhbox\cnltx@example@box
+                \cnltx@after@source@hook
+              \endminipage
+            }%
+        }
+        {%
+          \par\noindent\cnltx@examplesep
+          \cnltx@pre@example@hook
+          \cnltx@example@input
+          \cnltx@after@example@hook
+        }%
+    }%
+  \endmdframed
+  \ignorespacesafterend
+}
 
 % the source code and output example:
 \lstnewenvironment{example}[1][]
-  {%
-    % set options
-    \pgfqkeys{/cnltx}{#1}%
-    \lstset{style=cnltx}%
-    %
-    \mdframed[style=cnltx]%
-      \ifbool{cnltx@codeonly}{}{%
-        \ifbool{cnltx@sidebyside}
-          {\minipage[c]{.49\linewidth}}
-          {}%
-        }%
-      \lst@BeginAlsoWriteFile{\jobname.tmp}
-  }
-  {%
-      \lst@EndWriteFile
-      \ifbool{cnltx@codeonly}{}{%
-        \ifbool{cnltx@sidebyside}
-          {\endminipage\hfill\minipage[c]{.49\linewidth}}
-          {\noindent\cnltx@examplesep}%
-        \cnltx@example@input
-        \ifbool{cnltx@sidebyside}
-          {\endminipage}
-          {}%
-        }%
-    \endmdframed
-    \ignorespacesafterend
-}
+  {\cnltx@example@start{#1}}
+  {\cnltx@example@end}
 
+% a ``side-by-side'' variant:
+\lstnewenvironment{example*}[1][]
+  {\cnltx@example@start{#1,side-by-side}}
+  {\cnltx@example@end}
+
+% a ``code-only'' variant:
 \lstnewenvironment{sourcecode}[1][]
-  {%
-    % set options
-    \pgfqkeys{/cnltx}{#1}%
-    \lstset{style=cnltx}%
-    %
-    \mdframed[style=cnltx]%
-      \lst@BeginAlsoWriteFile{\jobname.tmp}
-  }
-  {%
-      \lst@EndWriteFile
-    \endmdframed
-    \ignorespacesafterend
-}
+  {\cnltx@example@start{#1,code-only}}
+  {\cnltx@example@end}
 
 % --------------------------------------------------------------------------
 % packages and classes:
 \newcommand*\packageformat{\sffamily}
 \newcommand*\classformat{\sffamily}
 
-\newidxcmd\pkg{{\packageformat#1}}[\ (package)]
-\newidxcmd\cls{{\classformat#1}}[\ (class)]
+\newidxcmd\pkg{{\packageformat#1}}[\ (\GetTranslation{cnltx-package})]
+\newidxcmd\cls{{\classformat#1}}[\ (\GetTranslation{cnltx-class})]
 
 \pgfkeys{
   cnltx/.cd,
@@ -431,4 +512,45 @@
     cls-format/.code = \renewcommand*\classformat{#1}
 }
 
+% disable indexing commands in PDF strings:
+\AtBeginDocument{%
+  \providecommand\pdfstringdefDisableCommands[1]{}%
+  \pdfstringdefDisableCommands{%
+    \def\cs*{}%
+    \def\env*{}%
+    \def\option*{}%
+    \def\pkg*{}%
+    \def\cls*{}%
+    \def\key*#1#2{#1 = #2}%
+  }%
+}
+
+\DeclareTranslationFallback{cnltx-package}{package}
+\DeclareTranslation{English}{cnltx-package}{package}
+\DeclareTranslation{German}{cnltx-package}{Paket}
+
+\DeclareTranslationFallback{cnltx-environment}{environment}
+\DeclareTranslation{English}{cnltx-environment}{environment}
+\DeclareTranslation{German}{cnltx-environment}{Umgebung}
+
+\DeclareTranslationFallback{cnltx-class}{class}
+\DeclareTranslation{English}{cnltx-class}{class}
+\DeclareTranslation{German}{cnltx-class}{Klasse}
+
 \endinput
+
+% --------------------------------------------------------------------------
+HISTORY:
+
+2013/09/08 v0.1 - first working version
+2013/09/10 v0.2 - added \keyis
+                - lot's of improvements on the source code example
+                  environments
+                - disable indexing commands in PDF strings
+                - added hooks to the source example environments
+                - added possibility for internationalization
+                - new macro \verbcode
+                - added optional argument to \newarg
+                - new macros \Marg, \Oarg, \Darg
+                - option for formatting the \default command
+

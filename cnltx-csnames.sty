@@ -23,7 +23,8 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
+%    cnltx-tools.sty
 %  - cnltx_en.tex, cnltx_en.pdf
 %  - README
 % --------------------------------------------------------------------------
@@ -63,6 +64,7 @@
   chapter,
   cleardoublepage,
   clearpage,
+  color,
   cref,
   % D
   d,
@@ -71,6 +73,7 @@
   DH,
   DeclareRobustCommand,
   deffootnote,deffootnotemark,
+  definecolor,
   descriptionlabel,
   discretionary,
   dj,DJ,
@@ -178,6 +181,7 @@
   section,
   selectfont,
   selectlanguage,
+  setcapindent,
   setcounter,
   setfnpct,
   setkomafont,
@@ -271,10 +275,48 @@
   flushright,
   itemize,
   labeling,
+  longtable,
   otherlanguage,
+  tabbing,
   table,
   tabu,
-  tabular
+  tabular,
+  tabularx,
+  tabulary,
+  verbatim
+}
+
+% --------------------------------------------------------------------------
+\def\cnltx@print@list@sep{, }
+
+\pgfkeys{
+  cnltx/.cd,
+    list-known-sep/.code = \def\cnltx@print@list@sep{#1}
+}
+
+\newrobustcmd*\cnltx@write@list@entry[2]{%
+  #1*{#2}\def\cnltx@write@list@entry##1##2{\cnltx@print@list@sep ##1*{##2}}%
+}
+
+\newrobustcmd*\cnltx@write@list[2]{%
+  \cnltx@fullexpand@twoargs
+    \forcsvlist
+    {\noexpand\cnltx@write@list@entry\noexpand#2}
+    {\expandonce#1}%
+}
+
+\newrobustcmd*\listsilentcmds{%
+  \cnltx@write@list\cnltx@predefined@control@sequences\cs
+}
+\newrobustcmd*\listsilentenvs{%
+  \cnltx@write@list\cnltx@predefined@environments\env
 }
 
 \endinput
+
+% --------------------------------------------------------------------------
+HISTORY:
+
+2013/09/08 v0.1 - first working version
+2013/09/10 v0.2 - added a few command and environment names
+                - added macros for printing the known names

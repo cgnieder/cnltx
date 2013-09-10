@@ -23,7 +23,8 @@
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
 % The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty
+%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
+%    cnltx-tools.sty
 %  - cnltx_en.tex, cnltx_en.pdf
 %  - README
 % --------------------------------------------------------------------------
@@ -34,12 +35,14 @@
 \ProvidesClass{cnltx-doc}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \LoadClassWithOptions{scrartcl}
 
-\cnltx@create@message{doc}{Error}
-\cnltx@create@message{doc}{Warning}
-\cnltx@create@message{doc}{WarningNoLine}
-\cnltx@create@message{doc}{Info}
+\cnltx@create@message*{doc}{Error}
+\cnltx@create@message*{doc}{Warning}
+\cnltx@create@message*{doc}{WarningNoLine}
+\cnltx@create@message*{doc}{Info}
 
-\RequirePackage{cnltx-example}
+\RequirePackage{cnltx-tools,cnltx-example}
+\RequirePackage{translations}
+
 \newbool{cnltx@load@preamble}
 \DeclareOption{load-preamble}{\booltrue{cnltx@load@preamble}}
 
@@ -67,22 +70,24 @@
 
 % --------------------------------------------------------------------------
 % license information:
-\newcommand*\lppl{\textsc{lppl}\index{LPPL@\textsc{lppl}}}
-\newcommand*\LPPL{\LaTeX{} Project Public License\index{LPPL@\textsc{lppl}}}
+% define those differently:
+\newcommand*\lppl{\cnltx@acronym{LPPL}{lppl}}
+\newcommand*\LPPL{%
+  \LaTeX{} Project Public License%
+  \index{LPPL@{\cnltx@acronym@format lppl}}%
+}
 
-\def\cnltx@par{\par}
-
-\newcommand\license{\@ifstar{\cnltx@license}{\cnltx@license\cnltx@par}}
-\def\cnltx@license{%
-  Permission is granted to copy, distribute and/or modify this software under
-  the terms of the \LPPL, version 1.3 or later
-  (\url{http://www.latex-project.org/lppl.txt}). The package has the status
-  ``maintained.''%
+\newrobustcmd*\license{\@ifstar{\cnltx@license}{\cnltx@license\cnltx@par}}
+\newcommand\cnltx@license[1][maintained]{%
+  \GetTranslation{cnltx-license} ``#1.''%
 }
 
 % CTAN:
-\newcommand*\ctan{\textsc{ctan}\index{CTAN@\textsc{ctan}}}
-\newcommand*\CTAN{Comprehensive \TeX\ Archive Network\index{CTAN@\textsc{ctan}}}
+\newcommand*\ctan{\cnltx@acronym{CTAN}{ctan}}
+\newcommand*\CTAN{%
+  Comprehensive \TeX\ Archive Network%
+  \index{CTAN@{\cnltx@acronym@format ctan}}%
+}
 
 % --------------------------------------------------------------------------
 % package information:
@@ -100,6 +105,7 @@
 \def\cnltx@package@version{??}
 \def\cnltx@package@info{??}
 \def\cnltx@package@title{??}
+\def\cnltx@title@format{\bfseries\scshape}
 \newbool{cnltx@package@title}
 \def\cnltx@package@subtitle{??}
 \newbool{cnltx@package@subtitle}
@@ -118,38 +124,7 @@
 \newrobustcmd*\newpackagename{\cnltx@newpackagename}
 
 % --------------------------------------------------------------------------
-% authors an other names:
-\newcommand*\cnltx@name@first[1]{#1}
-\newcommand*\cnltx@name@last[1]{\textsc{#1}}
-\newcommand*\cnltx@name@base[1]{#1}
-\newcommand*\cnltx@name@idx[1]{\index{#1@#1}}
-\newrobustcmd*\cnltx@name@star[2][]{%
-  \ifblank{#1}
-    {\cnltx@name@base{\cnltx@name@last{#2}}}
-    {\cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}}%
-}
-\newrobustcmd*\cnltx@name@nostar[2][]{%
-  \ifblank{#1}
-    {\cnltx@name@base{\cnltx@name@last{#2}}\cnltx@name@idx{#2}}
-    {%
-      \cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}%
-      \cnltx@name@idx{#2, #1}%
-    }%
-}
-\def\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
-
-\newrobustcmd*\cnltx@newname[3]{%
-  \csdef{\cnltx@stripbs#1@short}{\cnltx@name@base{#3}\cnltx@name@idx{#3, #2}}%
-  \csdef{\cnltx@stripbs#1@long}{\cnltx@name@base{#2 #3}\cnltx@name@idx{#3, #2}}%
-  \newrobustcmd*#1{%
-    \@ifstar
-      {\csuse{\cnltx@stripbs#1@short}}
-      {\csuse{\cnltx@stripbs#1@long}}%
-    }%
-}
-
-\newrobustcmd*\newname{\cnltx@newname}
-
+% authors:
 \def\cnltx@package@author@list{}
 \def\cnltx@new@author#1{%
   \listgadd\cnltx@package@author@list
@@ -177,12 +152,16 @@
     package/.code =
       \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
-      \@ifpackageloaded{#1}{\cnltx@getfileinfo{#1}{sty}}{}
+      \@ifpackageloaded{#1}
+        {\cnltx@getfileinfo{#1}{sty}}
+        {\cnltx@doc@warning{Package `#1' is not loaded, yet!}}
       \booltrue{cnltx@package@name} ,
     class/.code =
       \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
-      \@ifclassloaded{#1}{\cnltx@getfileinfo{#1}{cls}}{}
+      \@ifclassloaded{#1}
+        {\cnltx@getfileinfo{#1}{cls}}
+        {\cnltx@doc@warning{Class `#1' is not loaded, yet!}}
       \booltrue{cnltx@package@name} ,
     name/.code =
       \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
@@ -191,6 +170,8 @@
     title/.code =
       \gdef\cnltx@package@title{#1}
       \booltrue{cnltx@package@title} ,
+    title-format/.code =
+      \def\cnltx@title@format{#1} ,
     subtitle/.code =
       \gdef\cnltx@package@subtitle{#1}
       \booltrue{cnltx@package@subtitle} ,
@@ -368,13 +349,13 @@
   \@ifnextchar\bgroup
     {\cnltx@Default@initial{#1}}
     {%
-      \llap{(initially empty)}%
+      \llap{(\GetTranslation{cnltx-empty})}%
       \ifblank{#1}{\newline}{}%
     }%
 }
 
 \def\cnltx@Default@initial#1#2{%
-  \llap{Default: \code{#2}}%
+  \llap{\GetTranslation{cnltx-default}: \code{#2}}%
   \ifblank{#1}{\newline}{}%
 }
 
@@ -401,7 +382,7 @@
       {%
         \cnltx@doc@warning{%
           No package/class name given. Hence I won't create an
-          automatic title%b
+          automatic title%
         }%
       }%
   }%
@@ -413,7 +394,7 @@
     \Huge
     \scalebox{1.5}{%
       \color{cnltx}%
-      \bfseries\scshape
+      \cnltx@title@format
       \ifbool{cnltx@package@title}
         {\cnltx@package@title}
         {\cnltx@package@name}%
@@ -445,7 +426,7 @@
     \ifbool{cnltx@package@abstract}
       {\cnltx@package@abstract}{}%
   \end{center}
-  \begin{multicols}{2}[\section*{Table of Contents}]
+  \begin{multicols}{2}[\section*{\GetTranslation{cnltx-toc}}]
     \cnltx@tableofcontents
   \end{multicols}%
 }
@@ -492,14 +473,24 @@
 
 \newrobustcmd\newnote{\cnltx@newnote}
 
-\newnote*\sinceversion[1]{Introduced in version~#1}
-\newnote*\changedversion[1]{Changed in version~#1}
+\newnote*\sinceversion[1]{\GetTranslation{cnltx-introduced}~#1}
+\newnote*\changedversion[1]{\GetTranslation{cnltx-changed}~#1}
 
 % --------------------------------------------------------------------------
 % hyperlinks:
 \newrobustcmd*\CTANurl[2][macros/latex/contrib]{%
   on \ctan\ as \code{#2}: \url{http://mirrors.ctan.org/#1/#2/}%
 }
+
+\newrobustcmd*\needpackage[2][macros/latex/contrib]{%
+  \pkg{#2}\footnote{\CTANurl[#1]{#2}}%
+}
+
+\newrobustcmd*\needclass[2][macros/latex/contrib]{%
+  \cls{#2}\footnote{\CTANurl[#1]{#2}}%
+}
+
+% TODO: more link commands
 
 \AtEndPreamble{%
   \RequirePackage{hyperref}%
@@ -522,4 +513,53 @@
     }%
 }
 
+
+
+\DeclareTranslationFallback{cnltx-default}{Default}
+\DeclareTranslation{English}{cnltx-default}{Default}
+\DeclareTranslation{German}{cnltx-default}{Voreinstellung}
+
+\DeclareTranslationFallback{cnltx-empty}{initially empty}
+\DeclareTranslation{English}{cnltx-empty}{initially empty}
+\DeclareTranslation{German}{cnltx-empty}{zun\"achst leer}
+
+\DeclareTranslationFallback{cnltx-toc}{Table of Contents}
+\DeclareTranslation{English}{cnltx-toc}{Table of Contents}
+\DeclareTranslation{German}{cnltx-toc}{Inhaltsverzeichnis}
+
+\DeclareTranslationFallback{cnltx-license}{%
+  Permission is granted to copy, distribute and/or modify this software under
+  the terms of the \LPPL\ (\lppl), version 1.3 or later
+  (\url{http://www.latex-project.org/lppl.txt}). The software has the status%
+}
+\DeclareTranslation{English}{cnltx-license}{%
+  Permission is granted to copy, distribute and/or modify this software under
+  the terms of the \LPPL\ (\lppl), version 1.3 or later
+  (\url{http://www.latex-project.org/lppl.txt}). The software has the status%
+}
+\DeclareTranslation{German}{cnltx-license}{%
+  Es ist erlaubt, diese Software zu kopieren und zu verteilen unter den
+  Bedingungen der \LPPL\ (\lppl), Version 1.3 oder sp\"ater.
+  (\url{http://www.latex-project.org/lppl.txt}). Sie hat den Status%
+}
+
+\DeclareTranslationFallback{cnltx-introduced}{Introduced in version}
+\DeclareTranslation{English}{cnltx-introduced}{Introduced in version}
+\DeclareTranslation{German}{cnltx-introduced}{Eingef\"uhrt in Version}
+
+\DeclareTranslationFallback{cnltx-changed}{Changed in version}
+\DeclareTranslation{English}{cnltx-changed}{Changed in version}
+\DeclareTranslation{German}{cnltx-changed}{Ge\"andert in Version}
+
 \endinput
+
+% --------------------------------------------------------------------------
+HISTORY:
+
+2013/09/08 v0.1 - first working version
+2013/09/10 v0.2 - added optional argument to \license
+                - \newname got moved to `cnltx-tools'
+                - added possibility for internationalization
+                - new macros \needpackage and \needclass
+                - option for formatting the document title
+
