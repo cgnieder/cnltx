@@ -52,10 +52,10 @@
   \ifstrequal{#3}{Error}
     {%
       \lowercase{\csdef{cnltx@#2@#3}}##1{%
-        \csuse{#1#3}{cnltx-#1}{##1}{\cnltx@error@message}}%
+        \csuse{#1#3}{cnltx-#2}{##1}{\cnltx@error@message}}%
     }{%
       \lowercase{\csdef{cnltx@#2@#3}}##1{%
-        \csuse{#1#3}{cnltx-#1}{##1}}%
+        \csuse{#1#3}{cnltx-#2}{##1}}%
     }}
 \cnltx@create@message{base}{Error}
 \cnltx@create@message{base}{Warning}
