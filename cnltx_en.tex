@@ -34,7 +34,6 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \documentclass[load-preamble+]{cnltx-doc}
-\usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 
 \usepackage{varioref}
@@ -976,15 +975,21 @@ passing an option as class option.
 Using the option will include the following code:
 
 \begin{sourcecode}
+  \RequirePackage{ifxetex,ifluatex}
+  \ifboolexpr{not bool{xetex} and not bool{luatex}}
+    {\RequirePackage[T1]{fontenc}}
+    {\RequirePackage{fontspec}}
   \RequirePackage[oldstyle]{libertine}
   % `libertinehologopatch' is not on CTAN, yet!
   % you can get it at https://bitbucket.org/cgnieder/libertinehologopatch
   \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
   \RequirePackage{microtype}
-  \RequirePackage[scaled=.83]{beramono}
+  \ifboolexpr{not bool{xetex} and not bool{luatex}}
+    {\RequirePackage[scaled=.83]{beramono}}
+    {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
   \RequirePackage{fnpct}
-  \RequirePackage[english]{babel}
+  \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
   \renewcommand*\othersectionlevelsformat[3]{%
     \textcolor{cnltx}{#3\autodot}\enskip}
   \renewcommand*\partformat{%

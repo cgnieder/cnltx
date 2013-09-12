@@ -95,11 +95,17 @@
 }
 
 \ifbool{cnltx@load@preamble}{
+  \RequirePackage{ifxetex,ifluatex}
+  \ifboolexpr{not bool{xetex} and not bool{luatex}}
+    {\RequirePackage[T1]{fontenc}}
+    {\RequirePackage{fontspec}}
   \RequirePackage[oldstyle]{libertine}
   \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
   \RequirePackage{microtype}
-  \RequirePackage[scaled=.83]{beramono}
+  \ifboolexpr{not bool{xetex} and not bool{luatex}}
+    {\RequirePackage[scaled=.83]{beramono}}
+    {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
   \renewcommand*\othersectionlevelsformat[3]{%
@@ -684,20 +690,22 @@
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/08 v0.1 - first working version
-2013/09/10 v0.2 - added optional argument to \license
-                - \newname got moved to `cnltx-tools'
-                - added possibility for internationalization
-                - new macros \needpackage and \needclass
-                - option for formatting the document title
-2013/09/12 v0.3 - new class options `add-index', `load-preamble+' and
-                  `scrartcl'
-                - new options `index-prologue' and `index-space'
-                - new file `cnltx.ist'
-                - added \Module
-                - added optional ! to the \Default command
-                - add safety net: provide necessary commands in the aux-file
-                  if they're not defined at begin document
+2013/09/08 v0.1  - first working version
+2013/09/10 v0.2  - added optional argument to \license
+                 - \newname got moved to `cnltx-tools'
+                 - added possibility for internationalization
+                 - new macros \needpackage and \needclass
+                 - option for formatting the document title
+2013/09/12 v0.3  - new class options `add-index', `load-preamble+' and
+                   `scrartcl'
+                 - new options `index-prologue' and `index-space'
+                 - new file `cnltx.ist'
+                 - added \Module
+                 - added optional ! to the \Default command
+                 - add safety net: provide necessary commands in the aux-file
+                   if they're not defined at begin document
+2013/09/12 v0.3a - automatic preamble detects xelatex and lualatex and selects
+                   the fonts accordingly
 
 % --------------------------------------------------------------------------
 
