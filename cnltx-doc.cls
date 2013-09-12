@@ -32,22 +32,67 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \RequirePackage{cnltx-base}
-\ProvidesClass{cnltx-doc}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
-\LoadClassWithOptions{scrartcl}
+\ProvidesClass{cnltx-doc}[\cnltx@@date\space \cnltx@@version\space
+ \cnltx@@info]
 
 \cnltx@create@message*{doc}{Error}
 \cnltx@create@message*{doc}{Warning}
 \cnltx@create@message*{doc}{WarningNoLine}
 \cnltx@create@message*{doc}{Info}
 
-\RequirePackage{cnltx-tools,cnltx-example}
-\RequirePackage{translations}
-
 \newbool{cnltx@load@preamble}
-\DeclareOption{load-preamble}{\booltrue{cnltx@load@preamble}}
 
-% \DeclareOption*{\PassOptionsToClass{\CurrentOption}{scrartcl}}
-\ProcessOptions\relax
+\newbool{cnltx@add@index}
+\def\cnltx@scrartcl@options{}
+\def\cnltx@babel@options{english}
+
+\pgfkeys{
+  cnltx-doc/.cd,
+    scrartcl/.code       = \PassOptionsToClass{#1}{scrartcl} ,
+    load-preamble/.is if = cnltx@load@preamble ,
+    add-index/.is if     = cnltx@add@index ,
+    load-preamble+/.code =
+        \booltrue{cnltx@load@preamble}
+        \booltrue{cnltx@add@index} ,
+    babel-options/.code  = \def\cnltx@babel@options{#1}
+}
+
+\ProcessPgfOptions{/cnltx-doc}
+
+\let\@classoptionslist\relax
+\LoadClass{scrartcl}
+
+
+\def\cnltx@index@prologue{}
+\newbool{cnltx@index@prologue}
+\newlength\cnltx@index@space
+
+\def\cnltx@index@setup{othercode=\footnotesize,level=\section}
+\def\cnltx@makeindex@setup{columns=2,columnsep=1em}
+\def\cnltx@index@style{cnltx.ist}
+
+\pgfkeys{
+  cnltx/.cd,
+    index-prologue/.code  =
+      \def\cnltx@index@prologue{#1}
+      \booltrue{cnltx@index@prologue} ,
+    index-space/.code     = \setlength\cnltx@index@space{#1} ,
+    index-setup/.code     = \def\cnltx@index@setup{#1} ,
+    makeindex-setup/.code = \def\cnltx@makeindex@setup{#1} ,
+    index-style/.code     = \def\cnltx@index@style{#1}
+}
+
+
+\RequirePackage{cnltx-tools,cnltx-example,translations}
+
+\def\cnltx@caption@font{\normalfont\small\sffamily}
+\def\cnltx@captionlabel@font{\cnltx@caption@font\scshape}
+
+\pgfkeys{
+  cnltx/.cd,
+    caption-font/.code = \def\cnltx@caption@font{#1} ,
+    caption-label-font/.code = \def\cnltx@captionlabel@font{#1}
+}
 
 \ifbool{cnltx@load@preamble}{
   \RequirePackage[oldstyle]{libertine}
@@ -56,7 +101,7 @@
   \RequirePackage{microtype}
   \RequirePackage[scaled=.83]{beramono}
   \RequirePackage{fnpct}
-  \RequirePackage[english]{babel}
+  \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
   \renewcommand*\othersectionlevelsformat[3]{%
     \textcolor{cnltx}{#3\autodot}\enskip}
   \renewcommand*\partformat{%
@@ -64,9 +109,36 @@
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
   \pagestyle{headings}
   \setcapindent{1.5em}
-  \setkomafont{caption}{\normalfont\footnotesize\sffamily}
-  \setkomafont{captionlabel}{\normalfont\footnotesize\sffamily\scshape}
+  \setkomafont{caption}{\cnltx@caption@font}
+  \setkomafont{captionlabel}{\cnltx@captionlabel@font}
 }{}
+
+\ifbool{cnltx@add@index}{
+  \RequirePackage{imakeidx}
+  \expandafter\indexsetup\expandafter{\cnltx@index@setup}
+  \expandafter\makeindex\expandafter
+    [\cnltx@makeindex@setup,options={-s \cnltx@index@style}]
+  \AtEndDocument{%
+    \ifbool{cnltx@index@prologue}{%
+      \indexprologue
+        [\vspace{\cnltx@index@space}]
+        {\noindent\cnltx@index@prologue}
+    }{}%
+    \printindex
+  }
+}{}
+
+\AtBeginDocument{%
+  \immediate\write\@auxout{%
+    \unexpanded{%
+      \ifx\texorpdfstring\@undefined^^J
+        \providecommand\texorpdfstring[2]{#1}^^J
+        \providecommand\pdfstringdefDisableCommands[1]{}^^J
+        \providecommand\nohyperpage[1]{#1}^^J
+      \fi
+    }%
+  }%
+}
 
 % --------------------------------------------------------------------------
 % license information:
@@ -172,6 +244,7 @@
       \booltrue{cnltx@package@title} ,
     title-format/.code =
       \def\cnltx@title@format{#1} ,
+    build-title/.is if = cnltx@package@title ,
     subtitle/.code =
       \gdef\cnltx@package@subtitle{#1}
       \booltrue{cnltx@package@subtitle} ,
@@ -225,12 +298,16 @@
 }
 
 \newcommand\cnltx@checkdefault[1]{%
-  \@ifnextchar\Default
+  \@ifnextchar\Module
     {}
     {%
-      \@ifnextchar\default
+      \@ifnextchar\Default
         {}
-        {#1}%
+        {%
+          \@ifnextchar\default
+            {}
+            {#1}%
+        }%
     }%
 }
 
@@ -349,8 +426,9 @@
   \@ifnextchar\bgroup
     {\cnltx@Default@initial{#1}}
     {%
-      \llap{(\GetTranslation{cnltx-empty})}%
-      \ifblank{#1}{\newline}{}%
+      \cnltx@ifbang
+        {\cnltx@Default@required{#1}}
+        {\cnltx@Default@empty{#1}}%
     }%
 }
 
@@ -359,10 +437,50 @@
   \ifblank{#1}{\newline}{}%
 }
 
+\def\cnltx@Default@required#1{%
+  \llap{(\GetTranslation{cnltx-required})}%
+  \ifblank{#1}{\newline}{}%
+}
+
+\def\cnltx@Default@empty#1{%
+  \llap{(\GetTranslation{cnltx-empty})}%
+  \ifblank{#1}{\newline}{}%
+}
+
 \newrobustcmd\Default{%
   \@ifstar
     {\cnltx@Default{*}}
     {\cnltx@Default{}}%
+}
+
+% --------------------------------------------------------------------------
+% modules:
+\def\cnltx@module@sep{ >> }
+\pgfkeys{
+  cnltx/.cd,
+    module-sep/.code = \def\cnltx@module@sep{#1}
+}
+
+\def\cnltx@module#1{%
+  \cnltx@ifbang
+    {\cnltx@write@module{#1}{}}
+    {\cnltx@write@module{#1}{*}}%
+}
+\def\cnltx@write@module#1#2#3{
+  \cnltx@module@text{#2}{#3}%
+  \ifblank{#1}{\cnltx@checkdefault{\hfill\newline}}{}%
+}
+\def\cnltx@module@text#1#2{%
+  \begingroup
+    \reversemarginpar
+    \marginnote{\hfill\module#1{#2}\cnltx@module@sep}%
+  \endgroup
+}
+  
+\newrobustcmd*\Module{%
+  \@ifstar
+    {\cnltx@module{*}}
+    {\cnltx@module{}}%
 }
 
 
@@ -490,8 +608,6 @@
   \cls{#2}\footnote{\CTANurl[#1]{#2}}%
 }
 
-% TODO: more link commands
-
 \AtEndPreamble{%
   \RequirePackage{hyperref}%
   \pdfstringdefDisableCommands{%
@@ -518,6 +634,10 @@
 \DeclareTranslationFallback{cnltx-default}{Default}
 \DeclareTranslation{English}{cnltx-default}{Default}
 \DeclareTranslation{German}{cnltx-default}{Voreinstellung}
+
+\DeclareTranslationFallback{cnltx-required}{required}
+\DeclareTranslation{English}{cnltx-required}{required}
+\DeclareTranslation{German}{cnltx-required}{erforderlich}
 
 \DeclareTranslationFallback{cnltx-empty}{initially empty}
 \DeclareTranslation{English}{cnltx-empty}{initially empty}
@@ -551,6 +671,14 @@
 \DeclareTranslation{English}{cnltx-changed}{Changed in version}
 \DeclareTranslation{German}{cnltx-changed}{Ge\"andert in Version}
 
+\DeclareTranslationFallback{cnltx-f.}{f.}
+\DeclareTranslation{English}{cnltx-f.}{f.}
+\DeclareTranslation{German}{cnltx-f.}{f.}
+
+\DeclareTranslationFallback{cnltx-ff.}{ff.}
+\DeclareTranslation{English}{cnltx-ff.}{ff.}
+\DeclareTranslation{German}{cnltx-ff.}{ff.}
+
 \endinput
 
 % --------------------------------------------------------------------------
@@ -562,4 +690,14 @@ HISTORY:
                 - added possibility for internationalization
                 - new macros \needpackage and \needclass
                 - option for formatting the document title
+2013/09/12 v0.3 - new class options `add-index', `load-preamble+' and
+                  `scrartcl'
+                - new options `index-prologue' and `index-space'
+                - new file `cnltx.ist'
+                - added \Module
+                - added optional ! to the \Default command
+                - add safety net: provide necessary commands in the aux-file
+                  if they're not defined at begin document
+
+% --------------------------------------------------------------------------
 

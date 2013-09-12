@@ -101,6 +101,8 @@
 
 % \option
 \newidxcmd\option{\code{\textcolor{option}{#1}}}
+\newidxcmd\module{\code{\textcolor{module}{#1}}}
+
 \newcommand*\key{\@ifstar{\cnltx@key@star}{\cnltx@key@nostar}}
 
 \def\cnltx@key@star{%
@@ -339,21 +341,6 @@
   }%
 }
 
-\newcommand\cnltx@example@input{%
-  \trivlist\item\relax
-  % don't know why this is necessary but it is:
-  \catcode`\^^M=5\relax
-  % want special formatting for the input example:
-  \exampleformat
-  % we're in a list so the first paragraph is not indented; let's make the
-  % input example be the second paragraph:
-  \if@minipage\else
-    \par\mbox{}\par\vskip-\baselineskip\relax
-  \fi
-  \input{\jobname.tmp}%
-  \endtrivlist
-}
-
 \def\cnltx@mdframed@options
   {
     backgroundcolor = cnltxbg ,
@@ -408,19 +395,42 @@
     add-silent-envs/.code      = \cnltx@addsilentenvs{#1} ,
 }
 
+\newcommand*\cnltx@example@input[1]{%
+  \trivlist\item\relax
+  % don't know why this is necessary but it is:
+  \catcode`\^^M=5\relax
+  % want special formatting for the input example:
+  \exampleformat
+  % we're in a list so the first paragraph is not indented; let's make the
+  % input example be the second paragraph:
+  \if@minipage\else
+    \par\mbox{}\par\vskip-\baselineskip\relax
+  \fi
+  \input{#1}%
+  \endtrivlist
+}
+
+\newcommand*\cnltx@source@input@start[1]{%
+  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+    {\setbox\cnltx@example@box=\hbox\bgroup}{\cnltx@pre@source@hook}%
+    \lst@BeginAlsoWriteFile{#1}%
+}
+
+\newcommand*\cnltx@source@input@end{%
+  \lst@EndWriteFile
+  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+    {\egroup}{\cnltx@after@source@hook}%
+}
+
+% 
+
 \newcommand*\cnltx@example@start[1]{%
   \pgfqkeys{/cnltx}{#1}%
   \lstset{style=cnltx}%
   \mdframed[style=cnltx]%
-  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
-    {\setbox\cnltx@example@box=\hbox\bgroup}{\cnltx@pre@source@hook}%
-    \lst@BeginAlsoWriteFile{\jobname.tmp}%
 }
 
-\newcommand\cnltx@example@end{%
-    \lst@EndWriteFile
-  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
-    {\egroup}{\cnltx@after@source@hook}%
+\newcommand*\cnltx@example@end[1]{%
   \ifbool{cnltx@codeonly}
     {}
     {%
@@ -445,7 +455,7 @@
                 \relax
               }%
                 \cnltx@pre@example@hook
-                \cnltx@example@input
+                \cnltx@example@input{#1}%
                 \cnltx@after@example@hook
               \endminipage
             }
@@ -457,7 +467,7 @@
                 \relax
               }%
                 \cnltx@pre@example@hook
-                \cnltx@example@input
+                \cnltx@example@input{#1}%
                 \cnltx@after@example@hook
               \endminipage\hfill
               \minipage[c]{%
@@ -475,7 +485,7 @@
         {%
           \par\noindent\cnltx@examplesep
           \cnltx@pre@example@hook
-          \cnltx@example@input
+          \cnltx@example@input{#1}%
           \cnltx@after@example@hook
         }%
     }%
@@ -483,20 +493,43 @@
   \ignorespacesafterend
 }
 
-% the source code and output example:
-\lstnewenvironment{example}[1][]
-  {\cnltx@example@start{#1}}
-  {\cnltx@example@end}
+\def\cnltx@new@sourcecode@env#1#2{%
+  \lstnewenvironment{#2}[1][]
+    {%
+      \cnltx@example@start{##1,#1}%
+      \cnltx@source@input@start{\jobname.cnltx.code}%
+    }
+    {%
+      \cnltx@source@input@end
+      \cnltx@example@end{\jobname.cnltx.code}%
+    }%
+}
+\newrobustcmd\newsourcecodeenv[2][]{%
+  \cnltx@new@sourcecode@env{#1}{#2}%
+}
 
-% a ``side-by-side'' variant:
-\lstnewenvironment{example*}[1][]
-  {\cnltx@example@start{#1,side-by-side}}
-  {\cnltx@example@end}
+\def\cnltx@input@sourcecode@file#1#2{%
+  \cnltx@example@start{#1}%
+  \lstinputlisting{#2}%
+  \cnltx@example@end{#2}%
+}
 
-% a ``code-only'' variant:
-\lstnewenvironment{sourcecode}[1][]
-  {\cnltx@example@start{#1,code-only}}
-  {\cnltx@example@end}
+\def\cnltx@new@input@source@file#1#2{%
+  \newcommand#2[2][]{\cnltx@input@sourcecode@file{#1,##1}{##2}}%
+}
+
+\newrobustcmd*\newinputsourcefilecmd[2][]{%
+  \cnltx@new@input@source@file{#1}{#2}%
+}
+
+\newsourcecodeenv{example}
+\newsourcecodeenv[side-by-side]{sidebyside}
+\newsourcecodeenv[code-only]{sourcecode}
+
+\newinputsourcefilecmd\inputexample
+\newinputsourcefilecmd[side-by-side]\inputsidebyside
+\newinputsourcefilecmd[code-only]\inputsourcecode
+
 
 % --------------------------------------------------------------------------
 % packages and classes:
@@ -553,4 +586,8 @@ HISTORY:
                 - added optional argument to \newarg
                 - new macros \Marg, \Oarg, \Darg
                 - option for formatting the \default command
+2013/09/12 v0.3 - added \module
+                - added \newsourcecodeenv and \newinputsourcefilecmd
+                - added \inputexample, \inputsidebyside and \inputsourcecode
+                - renamed `example*' into `sidebyside'
 
