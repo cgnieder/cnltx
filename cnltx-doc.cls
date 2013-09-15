@@ -22,12 +22,6 @@
 %
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-% The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
-%    cnltx-tools.sty
-%  - cnltx_en.tex, cnltx_en.pdf
-%  - README
-% --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
@@ -41,19 +35,23 @@
 \cnltx@create@message*{doc}{Info}
 
 \newbool{cnltx@load@preamble}
-
 \newbool{cnltx@add@index}
+\newbool{cnltx@add@bib}
+
 \def\cnltx@scrartcl@options{}
 \def\cnltx@babel@options{english}
+
 
 \pgfkeys{
   cnltx-doc/.cd,
     scrartcl/.code       = \PassOptionsToClass{#1}{scrartcl} ,
     load-preamble/.is if = cnltx@load@preamble ,
     add-index/.is if     = cnltx@add@index ,
+    add-bib/.is if       = cnltx@add@bib ,
     load-preamble+/.code =
-        \booltrue{cnltx@load@preamble}
-        \booltrue{cnltx@add@index} ,
+      \booltrue{cnltx@load@preamble}
+      \booltrue{cnltx@add@index}
+      \booltrue{cnltx@add@bib} ,
     babel-options/.code  = \def\cnltx@babel@options{#1}
 }
 
@@ -83,7 +81,7 @@
 }
 
 
-\RequirePackage{cnltx-tools,cnltx-example,translations}
+\RequirePackage{cnltx-tools,cnltx-example,cnltx-listings,translations}
 
 \def\cnltx@caption@font{\normalfont\small\sffamily}
 \def\cnltx@captionlabel@font{\cnltx@caption@font\scshape}
@@ -120,17 +118,30 @@
 }{}
 
 \ifbool{cnltx@add@index}{
-  \RequirePackage{imakeidx}
-  \expandafter\indexsetup\expandafter{\cnltx@index@setup}
-  \expandafter\makeindex\expandafter
-    [\cnltx@makeindex@setup,options={-s \cnltx@index@style}]
-  \AtEndDocument{%
-    \ifbool{cnltx@index@prologue}{%
-      \indexprologue
-        [\vspace{\cnltx@index@space}]
-        {\noindent\cnltx@index@prologue}
-    }{}%
-    \printindex
+  \RequirePackage[
+    backend=biber,
+    style=cnltx,
+    sortlocale=en_EN,
+    indexing=cite,
+    useprefix]{biblatex}
+  \addbibresource{cnltx.bib}
+  \AtEndDocument{\printbibliography}
+}{}
+
+\ifbool{cnltx@add@index}{
+  \AtEndPreamble{%
+    \RequirePackage{imakeidx}
+    \expandafter\indexsetup\expandafter{\cnltx@index@setup}
+    \expandafter\makeindex\expandafter
+      [\cnltx@makeindex@setup,options={-s \cnltx@index@style}]
+    \AtEndDocument{%
+      \ifbool{cnltx@index@prologue}{%
+        \indexprologue
+          [\vspace{\cnltx@index@space}]
+          {\noindent\cnltx@index@prologue}
+      }{}%
+      \printindex
+    }%
   }
 }{}
 
@@ -204,21 +215,50 @@
 % --------------------------------------------------------------------------
 % authors:
 \def\cnltx@package@author@list{}
+\def\cnltx@package@author@pdflist{}
 \def\cnltx@new@author#1{%
-  \listgadd\cnltx@package@author@list
+  \listadd\cnltx@package@author@list
     {\cnltx@read@name{#1}}%
-}
-\def\cnltx@read@name#1{%
-  \cnltx@read@name@aux#1 \q@stop
-}
-\def\cnltx@read@name@aux#1 #2\q@stop{%
-  \ifblank{#2}
-    {\cnltx@name[]{#1}}
-    {\cnltx@name[#1]{\trim@spaces{#2}}}%
+  \listadd\cnltx@package@author@pdflist
+    {\cnltx@extract@name{#1}}%
 }
 
+% writing the names and email addresses:
+\def\cnltx@read@name#1{%
+  \cnltx@read@name@aux#1[]\q@stop
+}
+\def\cnltx@read@name@aux#1[#2]\q@stop{%
+  \cnltx@get@first@and@second@name#1 \q@stop
+  \ifblank{#2}{}
+    {\cnltx@write@author@email#2\q@stop}%
+}
+\def\cnltx@write@author@email#1][\q@stop{%
+  \ifblank{#1}{}
+    {\footnote{\href{mailto:#1}{#1}}}%
+}
+\def\cnltx@get@first@and@second@name#1 #2\q@stop{%
+  \ifblank{#2}
+    {%
+      \cnltx@name[]{#1}%
+      \listgadd\cnltx@package@author@pdflist{#1}%
+    }
+    {%
+      \cnltx@name[#1]{\trim@spaces{#2}}%
+      \listgadd\cnltx@package@author@pdflist{#1 \trim@spaces{#2}}%
+    }%
+}
+
+% getting the names for the pdf properties:
+\def\cnltx@extract@name#1{%
+  \cnltx@extract@name@aux#1[]\q@stop
+}
+\def\cnltx@extract@name@aux#1[#2]\q@stop{%
+  #1\ifblank{#2}{}{\cnltx@extract@name@aux@i#2\q@stop}, %
+}
+\def\cnltx@extract@name@aux@i#1][\q@stop{}
+
 \def\cnltx@package@authors{%
-  \gdef\cnltx@author@sep{\gdef\cnltx@author@sep{, }}%
+  \gdef\cnltx@author@sep{\gdef\cnltx@author@sep{\qquad}}%
   \forlistloop{\cnltx@author@sep}\cnltx@package@author@list
 }
 
@@ -515,6 +555,8 @@
 \def\cnltx@title@information{%
   \thispagestyle{plain}
   \begin{center}
+    \ifbool{cnltx@load@preamble}{}
+      {\renewcommand\thefootnote{\@fnsymbol\c@footnote}}%
     \Huge
     \scalebox{1.5}{%
       \color{cnltx}%
@@ -535,20 +577,22 @@
     \par\vskip.5cm\relax
     \large
     \cnltx@package@authors
-    \par\vskip.5cm\relax
     \normalsize
     \ifbool{cnltx@package@url}
       {%
-        \url{\cnltx@package@url}%
         \par\vskip.5cm\relax
+        \url{\cnltx@package@url}%
       }{}%
     \ifbool{cnltx@package@email}
       {%
-        \href{mailto:\cnltx@package@email}{\cnltx@package@email}%
         \par\vskip.5cm\relax
+        \href{mailto:\cnltx@package@email}{\cnltx@package@email}%  
       }{}%
     \ifbool{cnltx@package@abstract}
-      {\cnltx@package@abstract}{}%
+      {%
+        \par\vskip.5cm\relax
+        \cnltx@package@abstract
+      }{}%
   \end{center}
   \begin{multicols}{2}[\section*{\GetTranslation{cnltx-toc}}]
     \cnltx@tableofcontents
@@ -627,7 +671,7 @@
       bookmarksopen      = true,
       bookmarksopenlevel = 1,
       bookmarksnumbered  = true,
-      pdfauthor          = {\forlistloop{}\cnltx@package@author@list},
+      pdfauthor          = {\forlistloop{}\cnltx@package@author@pdflist},
       pdftitle           =
         {\cnltx@package@name\space\cnltx@package@version\space Manual},
       pdfsubject         = {\cnltx@package@info},
@@ -635,8 +679,8 @@
     }%
 }
 
-
-
+% --------------------------------------------------------------------------
+% localization strings:
 \DeclareTranslationFallback{cnltx-default}{Default}
 \DeclareTranslation{English}{cnltx-default}{Default}
 \DeclareTranslation{German}{cnltx-default}{Voreinstellung}
@@ -685,6 +729,14 @@
 \DeclareTranslation{English}{cnltx-ff.}{ff.}
 \DeclareTranslation{German}{cnltx-ff.}{ff.}
 
+\DeclareTranslationFallback{cnltx-maintainer}{current maintainer}
+\DeclareTranslation{English}{cnltx-maintainer}{current maintainer}
+\DeclareTranslation{German}{cnltx-maintainer}{aktueller Maintainer}
+
+\DeclareTranslationFallback{cnltx-maintainers}{current maintainers}
+\DeclareTranslation{English}{cnltx-maintainers}{current maintainers}
+\DeclareTranslation{German}{cnltx-maintainers}{aktuelle Maintainer}
+
 \endinput
 
 % --------------------------------------------------------------------------
@@ -706,6 +758,12 @@ HISTORY:
                    if they're not defined at begin document
 2013/09/12 v0.3a - automatic preamble detects xelatex and lualatex and selects
                    the fonts accordingly
+2013/09/15 v0.4  - possiblity to add an email address for each author, written
+                   as footnote; they get symbols if the `load-preamble'
+                   options is not used
+                 - fixed bug in index setup mechanism
+                 - added biblatex entry type `package' and biblatex style
+                   `cnltx'
 
 % --------------------------------------------------------------------------
 

@@ -33,7 +33,7 @@
 % --------------------------------------------------------------------------
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx-example}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
-\RequirePackage{cnltx-csnames}
+\RequirePackage{cnltx-csnames,cnltx-listings}
 
 \cnltx@create@message{example}{Error}
 \cnltx@create@message{example}{Warning}
@@ -42,7 +42,6 @@
 
 % --------------------------------------------------------------------------
 \RequirePackage{translations}
-\RequirePackage{listings}
 \PassOptionsToPackage{framemethod=tikz}{mdframed}
 \RequirePackage{mdframed}
 \RequirePackage{idxcmds}
@@ -59,7 +58,7 @@
 
 % --------------------------------------------------------------------------
 % \code
-\newcommand*\code[1]{\begingroup\codefont#1\endgroup}
+\newrobustcmd*\code[1]{\begingroup\codefont#1\endgroup}
 \newcommand*\verbcode{\lstinline[style=cnltx-inline]}
 \newcommand*\codefont{\ttfamily}
 \pgfkeys{
@@ -216,7 +215,8 @@
 
 % listings style for source code:
 \def\cnltx@listings@style{
-  language         = [LaTeX]TeX,
+  language         = [AlLaTeX]TeX,
+  alsolanguage     = [plain]TeX,
   basicstyle       = {\sourceformat},
   numbers          = left,
   numberstyle      = \tiny,
@@ -272,10 +272,41 @@
   indexstyle       = [6]\envidx,
 }
 
+\def\cnltx@bibtex@listings@style{
+  language         = BiBTeX,
+  basicstyle       = {\sourceformat},
+  numbers          = left,
+  numberstyle      = \tiny,
+  xleftmargin      = 1em,
+  numbersep        = .5em,
+  gobble           = \cnltx@gobble ,
+  columns          = fullflexible,
+  literate         =
+    {ä}{{\"a}}1
+    {ö}{{\"o}}1
+    {ü}{{\"u}}1
+    {Ä}{{\"A}}1
+    {Ö}{{\"O}}1
+    {Ü}{{\"U}}1
+    {ß}{{\ss}}1 ,
+  breaklines       = true,
+  keepspaces       = true,
+  breakindent      = 1em,
+  commentstyle     = \color{comment},
+  keywordstyle     = \color{bibentry} ,
+  keywordstyle     = [2]\color{bibentryfield}\itshape ,
+  showstringspaces = false ,
+}
+
 \cnltx@fullexpand@twoargs
   \lstdefinestyle
   {cnltx}
   {\expandonce\cnltx@listings@style}
+
+\cnltx@fullexpand@twoargs
+  \lstdefinestyle
+  {cnltx-bibtex}
+  {\expandonce\cnltx@bibtex@listings@style}
 
 \lstdefinestyle
   {cnltx-inline}
@@ -341,6 +372,20 @@
   }%
 }
 
+\def\cnltx@local@listings@options{}
+
+\pgfkeys{
+  cnltx/.cd,
+    gobble/.code               = \def\cnltx@gobble{#1} ,
+    add-cmds/.code             = \cnltx@addcmds{#1} ,
+    add-silent-cmds/.code      = \cnltx@addsilentcmds{#1} ,
+    add-listings-options/.code = \cnltx@addlistingsoptions{#1} ,
+    listings-options/.code     = \lstdefinestyle{cnltx}{#1} ,
+    add-envs/.code             = \cnltx@addenvs{#1} ,
+    add-silent-envs/.code      = \cnltx@addsilentenvs{#1} ,
+    sourcecode-options/.code   = \def\cnltx@local@listings@options{#1} ,
+}
+
 \def\cnltx@mdframed@options
   {
     backgroundcolor = cnltxbg ,
@@ -387,12 +432,6 @@
     add-frame-options/.code    = \cnltx@addmdframedoptions{#1} ,
     frame-options/.code        = \mdfdefinestyle{cnltx}{#1} ,
     gobble/.code               = \def\cnltx@gobble{#1} ,
-    add-cmds/.code             = \cnltx@addcmds{#1} ,
-    add-silent-cmds/.code      = \cnltx@addsilentcmds{#1} ,
-    add-listings-options/.code = \cnltx@addlistingsoptions{#1} ,
-    listings-options/.code     = \lstdefinestyle{cnltx}{#1} ,
-    add-envs/.code             = \cnltx@addenvs{#1} ,
-    add-silent-envs/.code      = \cnltx@addsilentenvs{#1} ,
 }
 
 \newcommand*\cnltx@example@input[1]{%
@@ -426,11 +465,15 @@
 
 \newcommand*\cnltx@example@start[1]{%
   \pgfqkeys{/cnltx}{#1}%
-  \lstset{style=cnltx}%
+  \cnltx@fullexpand@arg\lstset{
+    style=cnltx,
+    \expandonce\cnltx@local@listings@options
+  }%
   \mdframed[style=cnltx]%
 }
 
 \newcommand*\cnltx@example@end[1]{%
+  \ifblank{#1}{\booltrue{cnltx@codeonly}}{}
   \ifbool{cnltx@codeonly}
     {}
     {%
@@ -549,6 +592,7 @@
 \AtBeginDocument{%
   \providecommand\pdfstringdefDisableCommands[1]{}%
   \pdfstringdefDisableCommands{%
+    \def\code#1{#1}%
     \def\cs*{}%
     \def\env*{}%
     \def\option*{}%
@@ -590,4 +634,5 @@ HISTORY:
                 - added \newsourcecodeenv and \newinputsourcefilecmd
                 - added \inputexample, \inputsidebyside and \inputsourcecode
                 - renamed `example*' into `sidebyside'
+2013/09/15 v0.4 - new listings style `cnltx-bibtex'
 

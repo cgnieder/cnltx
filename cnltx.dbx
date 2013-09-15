@@ -1,0 +1,31 @@
+\@ifclassloaded{cnltx-doc}{}{%
+  \GenericError
+    {(cnltx.dbx)\@spaces\@spaces\@spaces\@spaces}
+    {cnltx datamodel error: invalid class}
+    {See the cnltx bundle documentation for explanation.}
+    {%
+      The `cnltx' biblatex datamodel can only be used with the `cnltx-doc'
+      document class%
+    }%
+}
+\DeclareDatamodelFields[type=list, datatype=name]{maintainer}
+\DeclareDatamodelEntryfields[package]{
+  author,
+  maintainer,
+  info,
+  title,
+  day,
+  month,
+  year,
+  addendum,
+  language,
+  note,
+  subtitle,
+  titleaddon,
+  translator,
+  url,
+  urlday,
+  urlmonth,
+  urlyear,
+  version
+}

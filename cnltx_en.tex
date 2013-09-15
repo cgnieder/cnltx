@@ -1,5 +1,7 @@
 % arara: pdflatex
+% arara: biber
 % arara: pdflatex
+% !arara: pdflatex
 % --------------------------------------------------------------------------
 % the CNLTX bundle
 %
@@ -60,9 +62,12 @@
   } ,
   add-cmds = {
     % internal macros:
-    cnltx@define@colorscheme,cnltx@gobble,cnltx@ifsym,
-    cnltx@listings@style,cnltx@mdframed@options,cnltx@caption@font,
-    cnltx@captionlabel@font,
+    cnltx@define@colorscheme,
+    cnltx@gobble,
+    cnltx@ifsym,
+    cnltx@bibtex@listings@style,cnltx@listings@style,
+    cnltx@mdframed@options,
+    cnltx@caption@font,cnltx@captionlabel@font,
     % official macros:
     changedversion,cls,
     cnltxat,cnltxbang,cnltxequal,
@@ -72,7 +77,7 @@
     env,environment,
     inputexample,inputsidebyside,inputsourcecode,
     key,keybool,keychoice,keyval,
-    marg,module,Module,
+    marg,Marg,module,Module,
     newarg,newname,newnote,newpackagename,newinputsourcefilecmd,
     newsourcecodeenv,
     oarg,opt,option,
@@ -98,11 +103,14 @@
   }
 }
 
+\defbibheading{bibliography}[\bibname]{\section{#1}}
+
 \newpackagename\cnltxbase{cnltx-base}
-\newpackagename\cnltxexample{cnltx-example}
 \newpackagename\cnltxcsnames{cnltx-csnames}
-\newpackagename\cnltxtools{cnltx-tools}
 \newpackagename\cnltxdoc{cnltx-doc}
+\newpackagename\cnltxexample{cnltx-example}
+\newpackagename\cnltxlistings{cnltx-listings}
+\newpackagename\cnltxtools{cnltx-tools}
 
 \newnote*\bypackage[1]{provided by the \csname cnltx#1\endcsname\ package}
 \newnote*\byclass{provided by the \cnltxdoc\ class}
@@ -129,6 +137,8 @@
 \def\at{\cnltxat}
 \def\bang{\cnltxbang}
 \def\equal{\cnltxequal}
+
+\newcommand*\BibTeX{\texorpdfstring{\hologo{BibTeX}}{BibTeX}}
 
 \begin{document}
 
@@ -166,18 +176,18 @@ the advantages of literate programming I never could bring myself to start
 to use it myself.  As a consequence I have no idea if this bundle can be used
 for it or not.
 
-Source code formatting is done with the help of the powerful \pkg{listings}
-package by \heinz\ and later \moses, now maintained by \hoffmann.  The only
-real drawback I have found with it is recognizing starred und un-starred
-versions of an environment as different keywords.  This does not seem to be
-possible which is why indexing of such environments will lead to wrong page
-numbers.
+Source code formatting is done with the help of the powerful
+\pkg{listings} package~\cite{pkg:listings} by \heinz\ and later \moses, now
+maintained by \hoffmann.  The only real drawback I have found with it is
+recognizing starred und un-starred versions of an environment as different
+keywords.  This does not seem to be possible which is why indexing of such
+environments will lead to wrong page numbers.
 
 The fancy frames of the source code examples are realized with the
-\pkg{mdframed} package by \daniel, loaded with the option
+\pkg{mdframed} package\cite{pkg:mdframed} by \daniel, loaded with the option
 \keyis*{framemethod}{tikz}.
 
-\section{Bundled Packages and Classes}
+\section{Bundled Packages, Classes and Files}
 
 The \cnltx\ bundle currently bundles the following packages and classes:
 \begin{itemize}
@@ -185,9 +195,6 @@ The \cnltx\ bundle currently bundles the following packages and classes:
     expansion control and tokenlist manipulation.  It also provides color
     definitions and defines a few color schemes for the \cnltxdoc\ class.  All
     other packages and classes of the \cnltx\ bundle load this package.\par
-    This package can be loaded alone.
-  \item \cnltxexample\ -- a package that defines macros and environments for
-    describing control sequences and options and for including source code.\par
     This package can be loaded alone.
   \item \cnltxcsnames\ -- a package that defines a list of highlighted control
     sequence names, loaded by \cnltxexample.\par
@@ -197,36 +204,54 @@ The \cnltx\ bundle currently bundles the following packages and classes:
     The list is by no means comprehensive.  If you like to extend it feel free
     to fork the github repo (\url{\csname cnltx@package@url\endcsname}).
     That would be very much appreciated.
-  \item \cnltxtools\ -- a package that defines tools used by \cnltxdoc\ that
-    are unrelated to \LaTeX\ documentation \latin{per se}.
   \item \cnltxdoc\ -- a class for writing package manuals.  Loads
     \cnltxexample\ and \cnltxtools.
+  \item \cnltxexample\ -- a package that defines macros and environments for
+    describing control sequences and options and for including source code.\par
+    This package can be loaded alone.  Loads \cnltxcsnames\ and \cnltxlistings.
+  \item \sinceversion{0.4}\cnltxlistings\ -- a package that defines the
+    listings language `BibTeX'.  This package can be loaded alone.
+  \item \sinceversion{0.2}\cnltxtools\ -- a package that defines tools used by
+    \cnltxdoc\ that are unrelated to \LaTeX\ documentation \latin{per se}.
   \item \file{cnltx.ist} -- an index style file that is used when the option
     \option{add-index} is activated and the option \option{index-style} is not
     used.
+  \item \file{cnltx.bib} -- a bibliography file that contains a small but
+    growing number of package entries.
 \end{itemize}
 
 \section{License and Requirements}\label{sec:license}
 \license
 
-The \cnltxbase\ package loads the following packages: \needpackage{pgfopts},
-\needpackage{etoolbox}, \needpackage{trimspaces} and \needpackage{xcolor}.
+The \cnltxbase\ package loads the following packages:
+\needpackage{pgfopts}~\cite{pkg:pgfopts},
+\needpackage{etoolbox}~\cite{pkg:etoolbox},
+\needpackage{trimspaces}~\cite{pkg:trimspaces} and
+\needpackage{xcolor}~\cite{pkg:xcolor}.
 
 The \cnltxcsnames\ package only loads \cnltxbase.
 
+The \cnltxdoc\ class loads the package with the same name and additionally
+the following packages: \cnltxbase, \cnltxexample,
+\pkg{translations}~\cite{pkg:translations},
+\needpackage{ulem}~\cite{pkg:ulem},
+\needpackage[macros/latex/required/tools]{multicol}~\cite{pkg:multicol},
+\needpackage[macros/latex/contrib/ms]{ragged2e}~\cite{pkg:ragged2e},
+\needpackage{marginnote}~\cite{pkg:marginnote} and
+\needpackage{hyperref}~\cite{pkg:hyperref}.  It is a wrapper class for the
+\KOMAScript\ class
+\cls{scrartcl}\footnote{\CTANurl{koma-script}}~\cite{pkg:koma-script}.
+
 The \cnltxexample\ package loads the following packages:
-\cnltxbase, \cnltxtools, \needpackage{translations}, \needpackage{listings},
-\needpackage{mdframed} and \needpackage{idxcmds}.
+\cnltxbase, \cnltxcsnames, \cnltxlistings, \cnltxtools,
+\needpackage{translations}, \needpackage{mdframed}~\cite{pkg:mdframed} and
+\needpackage{idxcmds}~\cite{pkg:idxcmds}.
+
+The \cnltxlistings\ package loads \cnltxbase\ and
+\needpackage{listings}~\cite{pkg:listings}.
 
 The \cnltxtools\ package loads \cnltxbase\ and
-\needpackage[macros/latex/contrib/oberdiek]{accsupp}.
-
-The \cnltxdoc\ class loads the package with the same name and additionally
-the following packages: \cnltxbase, \cnltxexample, \pkg{translations},
-\needpackage{ulem}, \needpackage[macros/latex/required/tools]{multicol},
-\needpackage[macros/latex/contrib/ms]{ragged2e}, \needpackage{marginnote} and
-\needpackage{hyperref}.  It is a wrapper class for the
-\KOMAScript\ class \cls{scrartcl}\footnote{\CTANurl{koma-script}}.
+\needpackage[macros/latex/contrib/oberdiek]{accsupp}~\cite{pkg:accsupp}.
 
 Like all of my packages \cnltx\ implicitly relies on an up to date \TeX\
 distribution.
@@ -375,9 +400,10 @@ world wide web.
     \bypackage{tools}Typesets \meta{acronym} with small caps and uses
     \meta{pdf and sort string} as \PDF\ string and for sorting the index entry
     that is added.  This command was used to define \cs{lppl} and \cs{ctan}.
-    \emph{This is not intended as a replacement for packages like \pkg*{acro}
-      or \pkg*{glossaries}!}  In fact it is a ``poor man's'' solution that
-    allows me not to require one of those packages.
+    \emph{This is not intended as a replacement for packages like
+      \pkg*{acro}~\cite{pkg:acro} or \pkg*{glossaries}\cite{pkg:glossaries}!}
+    In fact it is a ``poor man's'' solution that allows me not to require one
+    of those packages.
   \command{pkg}[\sarg\marg{package}]
     \bypackage{example}Format the package name \meta{package} and add an
     index entry.  The starred variant adds nothing to the index.
@@ -726,8 +752,9 @@ same as using the \env{sidebyside} environment):
   a \LaTeX\ code example
 \end{example}
 
-The frame around the examples is done by the \pkg{mdframed} package.  It is of
-course possible to customize it:
+The frame around the examples is done by the
+\pkg{mdframed} package~\cite{pkg:mdframed}.  It is of course possible to
+customize it:
 \begin{options}
   \keyval{add-frame-options}{\pkg{mdframed} options}\Default
     Add options to the predefined ones.
@@ -736,11 +763,12 @@ course possible to customize it:
     Overwrite the options with new ones.
 \end{options}
 
-The source code is formatted using the \pkg{listings} package.  Similar
-options exist to adapt \pkg{listings}' options that are used for formatting
-the source code.  The predifined style has many options that will not be
-mentioned here.  If you're interested you can find them in
-\file{cnltx-csnames.sty} or in section~\vref{sec:known:csnames}.
+The source code is formatted using the \pkg{listings}
+package~\cite{pkg:listings}.  Similar options exist to adapt \pkg{listings}'
+options that are used for formatting the source code.  The predifined style
+has many options that will not be mentioned here.  If you're interested you
+can find them in \file{cnltx-csnames.sty} or in
+section~\vref{sec:known:csnames}.
 \begin{options}
   \keyval-{gobble}{integer}\Default{2}
     The number of initial characters that is gobbled from each line.
@@ -760,10 +788,17 @@ mentioned here.  If you're interested you can find them in
     missing.  This option allows you to extend the list on a per document
     basis.
   \keyval{add-listings-options}{\pkg{listings} options}\Default
-    Additional options for the \pkg{listings} environments.
+    Additional options for the \pkg{listings}~\cite{pkg:listings}
+    environments.  \emph{This redefines the \code{cnltx} \pkg{listings} style
+      anf this effects all sourcecode environments!}
   \keyval{listings-options}{\pkg{listings} options}
     Overwrite existing options with new ones.  This can be used to build an own
-    style from scratch.
+    style from scratch.  \emph{This redefines the \code{cnltx} \pkg{listings}
+      style anf this effects all sourcecode environments!}
+  \keyval{sourcecode-options}{\pkg{listings} options}
+    \sinceversion{0.4}These options are added to the \pkg{listings} options of
+    the source code environments without redefing the main style.  Hence it
+    can be used to locally add options to a source code environment.
   \keyval{add-envs}{list of environment names}\Default
     Like \option{add-cmds} but for environment names.
   \keyval{add-silent-envs}{list of environment names}
@@ -857,7 +892,7 @@ defined by the \cnltxexample\ package except where indicated differently.
   \code{foo} and \cs*{bar}, option \option{baz}
 \end{example}
   
-\section{Options that are Directly Related to the \cnltxdoc\ Class}
+\section{Commands, Options and Further Settings Directly Related to the \cnltxdoc\ Class}
 
 \subsection{Using Class Options}\label{sec:class:options}
 The \cnltxdoc\ class only knows a few options:
@@ -899,7 +934,10 @@ title page of the manual.
     also defines a command sequence from the class name that formats the class
     name with color and small caps like \cnltx.
   \keyval{authors}{author list}
-    Comma separated list of package/class authors.
+    \changedversion{0.4}Comma separated list of package/class authors.  After
+    each author name you can add an email address by writing it in square
+    brackets: \verbcode+Some Name[some@name.com]+.  Email addresses specified
+    this way get written as a footnote.
   \keyval{version}{version number}
     Version number of the package/class.  \cnltx\ tries to extract the
     information from the given \option{package} or \option{class}.  This
@@ -956,9 +994,9 @@ prevented by explicitly setting the following option:
     \node[on chain] {package information} ;
     \node[on chain] {author names (formatted according to specifications for
       names as defined with \cs{newname})} ;
-    \node[on chain] {url} ;
-    \node[on chain] {email address} ;
-    \node[on chain] {abstract} ;
+    \node[on chain] {url when specified via the \option{url} option} ;
+    \node[on chain] {email address when specified via the \option{email} option} ;
+    \node[on chain] {abstract when specified via the \option{abstract} option} ;
   \end{tikzpicture}
   \caption{Schematic sketch of the title page.}
   \label{fig:titlepage}
@@ -1006,16 +1044,16 @@ this moment.
 
 \subsection{Predefined Indexing}\label{sec:predefined-indexing}
 \cnltxdoc\ allows the automated creation of an index.  This is done with the
-help of the \pkg{imakeidx} package by \egreg.  To use this feature you have
-two class options.  They cannot be set with \cs{setcnltx} but must be given as
-class options.
+help of the \pkg{imakeidx} package by \egreg~\cite{pkg:imakeidx}.  To use this
+feature you have two class options.  They cannot be set with \cs{setcnltx} but
+must be given as class options.
 
 \begin{options}
   \keybool{add-index}\Default{false}
     Enables the automatic creation of an index at the end of the document.
   \keybool{load-preamble+}\Default{false}
-    This option has the same effect as adding both \option{load-preamble} and
-    \option{add-index}.
+    This option has the same effect as adding the options
+    \option{load-preamble}, \option{add-index} and \option{add-bib}.
 \end{options}
 
 Enabling the feature
@@ -1049,15 +1087,71 @@ The index style file \file{cnltx.ist} contains the following lines:
 The feature is demonstrated by this document which does not contain a single
 control sequence containing the string \code{index}!
 
-\section{Predefined \pkg*{listings} and \pkg*{mdframed} Styles}
+\subsection{Bibliography with \pkg*{biblatex}}
+\subsubsection{A Bibliography Entry Type \code{package} for \pkg*{biblatex}}
+\label{sec:listings:bibtex-language}
 
+\cnltxdoc\sinceversion{0.4} defines a bibliograpy entry type \code{package}
+when \pkg{biblatex}~\cite{pkg:biblatex} is used.  This allows specifying
+\LaTeX\ packages in \file{bib} files:
+
+\begin{sourcecode}[sourcecode-options={style=cnltx-bibtex}]
+  @package{pkg:chngcntr,
+    title      = {chngcntr} ,
+    author     = {Peter Wilson} ,
+    maintainer = {Will Robertson} ,
+    date       = {2009-09-02} ,
+    version    = {1.0a} ,
+    url        = {http://mirror.ctan.org/macros/latex/contrib/chngcntr}
+  }
+\end{sourcecode}
+
+As you can see also an entry field \code{maintainer} is defined.  For this to
+work you have to use the \pkg{biblatex} bibliography style \code{cnltx}.  This
+style basically is a clone of the style \code{alphabetic} but defines the
+necessary additions for the \code{package} entry type and the
+\code{maintainer} entry field.  Along with the bibliography style a citation
+style \code{cnltx} is provided, again a clone of the \code{alphabetic} style.
+The only addition it makes is that indexing of maintainer names is enabled if
+\pkg{biblatex}'s \code{indexing} option is used.
+
+Just for the sake of the example I am going to cite the \pkg*{chngcntr}
+package now~\cite{pkg:chngcntr}.
+
+\subsubsection{Automatic Bibliography}
+
+\cnltxdoc\ allows the automated creation of a bibliography.
+
+\begin{options}
+  \keybool{add-bib}\Default{false}
+    Enables the automatic creation of a bibliography at the end of the
+    document.
+  \keybool{load-preamble+}\Default{false}
+    This option has the same effect as adding the options
+    \option{load-preamble}, \option{add-index} and \option{add-bib}.
+\end{options}
+
+What this options does is including the following code:
+\begin{sourcecode}
+  \RequirePackage[
+    backend=biber,
+    style=cnltx,
+    sortlocale=en_EN,
+    indexing=cite,
+    useprefix]{biblatex}
+  \addbibresource{cnltx.bib}
+  \AtEndDocument{\printbibliography}
+\end{sourcecode}
+
+\section{Predefined \pkg*{listings} and \pkg*{mdframed} Styles}
 \subsection{\pkg*{mdframed}}
 
 The source code environments (see section~\vref{sec:usage:examples}) all get a
-frame with the help of the \pkg{mdframed} package.  For this a custom style is
-defined called \code{cnltx}.  The options \option{frame-options} and
-\option{add-frame-options} mentioned in section~\vref{sec:usage:examples}
-manipulate this style.  It is predefined with these values:
+frame with the help of the \pkg{mdframed}~\cite{pkg:mdframed} package.  For
+this a custom style is defined called \code{cnltx}.  The options
+\option{frame-options} and \option{add-frame-options} mentioned in
+section~\vref{sec:usage:examples} manipulate this style.  It is predefined
+with these values:
 
 \begin{sourcecode}
   \def\cnltx@mdframed@options
@@ -1069,18 +1163,20 @@ manipulate this style.  It is predefined with these values:
 \end{sourcecode}
 
 \subsection{\pkg*{listings}}
+\subsubsection{Sourcecode}
 
 The code of the source code environments (see
 section~\vref{sec:usage:examples}) is formatted with the help of the
-\pkg{listings} package.  A \pkg{listings} style is defined called
-\code{cnltx}.  The options \option{add-cmds}, \option{add-silent-cmds},
+\pkg{listings} package~\cite{pkg:listings}.  A \pkg{listings} style is defined
+called \code{cnltx}.  The options \option{add-cmds}, \option{add-silent-cmds},
 \option{add-envs}, \option{add-silent-envs}, \option{listings-options} and
-\option{add-listings-options} manipulate this style.  It is predefined as
-follows:
+\option{add-listings-options} manipulate this style.  It is predefined by
+\cnltxexample\ as follows:
 
 \begin{sourcecode}
   \def\cnltx@listings@style{
-    language         = [LaTeX]TeX,
+    language         = [AlLaTeX]TeX,
+    alsolanguage     = [plain]TeX,
     basicstyle       = {\sourceformat},
     numbers          = left,
     numberstyle      = \tiny,
@@ -1137,14 +1233,49 @@ follows:
   }
 \end{sourcecode}
 
+\subsubsection{\BibTeX\ entries}
+The \cnltxlistings\ package defines\sinceversion{0.4} a listings language
+\code{BibTeX} by defines a huge number of bibentry types and bibentry field
+types, have a look at section~\vref{sec:listings:bibtex-language}.
+\cnltxexample\ defines a listings style for formatting them:
+
+\begin{sourcecode}
+  \def\cnltx@bibtex@listings@style{
+    language         = BiBTeX,
+    basicstyle       = {\sourceformat},
+    numbers          = left,
+    numberstyle      = \tiny,
+    xleftmargin      = 1em,
+    numbersep        = .5em,
+    gobble           = \cnltx@gobble ,
+    columns          = fullflexible,
+    literate         =
+      {ä}{{\"a}}1
+      {ö}{{\"o}}1
+      {ü}{{\"u}}1
+      {Ä}{{\"A}}1
+      {Ö}{{\"O}}1
+      {Ü}{{\"U}}1
+      {ß}{{\ss}}1 ,
+    breaklines       = true,
+    keepspaces       = true,
+    breakindent      = 1em,
+    commentstyle     = \color{comment},
+    keywordstyle     = \color{bibentry} ,
+    keywordstyle     = [2]\color{bibentryfield}\itshape ,
+    showstringspaces = false ,
+  }
+\end{sourcecode}
+
 \section{\PDF\ Strings and \pkg*{hyperref}}
 
 Since the formatting and indexing commands \cs{cs}, \cs{env}, \cs{option},
 \cs{pkg}, \cs{cls} and \cs{key} are robust they are ignored in \PDF\
 strings.  For this reason you should \emph{only use the starred variants} in
 places where \PDF\ bookmarks are built from such as section titles when you
-use \pkg{hyperref}.  Since \cnltxdoc\ loads \pkg{hyperref} this means you
-should do so, too, when you use \cnltxdoc.  This is important for two reasons:
+use \pkg{hyperref}~\cite{pkg:hyperref}.  Since \cnltxdoc\ loads \pkg{hyperref}
+this means you should do so, too, when you use \cnltxdoc.  This is important
+for two reasons:
 \begin{enumerate}
   \item Indexing in strings that get written to the table of contents does
     noch make much sense, anyway, so the starred versions should be used in
@@ -1190,64 +1321,70 @@ the actually used color names:
 The `default' color scheme is defined as follows:
 \begin{sourcecode}
   \cnltx@define@colorscheme{default}{
-    cs          => cnltxbrown , % command sequences
-    option      => cnltxyellow ,% options
-    option      => cnltxyellow ,% modules
-    comment     => cnltxgray ,  % comments
-    beginend    => red ,        % \begin and \end
-    env         => black ,      % environment names
-    argument    => black ,      % argument delimiters
-    meta        => black!80 ,   % arguments of \meta
-    cnltx       => cnltxred ,   % base color
-    cnltxbg     => white ,      % source code box background
-    link        => black!90 ,   % hyperlinks
-    versionnote => black!75     % versioning notes text 
+    cs            => cnltxbrown , % command sequences
+    option        => cnltxyellow ,% options
+    option        => cnltxyellow ,% modules
+    comment       => cnltxgray ,  % comments
+    beginend      => red ,        % \begin and \end
+    env           => black ,      % environment names
+    argument      => black ,      % argument delimiters
+    meta          => black!80 ,   % arguments of \meta
+    cnltx         => cnltxred ,   % base color
+    cnltxbg       => white ,      % source code box background
+    link          => black!90 ,   % hyperlinks
+    versionnote   => black!75     % versioning notes text
+    bibentry      => cnltxgreen , % BibTeX entry types
+    bibentryfield => black        % BibTeX entry fields
   }
 \end{sourcecode}
 
 The `blue' color scheme is defined this way:
 \begin{sourcecode}
   \cnltx@define@colorscheme{blue}{
-    cs          => cnltxbrown ,
-    option      => cnltxgreen ,
-    module      => cnltxred ,
-    comment     => cnltxgray ,
-    beginend    => red ,
-    env         => black ,
-    argument    => black ,
-    meta        => black!80 ,
-    cnltx       => cnltxblue ,
-    cnltxbg     => yellow!10 ,
-    link        => cnltx ,
-    versionnote => black!75
+    cs            => cnltxbrown ,
+    option        => cnltxgreen ,
+    module        => cnltxred ,
+    comment       => cnltxgray ,
+    beginend      => red ,
+    env           => black ,
+    argument      => black ,
+    meta          => black!80 ,
+    cnltx         => cnltxblue ,
+    cnltxbg       => yellow!10 ,
+    link          => cnltx ,
+    versionnote   => black!75
+    bibentry      => cnltxyellow ,
+    bibentryfield => black
   }
 \end{sourcecode}
 
 Finally the `formal' color scheme is defined like this:
 \begin{sourcecode}
   \cnltx@define@colorscheme{formal}{
-    cs          => black ,
-    option      => cnltxformalblue ,
-    module      => cnltxblue ,
-    comment     => cnltxgray ,
-    beginend    => red ,
-    env         => black ,
-    argument    => black ,
-    meta        => black!80 ,
-    cnltx       => cnltxformalblue ,
-    cnltxbg     => white ,
-    link        => black!90 ,
-    versionnote => black!75
+    cs            => black ,
+    option        => cnltxformalblue ,
+    module        => cnltxblue ,
+    comment       => cnltxgray ,
+    beginend      => red ,
+    env           => black ,
+    argument      => black ,
+    meta          => black!80 ,
+    cnltx         => cnltxformalblue ,
+    cnltxbg       => white ,
+    link          => black!90 ,
+    versionnote   => black!75 ,
+    bibentry      => black ,
+    bibentryfield => black
   }
 \end{sourcecode}
 
 \section{Language Support}
 
 \noindent\sinceversion{0.2}The \cnltxdoc\ and the \cnltxexample\ package both
-rely on the \pkg{translations} package for providing some document language
-dependent strings.  Currently only translations for English and German are
-provided.  Others can be added and the existing ones changed with the
-following command provided by the \pkg{translations} package:
+rely on the \pkg{translations} package~\cite{pkg:translations} for providing
+some document language dependent strings.  Currently only translations for
+English and German are provided.  Others can be added and the existing ones
+changed with the following command provided by the \pkg{translations} package:
 
 \begin{commands}
   \command{DeclareTranslation}[\marg{language}\marg{keyword}\marg{translation}]
@@ -1258,7 +1395,7 @@ following command provided by the \pkg{translations} package:
 The defined strings are listed in table~\vref{tab:language:strings}.  They are
 used in indexing strings and in different parts of the document.
 
-\begin{table}[htb]
+\begin{table}
   \centering\renewcommand\arraystretch{1.3}
   \caption{Overview over available internationalization key words.}
   \label{tab:language:strings}
@@ -1307,6 +1444,12 @@ used in indexing strings and in different parts of the document.
       \cnltxdoc     & cnltx-ff. &
         \GetTranslation{cnltx-ff.} &
         \GetTranslationFor{German}{cnltx-ff.} \\
+      \cnltxdoc     & cnltx-maintainer &
+        \GetTranslation{cnltx-maintainer} &
+        \GetTranslationFor{German}{cnltx-maintainer} \\
+      \cnltxdoc     & cnltx-maintainer &
+        \GetTranslation{cnltx-maintainers} &
+        \GetTranslationFor{German}{cnltx-maintainers} \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -1364,6 +1507,10 @@ the other packages and classes.
     Exhaustive expansion of \meta{argument1} and \meta{argument2} before
     they're passed as argumenst to \meta{cs}.  This is an alias of the kernel
     command \cs*{@expandtwoargs} defined for the sake of consistency.
+  \command{cnltx\at fullexpand\at afterarg}[\marg{cs}\marg{argument}\marg{code}]
+    \sinceversion{0.4}Places the exhaustivly exanpanded \meta{code} after
+    \meta{cs}\marg{argument} in the input stream (\latin{e.g.} for expanding
+    an argument to an environment).
   \command{cnltx\at stripbs}
     A shortcut for \verbcode+\expandafter\@gobble\string+.
   \command{cnltx\at if\at in}[\marg{tokenlist}\marg{search}\marg{true}\marg{false}]
@@ -1411,14 +1558,14 @@ the other packages and classes.
   \command{cnltxat}
     Robust command that typesets `\at' with category code 11.  An @ in command
     names confuses the indexing of the command names.  Either one uses another
-    symbol for makeindex's ``actual'' recognition and also tells \pkg{idxcmds}
-    about it or one uses \cs{cnltxat} in \cs{cs} and friends.  For the
-    sake of convenience you can define a command like \cs*{at} that expands to
-    it\footnote{This is important.  If you \cs*{let} it to \cs{cnltxat} index
-      entries may be sorted differently! Remember: \cs{cnltxat} is robust.}.
-    In order not to overwrite any such existing macro it is not defined by
-    \cnltxexample.  This document for example defines
-    \verbcode+\def\at{\cnltxat}+.
+    symbol for makeindex's ``actual'' recognition and also tells
+    \pkg{idxcmds}~\cite{pkg:idxcmds} about it or one uses \cs{cnltxat} in
+    \cs{cs} and friends.  For the sake of convenience you can define a command
+    like \cs*{at} that expands to it\footnote{This is important.  If you
+      \cs*{let} it to \cs{cnltxat} index entries may be sorted differently!
+      Remember: \cs{cnltxat} is robust.}.  In order not to overwrite any such
+    existing macro it is not defined by \cnltxexample.  This document for
+    example defines \verbcode+\def\at{\cnltxat}+.
   \command{cnltxletterat}
     An alias of \cs{cnltxat}.
   \command{cnltxotherat}
@@ -1446,11 +1593,13 @@ the other packages and classes.
     Sets the category code of \code{\%} to 14.
   \command{cnltx\at copyablespace}
     Prints a space that is also copyable.  Uses the \pkg{accsupp} package by
-    \oberdiek.
+    \oberdiek~\cite{pkg:accsupp}.
   \command{cnltx\at mdframed\at options}
-    Predefined option list for the \pkg{mdframed} style \code{cnltx}.
+    Predefined option list for the \pkg{mdframed}~\cite{pkg:mdframed} style
+    \code{cnltx}.
   \command{cnltx\at listings\at style}
-    Predefined option list for the \pkg{listings} style \code{cnltx}.
+    Predefined option list for the \pkg{listings}~\cite{pkg:listings} style
+    \code{cnltx}.
 \end{commands}
 
 \subsection{Defined by \cnltxtools}
@@ -1515,9 +1664,9 @@ the other packages and classes.
 Below are listed all \emph{predefined} control sequence names that are treated
 as ``silent'' names by \cnltx, that is, those defined by \cnltxcsnames.  You
 may notice that the list does not cover all control sequences that are
-formatted.  That is because \pkg{listings} already has a number of known
-control sequence names.  This list probably overlaps with those on some parts,
-though.
+formatted.  That is because \pkg{listings}~\cite{pkg:listings} already has a
+number of known control sequence names.  This list probably overlaps with
+those on some parts, though.
 
 \begin{multicols}{3}
   \RaggedRight\listsilentcmds

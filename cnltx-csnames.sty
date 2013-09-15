@@ -22,12 +22,6 @@
 %
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-% The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
-%    cnltx-tools.sty
-%  - cnltx_en.tex, cnltx_en.pdf
-%  - README
-% --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
@@ -35,11 +29,22 @@
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx-csnames}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
+% \cnltx@create@message{csnames}{Error}
+% \cnltx@create@message{csnames}{Warning}
+% \cnltx@create@message{csnames}{WarningNoLine}
+% \cnltx@create@message{csnames}{Info}
+
 \def\cnltx@predefined@control@sequences{%
   % symbols:
   -,@,
-  % csnames neginning with @:
-  @empty,@gobble,@ifnextchar,@ifstar,
+  % csnames beginning with @:
+  @alph,@Alph,@arabic,
+  @ctrerr,
+  @empty,
+  @gobble,
+  @ifnextchar,@ifstar,
+  @roman,@Roman,
+  @slowromancap,
   % A:
   addtokomafont,
   ae,AE,
@@ -66,21 +71,27 @@
   clearpage,
   color,
   cref,
+  csdef,
+  csname,
+  csuse,
   % D
   d,
   date,
   dh,
   DH,
+  DeclareListParser,
   DeclareRobustCommand,
   deffootnote,deffootnotemark,
   definecolor,
   descriptionlabel,
+  dimexpr,
   discretionary,
   dj,DJ,
   documentclass,
   % E
   egroup,
   emph,
+  endcsname,
   endgroup,
   endnote,
   enlargethispage,
@@ -100,7 +111,13 @@
   hypersetup,
   hyphenation,
   % I
+  ifblank,
   ifboolexpe,ifboolexpr,
+  ifcsdef,
+  ifinlist,
+  ifstr,
+  ifstrempty,
+  ifstrequal,
   ignorespaces,ignorespacesafterend,
   include,includeonly,
   indent,
@@ -123,8 +140,11 @@
   LaTeX,LaTeXe,
   linebreak,linewidth,
   LoadClassWithOptions,LoadClass,
+  ltx@ifnextchar,
   % M
   maketitle,
+  mathparagraph,
+  mathsection,
   mbox,
   mdseries,
   % N
@@ -137,11 +157,14 @@
   newpage,
   newrobustcmd,
   ng,NG,
+  node,
   nolinebreak,
   nonfrenchspacing,
   noindent,
+  notblank,
   nopagebreak,
   normalsize,normalfont,
+  number,numexpr,
   % O
   o,O,oe,OE,
   othersectionlevelsformat,
@@ -252,10 +275,12 @@
   theenumi,theenumii,theenumiii,theenumiv,
   thefootnotemark,
   thepart,
+  tikz,
   tiny,
   title,
   today,
   ttfamily,
+  two@digits,
   % U
   usecounter,
   usepackage,
@@ -326,4 +351,5 @@ HISTORY:
 2013/09/10 v0.2  - added a few command and environment names
                  - added macros for printing the known names
 2013/09/12 v0.3a - added a few command names
+2013/09/15 v0.4  - added a few command names
 

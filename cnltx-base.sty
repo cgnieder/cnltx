@@ -22,17 +22,11 @@
 %
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-% The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
-%    cnltx-tools.sty
-%  - cnltx_en.tex, cnltx_en.pdf
-%  - README
-% --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/09/12}
-\def\cnltx@@version{v0.3a}
+\def\cnltx@@date{2013/09/15}
+\def\cnltx@@version{v0.4}
 \def\cnltx@@info{LaTeX examples the CN way}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox}
@@ -90,6 +84,15 @@
 % \exp_args:NV
 \long\def\cnltx@expand@arg#1#2{%
   \expandafter#1\expandafter{#2}%
+}
+
+% expanding an environment argument or something:
+\long\def\cnltx@fullexpand@afterarg#1#2#3{%
+  \begingroup
+  \edef\cnltx@x{\endgroup
+    \noexpand#1{\unexpanded{#2}}#3%
+  }%
+  \cnltx@x
 }
 
 \def\cnltx@stripbs{\expandafter\@gobble\string}
@@ -177,48 +180,54 @@
 
 % predefined color-schemes:
 \cnltx@define@colorscheme{default}{
-  cs          => cnltxbrown ,
-  option      => cnltxyellow ,
-  module      => cnltxblue ,
-  comment     => cnltxgray ,
-  beginend    => red ,
-  env         => black ,
-  argument    => black ,
-  meta        => black!80 ,
-  cnltx       => cnltxred ,
-  cnltxbg     => white ,
-  link        => black!90 ,
-  versionnote => black!75
+  cs            => cnltxbrown ,
+  option        => cnltxyellow ,
+  module        => cnltxblue ,
+  comment       => cnltxgray ,
+  beginend      => red ,
+  env           => black ,
+  argument      => black ,
+  meta          => black!80 ,
+  cnltx         => cnltxred ,
+  cnltxbg       => white ,
+  link          => black!90 ,
+  versionnote   => black!75 ,
+  bibentry      => cnltxgreen ,
+  bibentryfield => black
 }
 
 \cnltx@define@colorscheme{blue}{
-  cs          => cnltxbrown ,
-  option      => cnltxgreen ,
-  module      => cnltxred ,
-  comment     => cnltxgray ,
-  beginend    => red ,
-  env         => black ,
-  argument    => black ,
-  meta        => black!80 ,
-  cnltx       => cnltxblue ,
-  cnltxbg     => yellow!10 ,
-  link        => cnltx ,
-  versionnote => black!75
+  cs            => cnltxbrown ,
+  option        => cnltxgreen ,
+  module        => cnltxred ,
+  comment       => cnltxgray ,
+  beginend      => red ,
+  env           => black ,
+  argument      => black ,
+  meta          => black!80 ,
+  cnltx         => cnltxblue ,
+  cnltxbg       => yellow!10 ,
+  link          => cnltx ,
+  versionnote   => black!75 ,
+  bibentry      => cnltxyellow ,
+  bibentryfield => black
 }
 
 \cnltx@define@colorscheme{formal}{
-  cs          => black ,
-  option      => cnltxformalblue ,
-  module      => cnltxblue ,
-  comment     => cnltxgray ,
-  beginend    => red ,
-  env         => black ,
-  argument    => black ,
-  meta        => black!80 ,
-  cnltx       => cnltxformalblue ,
-  cnltxbg     => white ,
-  link        => black!90 ,
-  versionnote => black!75
+  cs            => black ,
+  option        => cnltxformalblue ,
+  module        => cnltxblue ,
+  comment       => cnltxgray ,
+  beginend      => red ,
+  env           => black ,
+  argument      => black ,
+  meta          => black!80 ,
+  cnltx         => cnltxformalblue ,
+  cnltxbg       => white ,
+  link          => black!90 ,
+  versionnote   => black!75 ,
+  bibentry      => black ,
+  bibentryfield => black
 }
 
 % set the default:
@@ -236,4 +245,6 @@ HISTORY:
                 - added color `module'
                 - added \cnltx@remove@once and \cnltx@remove@all
                 - added long versions of tokenlist manipulation macros
+2013/09/14 v0.4 - added \cnltx@fullexpand@afterarg
+                - new colors `bibentry' and `bibentryfield'
 

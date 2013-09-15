@@ -1,0 +1,90 @@
+\@ifclassloaded{cnltx-doc}{}{%
+  \GenericError
+    {(cnltx.bbx)\@spaces\@spaces\@spaces\@spaces}
+    {cnltx bibliography style error: invalid class}
+    {See the cnltx bundle documentation for explanation.}
+    {%
+      The `cnltx' bibliography style can only be used with the `cnltx-doc'
+      document class%
+    }%
+}
+\ProvidesFile{cnltx.bbx}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
+
+\RequireBibliographyStyle{alphabetic}
+\ExecuteBibliographyOptions{block=ragged}
+
+\DeclareBibliographyDriver{package}{%
+  \usebibmacro{bibindex}%
+  \usebibmacro{begentry}%
+  \usebibmacro{author}%
+  \usebibmacro{maintainer}%
+  \setunit{\labelnamepunct}\newblock
+  \usebibmacro{title+subtitle}%
+  \printfield{version}%
+  \setunit{\addcomma\addspace}%
+  \usebibmacro{date}%
+  \newunit\newblock
+  \usebibmacro{url+urldate}%
+  \newunit\newblock
+  \usebibmacro{finentry}%
+}
+
+\newbibmacro{title+subtitle}{%
+  \iffieldundef{title}{}{%
+    \printfield[package]{title}%
+    \ifbibindex{\indexfield[package]{title}}{}%
+    \setunit{\adddot\addspace}%
+    \iffieldundef{subtitle}{}{%
+      \printfield{subtitle}%
+      \setunit{\adddot\addspace}%
+    }%
+  }%
+}
+
+\newbibmacro*{maintainer}{%
+  \printtext{%
+    \ifnameundef{maintainer}
+      {}
+      {%
+        \addcomma\addspace
+        \ifnumgreater{\value{maintainer}}{1}
+          {\GetTranslation{cnltx-maintainers}}
+          {\GetTranslation{cnltx-maintainer}}%
+        \addcolon\addspace
+        \printnames{maintainer}%
+      }%
+  }%
+}
+
+\DeclareNameAlias[package]{maintainer}{default}
+\DeclareIndexNameAlias[package]{maintainer}{default}
+%  \DeclareIndexNameFormat[package]{maintainer}{\cnltx@name@idx{#1}}
+\DeclareFieldFormat[package]{title}{\pkg*{#1}}
+\DeclareIndexFieldFormat[package]{title}{%
+  \ifstrequal{#1}{\KOMAScript}
+    {\pkgidx[KOMA-Script]{\KOMAScript}}
+    {\pkgidx{#1}}%
+}
+\DeclareIndexFieldFormat[package]{indextitle}{%
+  \ifstrequal{#1}{\KOMAScript}
+    {\pkgidx[KOMA-Script]{\KOMAScript}}
+    {\pkgidx{#1}}%
+}
+\DeclareFieldFormat[package]{subtitle}{\mkbibemph{#1}}
+
+\DeclareLabelname[package]{%
+  \field{shortauthor}
+  \field{author}
+  \field{maintainer}
+  \field{shorteditor}
+  \field{editor}
+  \field{translator}
+}
+
+\DeclareDriverSourcemap[datatype=bibtex]{
+  \map{
+    \step[fieldsource=info, fieldtarget=subtitle]
+  }
+}
+
+\endinput
