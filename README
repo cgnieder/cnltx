@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the CNLTX bundle v0.3a 2013/09/12
+the CNLTX bundle v0.4 2013/09/15
 
   LaTeX source code and output
 
@@ -23,8 +23,8 @@ This work has the LPPL maintenance status `maintained'.
 The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
 The cnltx bundle consists of the files
- - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
-   cnltx-tools.sty
+ - cnltx-base.sty, cnltx-csnames.sty, cnltx-doc.cls, cnltx-example.sty,
+    cnltx-listings.cls, cnltx-tools.sty
  - cnltx_en.tex, cnltx_en.pdf
  - README
 --------------------------------------------------------------------------

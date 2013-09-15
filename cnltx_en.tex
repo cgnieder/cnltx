@@ -216,8 +216,11 @@ The \cnltx\ bundle currently bundles the following packages and classes:
   \item \file{cnltx.ist} -- an index style file that is used when the option
     \option{add-index} is activated and the option \option{index-style} is not
     used.
-  \item \file{cnltx.bib} -- a bibliography file that contains a small but
-    growing number of package entries.
+  \item \sinceversion{0.4}\file{cnltx.bib} -- a bibliography file that
+    contains a small but growing number of package entries.
+  \item \sinceversion{0.4}\file{cnltx.bbx}, \file{cnltx.cbx} and
+    \file{cnltx.dbx} -- files related to the \pkg{biblatex} style
+    \code{cnltx}.
 \end{itemize}
 
 \section{License and Requirements}\label{sec:license}
@@ -1142,6 +1145,9 @@ What this options does is including the following code:
   \addbibresource{cnltx.bib}
   \AtEndDocument{\printbibliography}
 \end{sourcecode}
+
+As you can see there's also a bibliography database file \file{cnltx.bib} that
+provides a yet small but growing number of package entries.
 
 \section{Predefined \pkg*{listings} and \pkg*{mdframed} Styles}
 \subsection{\pkg*{mdframed}}
