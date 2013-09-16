@@ -1031,10 +1031,13 @@ Using the option will include the following code:
     {\RequirePackage{fontspec}}
   \RequirePackage[oldstyle]{libertine}
   % `libertinehologopatch' is not on CTAN, yet!
-  % you can get it at https://bitbucket.org/cgnieder/libertinehologopatch
+  % you can get it at https://bitbucket.org/cgnieder/libertinehologopatch/
   \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
   \RequirePackage{microtype}
+  % activate my microtype settings for tracking of small caps
+  % with \microtypesetup{tracking=scshape}
+  % needs files from https://bitbucket.org/cgnieder/microtype-config/
   \ifboolexpr{not bool{xetex} and not bool{luatex}}
     {\RequirePackage[scaled=.83]{beramono}}
     {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
@@ -1125,7 +1128,7 @@ necessary additions for the \code{package} entry type and the
 \code{maintainer} entry field.  Along with the bibliography style a citation
 style \code{cnltx} is provided, again a clone of the \code{alphabetic} style.
 The only addition it makes is that indexing of maintainer names is enabled if
-\pkg{biblatex}'s \code{indexing} option is used.  \emph{The style can only be
+\pkg{biblatex}'s \code{indexing} option is used.  \emph{The styles can only be
   used with the \cnltxdoc\ class} as it relies on definitions made by it.
 
 This document uses the following call of \pkg{biblatex}:
