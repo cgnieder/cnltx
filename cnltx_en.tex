@@ -31,7 +31,7 @@
 % --------------------------------------------------------------------------
 \documentclass[load-preamble+]{cnltx-doc}
 \usepackage[utf8]{inputenc}
-
+\microtypesetup{tracking=scshape}
 \usepackage{varioref}
 
 \usepackage{array,booktabs}
@@ -796,6 +796,27 @@ section~\vref{sec:known:csnames}.
     Like \option{add-silent-cmds} but for environment names.
 \end{options}
 
+\subsection{Example File}
+Let's say you're documenting a package called \code{mypackage} that provides
+the command \cs*{mycommand} and the environment \env*{myenv}.  The basic
+manual setup could then look something like this:
+
+\begin{sourcecode}
+  \documentclass[load-preamble]{cnltx-doc}
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \setcnltx{
+    package  = mypackage ,
+    authors  = John Doe ,
+    email    = john@doe.com ,
+    add-cmds = {mycommand} ,
+    add-envs = {myenv}
+  }
+  \begin{document}
+    ...
+  \end{document}
+\end{sourcecode}
+
 \section{Formatting Possibilities}\label{sec:cmds:formatting}
 
 One of the goals I wanted to achieve with this package is a consistent look
@@ -1104,12 +1125,27 @@ necessary additions for the \code{package} entry type and the
 \code{maintainer} entry field.  Along with the bibliography style a citation
 style \code{cnltx} is provided, again a clone of the \code{alphabetic} style.
 The only addition it makes is that indexing of maintainer names is enabled if
-\pkg{biblatex}'s \code{indexing} option is used.
+\pkg{biblatex}'s \code{indexing} option is used.  \emph{The style can only be
+  used with the \cnltxdoc\ class} as it relies on definitions made by it.
+
+This document uses the following call of \pkg{biblatex}:
+\begin{sourcecode}
+  \usepackage[
+    backend=biber,
+    style=cnltx,
+    sortlocale=en_EN,
+    indexing=cite,
+    useprefix]{biblatex}
+  \addbibresource{cnltx.bib}
+\end{sourcecode}
+Actually it let's \cnltxdoc\ do it, see section~\ref{sec:autom-bibl} for
+details.
 
 Just for the sake of the example I am going to cite the \pkg*{chngcntr}
-package now~\cite{pkg:chngcntr}.
+package now~\cite{pkg:chngcntr} so you can see both the bibliography entry and
+the indexed names of package, author and maintainer in the appendix.
 
-\subsubsection{Automatic Bibliography}
+\subsubsection{Automatic Bibliography}\label{sec:autom-bibl}
 
 \cnltxdoc\ allows the automated creation of a bibliography.
 

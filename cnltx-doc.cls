@@ -101,7 +101,6 @@
   \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
   \RequirePackage{microtype}
-  \microtypesetup{tracking=smallcaps}
   \ifboolexpr{not bool{xetex} and not bool{luatex}}
     {\RequirePackage[scaled=.83]{beramono}}
     {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
