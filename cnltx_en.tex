@@ -26,12 +26,6 @@
 %
 % The Current Maintainer of this work is Clemens Niederberger.
 % --------------------------------------------------------------------------
-% The cnltx bundle consists of the files
-%  - cnltx-base.sty, cnltx-example.sty cnltx-doc.cls, cnltx-csnames.sty,
-%    cnltx-tools.sty
-%  - cnltx_en.tex, cnltx_en.pdf
-%  - README
-% --------------------------------------------------------------------------
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
@@ -194,23 +188,19 @@ The \cnltx\ bundle currently bundles the following packages and classes:
   \item \cnltxbase\ -- a package that defines base macros for error-messaging,
     expansion control and tokenlist manipulation.  It also provides color
     definitions and defines a few color schemes for the \cnltxdoc\ class.  All
-    other packages and classes of the \cnltx\ bundle load this package.\par
-    This package can be loaded alone.
-  \item \cnltxcsnames\ -- a package that defines a list of highlighted control
-    sequence names, loaded by \cnltxexample.\par
-    It does not make sense to load this package directly: it only defines a
-    single macro containing the list of control sequence names.  The package
-    only exists for maintanance reasons.\par
-    The list is by no means comprehensive.  If you like to extend it feel free
-    to fork the github repo (\url{\csname cnltx@package@url\endcsname}).
-    That would be very much appreciated.
+    other packages and classes of the \cnltx\ bundle load this package.  This
+    package can be used stand-alone.
   \item \cnltxdoc\ -- a class for writing package manuals.  Loads
     \cnltxexample\ and \cnltxtools.
   \item \cnltxexample\ -- a package that defines macros and environments for
-    describing control sequences and options and for including source code.\par
-    This package can be loaded alone.  Loads \cnltxcsnames\ and \cnltxlistings.
+    describing control sequences and options and for including source code.
+    Loads \cnltxlistings.  This package can be used stand-alone.
   \item \sinceversion{0.4}\cnltxlistings\ -- a package that defines the
-    listings language `BibTeX'.  This package can be loaded alone.
+    listings language `BibTeX'.  Also defines a list of highlighted control
+    sequence names and environment names, loaded by \cnltxexample.  The
+    additional control sequence and environment names used to be defined in
+    \cnltxcsnames.  That package got removed and its contents are now provided
+    by \cnltxlistings.  This package can be used stand-alone.
   \item \sinceversion{0.2}\cnltxtools\ -- a package that defines tools used by
     \cnltxdoc\ that are unrelated to \LaTeX\ documentation \latin{per se}.
   \item \file{cnltx.ist} -- an index style file that is used when the option
@@ -232,8 +222,6 @@ The \cnltxbase\ package loads the following packages:
 \needpackage{trimspaces}~\cite{pkg:trimspaces} and
 \needpackage{xcolor}~\cite{pkg:xcolor}.
 
-The \cnltxcsnames\ package only loads \cnltxbase.
-
 The \cnltxdoc\ class loads the package with the same name and additionally
 the following packages: \cnltxbase, \cnltxexample,
 \pkg{translations}~\cite{pkg:translations},
@@ -246,8 +234,8 @@ the following packages: \cnltxbase, \cnltxexample,
 \cls{scrartcl}\footnote{\CTANurl{koma-script}}~\cite{pkg:koma-script}.
 
 The \cnltxexample\ package loads the following packages:
-\cnltxbase, \cnltxcsnames, \cnltxlistings, \cnltxtools,
-\needpackage{translations}, \needpackage{mdframed}~\cite{pkg:mdframed} and
+\cnltxbase, \cnltxlistings, \cnltxtools, \needpackage{translations},
+\needpackage{mdframed}~\cite{pkg:mdframed} and
 \needpackage{idxcmds}~\cite{pkg:idxcmds}.
 
 The \cnltxlistings\ package loads \cnltxbase\ and
@@ -770,7 +758,7 @@ The source code is formatted using the \pkg{listings}
 package~\cite{pkg:listings}.  Similar options exist to adapt \pkg{listings}'
 options that are used for formatting the source code.  The predifined style
 has many options that will not be mentioned here.  If you're interested you
-can find them in \file{cnltx-csnames.sty} or in
+can find them in \file{cnltx-listings.sty} or in
 section~\vref{sec:known:csnames}.
 \begin{options}
   \keyval-{gobble}{integer}\Default{2}
@@ -1550,6 +1538,31 @@ the other packages and classes.
     Command that can be used to define a color scheme.
 \end{commands}
 
+\subsection{Defined by \cnltxdoc}
+
+\begin{commands}
+  \command{cnltx\at doc\at error}[\marg{message}]
+    Issue an error message using \cs*{ClassError}\Marg{cnltx-doc}.
+  \command{cnltx\at doc\at warning}[\marg{message}]
+    Issue a warning message using \cs*{ClassWarning}\Marg{cnltx-doc}.
+    \command{cnltx\at doc\at warningnoline}[\marg{message}]
+    Issue a warning message using \cs*{ClassWarningNoLine}\Marg{cnltx-doc}.
+  \command{cnltx\at doc\at info}[\marg{message}]
+    Issue a message using \cs*{ClassInfo}\Marg{cnltx-doc}.
+  \command{cnltx\at getfileinfo}[\marg{file name}\marg{file extension}]
+    Extract the date, version and background information for a package or a
+    class.
+  \command{cnltx\at version\at note}[\marg{note}]
+    Command that is used for the versioning notes interally.  Sets
+    \cs*{reversemarginpar} and then writes the note \meta{note} to the margin
+    with corresponding formatting.
+\end{commands}
+\begin{environments}
+  \environment{cnltxlist}
+    The list environment that is used by the environments \env{commands},
+    \env{options} and \env{environments}.
+\end{environments}
+
 \subsection{Defined by \cnltxexample}
 
 \begin{commands}
@@ -1608,6 +1621,29 @@ the other packages and classes.
     \code{cnltx}.
 \end{commands}
 
+\subsection{Defined by \cnltxlistings}
+
+\begin{commands}
+  \command{cnltx\at listings\at error}[\marg{message}]
+    Issue an error message using \cs*{PackageError}\Marg{cnltx-listings}.
+  \command{cnltx\at listings\at warning}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarning}\Marg{cnltx-listings}.
+    \command{cnltx\at listings\at warningnoline}[\marg{message}]
+    Issue a warning message using \cs*{PackageWarningNoLine}\Marg{cnltx-listings}.
+  \command{cnltx\at listings\at info}[\marg{message}]
+    Issue a message using \cs*{PackageInfo}\Marg{cnltx-listings}.
+  \command{cnltx\at predefined\at control\at sequences}
+    A comma-separated list of predefined `silent' control sequence names.
+  \command{cnltx\at predefined\at environments}
+    A comma-separated list of predefined `silent' environment names.
+  \command{listsilentcmds}
+    Prints all known control sequence names formatted and separated with a
+    comma.
+  \command{listsilentenvs}
+    Prints all known environment names formatted and separated with a
+    comma.
+\end{commands}
+
 \subsection{Defined by \cnltxtools}
 
 \begin{commands}
@@ -1624,51 +1660,11 @@ the other packages and classes.
     A wrapper for package \pkg{accsupp}'s \cs*{BeginAccSupp}\Marg{ActualText
       = \meta{actual text}} \meta{\TeX\ text} \cs*{EndAccSupp}\marg{}.
 \end{commands}
-  
-\subsection{Defined by \cnltxdoc}
-
-\begin{commands}
-  \command{cnltx\at doc\at error}[\marg{message}]
-    Issue an error message using \cs*{ClassError}\Marg{cnltx-doc}.
-  \command{cnltx\at doc\at warning}[\marg{message}]
-    Issue a warning message using \cs*{ClassWarning}\Marg{cnltx-doc}.
-    \command{cnltx\at doc\at warningnoline}[\marg{message}]
-    Issue a warning message using \cs*{ClassWarningNoLine}\Marg{cnltx-doc}.
-  \command{cnltx\at doc\at info}[\marg{message}]
-    Issue a message using \cs*{ClassInfo}\Marg{cnltx-doc}.
-  \command{cnltx\at getfileinfo}[\marg{file name}\marg{file extension}]
-    Extract the date, version and background information for a package or a
-    class.
-  \command{cnltx\at version\at note}[\marg{note}]
-    Command that is used for the versioning notes interally.  Sets
-    \cs*{reversemarginpar} and then writes the note \meta{note} to the margin
-    with corresponding formatting.
-\end{commands}
-\begin{environments}
-  \environment{cnltxlist}
-    The list environment that is used by the environments \env{commands},
-    \env{options} and \env{environments}.
-\end{environments}
-
-\subsection{Defined by \cnltxcsnames}
-
-\begin{commands}
-  \command{cnltx\at predefined\at control\at sequences}
-    A comma-separated list of predefined `silent' control sequence names.
-  \command{cnltx\at predefined\at environments}
-    A comma-separated list of predefined `silent' environment names.
-  \command{listsilentcmds}
-    Prints all known control sequence names formatted and separated with a
-    comma.
-  \command{listsilentenvs}
-    Prints all known environment names formatted and separated with a
-    comma.
-\end{commands}
 
 \section{List of Known \LaTeX\ Control Sequences}\label{sec:known:csnames}
 
 Below are listed all \emph{predefined} control sequence names that are treated
-as ``silent'' names by \cnltx, that is, those defined by \cnltxcsnames.  You
+as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.  You
 may notice that the list does not cover all control sequences that are
 formatted.  That is because \pkg{listings}~\cite{pkg:listings} already has a
 number of known control sequence names.  This list probably overlaps with
@@ -1681,7 +1677,7 @@ those on some parts, though.
 \section{List of Known \LaTeX\  Environments}\label{sec:known:environments}
 
 Below are listed all \emph{predefined} control sequence names that are treated
-as ``silent'' names by \cnltx, that is, those defined by \cnltxcsnames.
+as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
 
 \begin{multicols}{3}
   \RaggedRight\listsilentenvs

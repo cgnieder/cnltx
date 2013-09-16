@@ -28,13 +28,15 @@
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx-listings}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
-% \cnltx@create@message{listings}{Error}
-% \cnltx@create@message{listings}{Warning}
-% \cnltx@create@message{listings}{WarningNoLine}
-% \cnltx@create@message{listings}{Info}
+\cnltx@create@message{listings}{Error}
+\cnltx@create@message{listings}{Warning}
+\cnltx@create@message{listings}{WarningNoLine}
+\cnltx@create@message{listings}{Info}
 
 \RequirePackage{listings}
 
+% --------------------------------------------------------------------------
+% a listings language BibTeX:
 \lstdefinelanguage{BibTeX}{
   % entry types:
   morekeywords = {
@@ -220,9 +222,327 @@
   sensitive = false
 }
 
+% --------------------------------------------------------------------------
+% command names `moretexcs' that are used as not-indexed texcs for the
+% listings style `cnltx':
+\def\cnltx@predefined@control@sequences{%
+  % symbols:
+  -,@,
+  % csnames beginning with @:
+  @alph,@Alph,@arabic,
+  @ctrerr,
+  @empty,
+  @gobble,
+  @ifnextchar,@ifstar,
+  @roman,@Roman,
+  @slowromancap,
+  % A:
+  addbibresource,
+  addtokomafont,
+  ae,AE,
+  AfterEndPreamble,AfterPreamble,AfterEndDocument,AfterEndEnvironment,
+  alph,Alph,
+  author,
+  autodot,
+  arabic,
+  AtBeginDocument,AtBeginEnvironment,AtEndDocument,AtEndEnvironment,
+    AtEndPreamble,
+  % B
+  baselineskip,
+  BeforeBeginEnvironment,
+  begingroup,
+  bfseries,
+  bgroup,
+  % C
+  c,
+  caption,
+  cb,
+  centering,
+  chapter,
+  cleardoublepage,
+  clearpage,
+  color,
+  cref,
+  csdef,
+  csname,
+  csuse,
+  % D
+  d,
+  date,
+  dh,
+  DH,
+  DeclareListParser,
+  DeclareRobustCommand,
+  deffootnote,deffootnotemark,
+  definecolor,
+  descriptionlabel,
+  dimexpr,
+  discretionary,
+  dj,DJ,
+  documentclass,
+  % E
+  egroup,
+  emph,
+  endcsname,
+  endgroup,
+  endnote,
+  enlargethispage,
+  % F
+  fbox,
+  fontsize,fontshape,fontspec,
+  footnote,footnotesize,footnotetext,
+  foreignlanguage,
+  frenchspacing,
+  % G
+  global,
+  % H
+  H,
+  hskip,
+  hspace,
+  huge,Huge,
+  hypersetup,
+  hyphenation,
+  % I
+  ifblank,
+  ifboolexpe,ifboolexpr,
+  ifcsdef,
+  ifinlist,
+  ifstr,
+  ifstrempty,
+  ifstrequal,
+  ignorespaces,ignorespacesafterend,
+  include,includeonly,
+  indent,
+  input,InputIfFileExists,
+  item,
+  itshape,
+  % J
+  j,
+  % K
+  k,
+  KOMAoption,
+  KOMAoptions,
+  % L
+  l,L,
+  labelenumi,labelenumii,labelenumiii,labelenumiv,
+  label,
+  labelitemi,labelitemii,labelitemiii,labelitemiv,
+  labelsep,
+  large,Large,LARGE,
+  LaTeX,LaTeXe,
+  linebreak,linewidth,
+  LoadClassWithOptions,LoadClass,
+  ltx@ifnextchar,
+  % M
+  maketitle,
+  mathparagraph,
+  mathsection,
+  mbox,
+  mdseries,
+  % N
+  NeedsTeXFormat,
+  newcommand,
+  newcounter,
+  newfontfamily,
+  newlabel,
+  newline,
+  newpage,
+  newrobustcmd,
+  ng,NG,
+  node,
+  nolinebreak,
+  nonfrenchspacing,
+  noindent,
+  notblank,
+  nopagebreak,
+  normalsize,normalfont,
+  number,numexpr,
+  % O
+  o,O,oe,OE,
+  othersectionlevelsformat,
+  % P
+  P,
+  pagebreak,
+  par,
+  paragraph,
+  parindent,
+  part,partformat,partname,
+  pounds,
+  printacronyms,
+  printbibliography,
+  printendnotes,
+  printindex,
+  protected,
+  protecting,
+  providecommand,providerobustcmd,
+  ProvidesClass,
+  ProvidesPackage,
+  % Q
+  quad,qquad,
+  % R
+  r,
+  raggedright,raggedleft,RaggedRight,
+  ref,
+  refstepcounter,
+  relax,
+  renewcommand,renewrobustcmd,
+  RequirePackage,
+  rightarrow,
+  robustify,
+  roman,Roman,
+  rmfamily,
+  % S
+  S,
+  samepage,
+  scriptsize,
+  scshape,
+  section,
+  selectfont,
+  selectlanguage,
+  setcapindent,
+  setcounter,
+  setfnpct,
+  setkomafont,
+  setlength,
+  setmainfont,
+  setmainlanguage,
+  setmonofont,
+  setotherlanguage,
+  setotherlanguages,
+  setsansfont,
+  shorthandoff,
+  shorthandon,
+  sidenote,
+  sffamily,
+  slshape,
+  small,
+  ss,SS,
+  stepcounter,
+  subparagraph,
+  subsection,
+  subsubsection,
+  % T
+  t,
+  tableofcontents,
+  TeX,
+  test,
+  textasciicircum,
+  textasciitilde,
+  textasteriskcentered,
+  textbackslash,
+  textbar,
+  textbf,
+  textbraceleft,
+  textbraceright,
+  textcolor,
+  textcompwordmark,
+  textdollar,
+  textemdash,textendash,
+  textenglish,
+  textexclamdown,
+  textgreater,
+  textit,
+  textless,
+  textmd,
+  textogonekcentered,
+  textrm,
+  textsc,
+  textsf,
+  textquestiondown,
+  textquotedbl,textquotedblleft,textquotedblright,
+  textquoteleft,textquoteright,
+  textsc,
+  textsection,
+  textsl,
+  textsubscript,
+  textsuperscript,
+  textsterling,
+  texttt,
+  textunderscore,
+  textup,
+  textwidth,
+  th,TH,
+  the,
+  theendnotes,
+  theenumi,theenumii,theenumiii,theenumiv,
+  thefootnotemark,
+  thepart,
+  tikz,
+  tiny,
+  title,
+  today,
+  ttfamily,
+  two@digits,
+  % U
+  usecounter,
+  usepackage,
+  upshape,
+  % V
+  v,
+  vskip,vspace,
+  % W
+  % X
+  xdefinecolor
+  % Y
+  % Z
+}
+
+% --------------------------------------------------------------------------
+% command names `morekeywords' that are used as not-indexed texcs for the
+% listings style `cnltx':
+\def\cnltx@predefined@environments{%
+  center,
+  description,
+  document,
+  enumerate,
+  figure,
+  flushleft,
+  flushright,
+  itemize,
+  labeling,
+  longtable,
+  otherlanguage,
+  tabbing,
+  table,
+  tabu,
+  tabular,
+  tabularx,
+  tabulary,
+  verbatim
+}
+
+% --------------------------------------------------------------------------
+% helper commands that print the list of additionally defined keywords and
+% texcs:
+\def\cnltx@print@list@sep{, }
+
+\pgfkeys{
+  cnltx/.cd,
+    list-known-sep/.code = \def\cnltx@print@list@sep{#1}
+}
+
+\newrobustcmd*\cnltx@write@list@entry[2]{%
+  #1*{#2}\def\cnltx@write@list@entry##1##2{\cnltx@print@list@sep ##1*{##2}}%
+}
+
+\newrobustcmd*\cnltx@write@list[2]{%
+  \cnltx@fullexpand@twoargs
+    \forcsvlist
+    {\noexpand\cnltx@write@list@entry\noexpand#2}
+    {\expandonce#1}%
+}
+
+\newrobustcmd*\listsilentcmds{%
+  \cnltx@write@list\cnltx@predefined@control@sequences\cs
+}
+\newrobustcmd*\listsilentenvs{%
+  \cnltx@write@list\cnltx@predefined@environments\env
+}
+
 \endinput
 
 % --------------------------------------------------------------------------
 HISTORY:
 
 2013/09/15 v0.4 - first published version
+2013/09/16 v0.5 - merged with `cnltx-csnames'
