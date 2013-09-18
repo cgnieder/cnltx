@@ -232,9 +232,14 @@
   @alph,@Alph,@arabic,
   @ctrerr,
   @empty,
+  @firstofone,@firstoftwo,
   @gobble,
-  @ifnextchar,@ifstar,
+  @ifclassloaded,
+  @ifnextchar,
+  @ifpackageloaded,
+  @ifstar,
   @roman,@Roman,
+  @secondoftwo,
   @slowromancap,
   % A:
   addbibresource,
@@ -242,6 +247,7 @@
   ae,AE,
   AfterEndPreamble,AfterPreamble,AfterEndDocument,AfterEndEnvironment,
   alph,Alph,
+  appto,
   author,
   autodot,
   arabic,
@@ -253,6 +259,7 @@
   begingroup,
   bfseries,
   bgroup,
+  boolfalse,booltrue,
   % C
   c,
   caption,
@@ -264,6 +271,7 @@
   color,
   cref,
   csdef,
+  cslet,csletcs,
   csname,
   csuse,
   % D
@@ -273,6 +281,7 @@
   DH,
   DeclareListParser,
   DeclareRobustCommand,
+%  DeclareTranslation,DeclareTranslationFallback,
   deffootnote,deffootnotemark,
   definecolor,
   descriptionlabel,
@@ -287,13 +296,16 @@
   endgroup,
   endnote,
   enlargethispage,
+  expandonce,
   % F
   fbox,
   fontsize,fontshape,fontspec,
   footnote,footnotesize,footnotetext,
+  forlistloop,
   foreignlanguage,
   frenchspacing,
   % G
+%  GetTranslation,
   global,
   % H
   H,
@@ -304,8 +316,10 @@
   hyphenation,
   % I
   ifblank,
-  ifboolexpe,ifboolexpr,
+  ifbool,ifboolexpe,ifboolexpr,
   ifcsdef,
+  ifcsname,
+  ifdef,
   ifinlist,
   ifstr,
   ifstrempty,
@@ -331,8 +345,11 @@
   large,Large,LARGE,
   LaTeX,LaTeXe,
   linebreak,linewidth,
+  listadd,
   LoadClassWithOptions,LoadClass,
+  lstinline,lstinputlisting,
   ltx@ifnextchar,
+  LuaLaTeX,LuaTeX,
   % M
   maketitle,
   mathparagraph,
@@ -341,6 +358,7 @@
   mdseries,
   % N
   NeedsTeXFormat,
+  newbool,
   newcommand,
   newcounter,
   newfontfamily,
@@ -367,11 +385,19 @@
   paragraph,
   parindent,
   part,partformat,partname,
+  patchcmd,
+  pdfLaTeX,
+  pdfstringdefDisableCommands,
+  pdfTeX,
+  pgfkeys,
   pounds,
+  preto,
   printacronyms,
   printbibliography,
   printendnotes,
   printindex,
+  ProcessPgfOptions,
+  ProcessOptions,
   protected,
   protecting,
   providecommand,providerobustcmd,
@@ -482,7 +508,8 @@
   vskip,vspace,
   % W
   % X
-  xdefinecolor
+  xdefinecolor,
+  XeLaTeX,XeTeX
   % Y
   % Z
 }
@@ -545,4 +572,6 @@
 HISTORY:
 
 2013/09/15 v0.4 - first published version
-2013/09/16 v0.5 - merged with `cnltx-csnames'
+2013/09/18 v0.5 - merged with `cnltx-csnames', added a number of command names
+
+

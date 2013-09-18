@@ -69,6 +69,7 @@
     CTANurl,
     darg,Default,default,
     env,environment,
+    expandable,
     inputexample,inputsidebyside,inputsourcecode,
     key,keybool,keychoice,keyval,
     marg,Marg,module,Module,
@@ -76,7 +77,8 @@
     newsourcecodeenv,
     oarg,opt,option,
     pkg,
-    sarg,setcnltx,sinceversion,sourceformat
+    sarg,setcnltx,sinceversion,sourceformat,
+    unexpandable
   },
   add-silent-cmds = {
     at,
@@ -441,6 +443,9 @@ formatting and printing the source code and inputting the file directly.
   \command{inputsourcecode}[\oarg{options}\marg{file name}]
     The equivalent of the \env{sourcecode} environment, see
     section~\vref{sec:envs:sourcecode}.
+  \command{implementation}[\oarg{options}\marg{file name}]
+    \sinceversion{0.5}A wrapper for
+    \verbcode+\lstinputlisting[style=cnltx,#1]{#2}+
 \end{commands}
 
 It is possible to define further commands like this:
@@ -554,7 +559,21 @@ section~\vref{sec:envs:description} items are input via the following command:
     flush right.  The star prevents the insertion of \cs*{newline} after it.
     The optional bang adds the information that an option is mandatory,
     \latin{i.e.}, it has to be set.
+  \command{expandable}
+    \sinceversion{0.5}Adds the symbol \textcolor{expandable}{\expandablesign}
+    to the left of a command in the margin to indicate that the command is
+    expandable.  This command should be used \emph{immediately} before
+    \cs{command}.
+  \command{unexpandable}
+    \sinceversion{0.5}Adds the symbol \textcolor{unexpandable}{\expandablesign}
+    to the left of a command in the margin to indicate that the command is not
+    expandable.  This command should be used \emph{immediately} before
+    \cs{command}.
+  \command{expandablesign}
+    \sinceversion{0.5}The macro that holds the sign used by \cs{expandable}
+    and \cs{unexpandable}.
 \end{commands}
+
 \begin{example}
   \begin{commands}
     \command{cs}
@@ -565,8 +584,18 @@ section~\vref{sec:envs:description} items are input via the following command:
       This has a star variant and an optional argument.
     \command{cs}\Default{foo bar}
       This one has the default replacement text \code{foo bar}
+    \expandable\command{cs}
+      This macro is expandable.
   \end{commands}
 \end{example}
+
+The \cs{expandablesign} can of course be redefined to something else you like
+better.  For the sake of completeness there is an option that does exactly
+this:
+\begin{options}
+  \keyval{expandable-sign}{definition}\Default{\cs*{raise}-.5ex\cs*{hbox}\Marg{*}}
+    \sinceversion{0.5}Redefines \cs{expandablesign} to \meta{definition}.
+\end{options}
 
 \subsection{Option Descriptions}\label{sec:usage:options}
 The \env{options} environment knows a few more commands to meet all the
@@ -1088,7 +1117,7 @@ The following options are available to customize the appearance of the index:
   \keyval{index-space}{dimension}\Default{0pt}
     The vertical space between index prologue and index.
   \keyval{index-setup}{options}%
-    \Default{othercode=\cs*{footnotesize},level=\cs*{section}}
+    \Default{othercode=\cs*{footnotesize},level=\cs*{addsec}}
     The options that are passed to \pkg{imakeidx}'s \cs*{indexsetup} command.
   \keyval{makeindex-setup}{options}\Default{columns=2,columnsep=1em}
     The options that are passed to the \cs*{makeindex} command.
@@ -1367,7 +1396,9 @@ The `default' color scheme is defined as follows:
     link          => black!90 ,   % hyperlinks
     versionnote   => black!75     % versioning notes text
     bibentry      => cnltxgreen , % BibTeX entry types
-    bibentryfield => black        % BibTeX entry fields
+    bibentryfield => black,       % BibTeX entry fields
+    expandable    => red ,        % the color used in \expandable
+    unexpandable  => black        % the color used in \unexpandable
   }
 \end{sourcecode}
 
@@ -1387,7 +1418,9 @@ The `blue' color scheme is defined this way:
     link          => cnltx ,
     versionnote   => black!75
     bibentry      => cnltxyellow ,
-    bibentryfield => black
+    bibentryfield => black ,
+    expandable    => red ,
+    unexpandable  => black
   }
 \end{sourcecode}
 
@@ -1407,7 +1440,9 @@ Finally the `formal' color scheme is defined like this:
     link          => black!90 ,
     versionnote   => black!75 ,
     bibentry      => black ,
-    bibentryfield => black
+    bibentryfield => black ,
+    expandable    => red ,
+    unexpandable  => black
   }
 \end{sourcecode}
 
@@ -1709,7 +1744,7 @@ formatted.  That is because \pkg{listings}~\cite{pkg:listings} already has a
 number of known control sequence names.  This list probably overlaps with
 those on some parts, though.
 
-\begin{multicols}{3}
+\begin{multicols}{3}\small
   \RaggedRight\listsilentcmds
 \end{multicols}
 

@@ -432,6 +432,8 @@
   \trivlist\item\relax
   % don't know why this is necessary but it is:
   \catcode`\^^M=5\relax
+  \makeatother
+  \MakePercentComment
   % want special formatting for the input example:
   \exampleformat
   % we're in a list so the first paragraph is not indented; let's make the
@@ -567,6 +569,10 @@
 \newinputsourcefilecmd[side-by-side]\inputsidebyside
 \newinputsourcefilecmd[code-only]\inputsourcecode
 
+\newrobustcmd*\implementation[2][]{%
+  \lstinputlisting[style=cnltx,#1]{#2}%
+}
+
 
 % --------------------------------------------------------------------------
 % packages and classes:
@@ -629,4 +635,8 @@ HISTORY:
                 - added \inputexample, \inputsidebyside and \inputsourcecode
                 - renamed `example*' into `sidebyside'
 2013/09/15 v0.4 - new listings style `cnltx-bibtex'
+2013/09/18 v0.5 - new command \implementation
 
+TODO:
+- when a texcs is added with `add-cmds' but already is in the list of silent
+  commands it stays silent

@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/09/16}
+\def\cnltx@@date{2013/09/18}
 \def\cnltx@@version{v0.5}
 \def\cnltx@@info{LaTeX examples the CN way}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
@@ -61,7 +61,7 @@
 \newrobustcmd\setcnltx[1]{\pgfqkeys{/cnltx}{#1}}
 
 % --------------------------------------------------------------------------
-% expansion helpers and tokenlist manipulation:
+% expansion helpers
 
 \def\cnltx@par{\par}
 
@@ -95,6 +95,8 @@
   \cnltx@x
 }
 
+% --------------------------------------------------------------------------
+% tokenlist manipulation:
 \def\cnltx@stripbs{\expandafter\@gobble\string}
 
 % \cnltx@if@in{tokenlist}{search}{true}{false}
@@ -193,7 +195,9 @@
   link          => black!90 ,
   versionnote   => black!75 ,
   bibentry      => cnltxgreen ,
-  bibentryfield => black
+  bibentryfield => black ,
+  expandable    => red ,
+  unexpandable  => black
 }
 
 \cnltx@define@colorscheme{blue}{
@@ -210,7 +214,9 @@
   link          => cnltx ,
   versionnote   => black!75 ,
   bibentry      => cnltxyellow ,
-  bibentryfield => black
+  bibentryfield => black ,
+  expandable    => red ,
+  unexpandable  => black
 }
 
 \cnltx@define@colorscheme{formal}{
@@ -227,7 +233,9 @@
   link          => black!90 ,
   versionnote   => black!75 ,
   bibentry      => black ,
-  bibentryfield => black
+  bibentryfield => black ,
+  expandable    => red ,
+  unexpandable  => black
 }
 
 % set the default:
@@ -247,4 +255,4 @@ HISTORY:
                 - added long versions of tokenlist manipulation macros
 2013/09/14 v0.4 - added \cnltx@fullexpand@afterarg
                 - new colors `bibentry' and `bibentryfield'
-
+2013/09/17 v0.5 - added colors `expandable' and `unexpandable'

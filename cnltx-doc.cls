@@ -65,7 +65,7 @@
 \newbool{cnltx@index@prologue}
 \newlength\cnltx@index@space
 
-\def\cnltx@index@setup{othercode=\footnotesize,level=\section}
+\def\cnltx@index@setup{othercode=\footnotesize,level=\addsec}
 \def\cnltx@makeindex@setup{columns=2,columnsep=1em}
 \def\cnltx@index@style{cnltx.ist}
 
@@ -499,6 +499,37 @@
     {\cnltx@Default{}}%
 }
 
+\newrobustcmd*\expandable{\cnltx@expandable@ornot\cnltx@expandable}
+\newrobustcmd*\unexpandable{\cnltx@expandable@ornot\cnltx@unexpandable}
+
+\def\cnltx@expandable@ornot#1{%
+  \let\cnltx@item\item
+  \def\item{\cnltx@item#1\let\item\cnltx@item}%
+}
+\def\cnltx@expandable@note#1{%
+  \begingroup
+    \reversemarginpar
+    \marginnote{\hfill#1\space}%
+  \endgroup
+}
+\def\cnltx@expandable{%
+  \cnltx@expandable@note{%
+    \textcolor{expandable}{\expandablesign}%
+  }%
+}
+\def\cnltx@unexpandable{%
+  \cnltx@expandable@note{%
+    \textcolor{unexpandable}{\expandablesign}%
+  }%
+}
+
+\def\expandablesign{\raise-.5ex\hbox{*}}
+
+\pgfkeys{
+  cnltx/.cd,
+    expandable-sign/.code = \def\expandablesign{#1}
+}
+
 % --------------------------------------------------------------------------
 % modules:
 \def\cnltx@module@sep{ >> }
@@ -764,6 +795,7 @@ HISTORY:
                  - fixed bug in index setup mechanism
                  - added biblatex entry type `package' and biblatex style
                    `cnltx'
+2013/09/17 v0.5  - new commands \expandable and \unexpandable
 
 % --------------------------------------------------------------------------
 
