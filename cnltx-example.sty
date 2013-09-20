@@ -239,7 +239,19 @@
       description,document,
       end,enumerate,
       figure,flushleft,flushright,
-      itemize,
+      itemize,list,
+      otherlanguage,
+      table,tabu,tabular
+    },
+  deletekeywords   =
+    {
+      a,o,u,A,O,U,
+      begin,
+      center,
+      description,document,
+      end,enumerate,
+      figure,flushleft,flushright,
+      itemize,list,
       otherlanguage,
       table,tabu,tabular
     },
@@ -248,22 +260,22 @@
   index            = [2][texcs2],
   indexstyle       = [2]\@gobble,
   moretexcs        = [2]{begin,end},
-  % environments:
+  % added environments that'll be indexed:
   texcsstyle       = [3]\color{env},
   index            = [3][texcs3],
-  indexstyle       = [3]\@gobble,
-  % control sequences:
-  texcsstyle       = [4]\color{cs},
+  indexstyle       = [3]\envidx,
+  % environments that won't be indexed:
+  texcsstyle       = [4]\color{env},
   index            = [4][texcs4],
-  indexstyle       = [4]\@gobble ,
-  % added control sequences:
+  indexstyle       = [4]\@gobble,
+  % control sequences that'll be indexed:
   texcsstyle       = [5]\color{cs},
   index            = [5][texcs5],
   indexstyle       = [5]\indexcs,
-  % added environments:
-  texcsstyle       = [6]\color{env},
+  % control sequences that won't be indexed:
+  texcsstyle       = [6]\color{cs},
   index            = [6][texcs6],
-  indexstyle       = [6]\envidx,
+  indexstyle       = [6]\@gobble
 }
 
 \def\cnltx@bibtex@listings@style{
@@ -323,11 +335,12 @@
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
       {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
+      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
   }%
 }
+
 \cnltx@expand@arg
   \cnltx@addsilentcmds
   \cnltx@predefined@control@sequences
@@ -336,9 +349,9 @@
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
       {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
+      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}%
   }%
 }
 
@@ -346,9 +359,9 @@
   \cnltx@fullexpand@twoargs
     \lstdefinestyle
       {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
+      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
   }%
 }
 
@@ -635,8 +648,8 @@ HISTORY:
                 - added \inputexample, \inputsidebyside and \inputsourcecode
                 - renamed `example*' into `sidebyside'
 2013/09/15 v0.4 - new listings style `cnltx-bibtex'
-2013/09/18 v0.5 - new command \implementation
+2013/09/20 v0.5 - new command \implementation
+                - fixed wrong indexing behaviour: keywords in the silent lists
+                  are now correctly indexed if added with `add-cmds' or
+                  `add-envs'
 
-TODO:
-- when a texcs is added with `add-cmds' but already is in the list of silent
-  commands it stays silent

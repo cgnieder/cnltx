@@ -102,7 +102,7 @@
   \RequirePackage[supstfm=libertinesups]{superiors}
   \RequirePackage{microtype}
   \ifboolexpr{not bool{xetex} and not bool{luatex}}
-    {\RequirePackage[scaled=.83]{beramono}}
+    {\RequirePackage[scaled=.81]{beramono}}
     {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
@@ -419,6 +419,7 @@
   {%
     \def\opt{\@cnltx@option@item\option}%
     \def\keyval{\@cnltx@option@item\key}%
+    \def\keylit{\@cnltx@option@item\keyis}%
     \def\keychoice{\@cnltx@option@item\choicekey}%
     \def\keybool{\@cnltx@option@item\boolkey}%
     \cnltxlist
@@ -523,7 +524,7 @@
   }%
 }
 
-\def\expandablesign{\raise-.5ex\hbox{*}}
+\def\expandablesign{\textasteriskcentered}
 
 \pgfkeys{
   cnltx/.cd,
@@ -560,6 +561,35 @@
     {\cnltx@module{}}%
 }
 
+% --------------------------------------------------------------------------
+% a environment for block quotes
+\def\cnltx@quote@author@format{\itshape}
+\def\cnltx@quote@format{\small\sffamily}
+
+\pgfkeys{
+  cnltx/.cd ,
+    quote-format/.code        = \def\cnltx@quote@format{#1} ,
+    quote-author-format/.code = \def\cnltx@quote@author@format{#1}
+}
+
+\newenvironment{cnltxquote}[1][]
+  {%
+    \def\cnltx@quote@option{#1}%
+    \quote
+    \cnltx@quote@format
+  }
+  {%
+    \ifdefempty\cnltx@quote@option
+      {}
+      {%
+        \unskip\nobreak\hfil\penalty50
+        \hskip2em\hbox{}\nobreak\hfil
+        {\normalfont\cnltx@quote@author@format\cnltx@quote@option}%
+        \parfillskip0pt \finalhyphendemerits=0
+        \par
+      }%
+    \endquote
+  }
 
 % --------------------------------------------------------------------------
 % document title:
@@ -795,7 +825,12 @@ HISTORY:
                  - fixed bug in index setup mechanism
                  - added biblatex entry type `package' and biblatex style
                    `cnltx'
-2013/09/17 v0.5  - new commands \expandable and \unexpandable
+2013/09/20 v0.5  - new commands \expandable and \unexpandable
+                 - new environment `cnltxquote', formatting via options
+                   `quote-format' and `quote-author-format'
+                 - changed scaling of `beramono' from `.83' to `.81' -- seems
+                   a better fit in relation to Linux Libertine
 
 % --------------------------------------------------------------------------
+TODO:
 

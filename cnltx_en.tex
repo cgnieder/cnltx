@@ -1,7 +1,7 @@
 % arara: pdflatex
 % arara: biber
 % arara: pdflatex
-% !arara: pdflatex
+% arara: pdflatex
 % --------------------------------------------------------------------------
 % the CNLTX bundle
 %
@@ -68,6 +68,7 @@
     code,codefont,command,cs,csidx,
     CTANurl,
     darg,Default,default,
+    definecolorscheme,
     env,environment,
     expandable,
     inputexample,inputsidebyside,inputsourcecode,
@@ -569,7 +570,7 @@ section~\vref{sec:envs:description} items are input via the following command:
     to the left of a command in the margin to indicate that the command is not
     expandable.  This command should be used \emph{immediately} before
     \cs{command}.
-  \command{expandablesign}
+  \command{expandablesign}\Default{\cs*{textasteriskcentered}}
     \sinceversion{0.5}The macro that holds the sign used by \cs{expandable}
     and \cs{unexpandable}.
 \end{commands}
@@ -593,7 +594,7 @@ The \cs{expandablesign} can of course be redefined to something else you like
 better.  For the sake of completeness there is an option that does exactly
 this:
 \begin{options}
-  \keyval{expandable-sign}{definition}\Default{\cs*{raise}-.5ex\cs*{hbox}\Marg{*}}
+  \keyval{expandable-sign}{definition}\Default{\cs*{textasteriskcentered}}
     \sinceversion{0.5}Redefines \cs{expandablesign} to \meta{definition}.
 \end{options}
 
@@ -1043,6 +1044,33 @@ prevented by explicitly setting the following option:
   \label{fig:titlepage}
 \end{figure}
 
+\subsection{A Quotation Environment}
+
+\cnltxdoc\sinceversion{0.5} provides a quotation environment:
+\begin{environments}
+  \environment{cnltxquote}[\oarg{author/reference}]
+    A quotation environment.
+\end{environments}
+
+The environment sets the body indented on both sides as it simply uses a
+\env*{quote} environment internally.  The contents of the optional argument is
+set flush right after the environment's body.  The formatting is controlled by
+two options:
+
+\begin{options}
+  \keyval{quote-format}{definition}\Default{\cs*{small}\cs*{sffamily}}
+    The formatting of the environment's body.
+  \keyval{quote-author-format}{definition}\Default{\cs*{itshape}}
+\end{options}
+
+\begin{example}
+  \begin{cnltxquote}[Douglas Adams, The Restaurant at the End of the Universe]
+    ``The first ten million years were the worst,'' said Marvin, ``and the
+    second ten million years, they were the worst too.  The third ten million
+    years I didn't enjoy at all.  After that I went into a bit of a decline.''
+  \end{cnltxquote}
+\end{example}
+
 \subsection{Predefined Preamble}\label{sec:preamble}
 It is possible to load a part of my standard preamble automatically by
 passing an option as class option.
@@ -1068,7 +1096,7 @@ Using the option will include the following code:
   % with \microtypesetup{tracking=scshape}
   % needs files from https://bitbucket.org/cgnieder/microtype-config/
   \ifboolexpr{not bool{xetex} and not bool{luatex}}
-    {\RequirePackage[scaled=.83]{beramono}}
+    {\RequirePackage[scaled=.79]{beramono}}
     {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
@@ -1243,7 +1271,7 @@ called \code{cnltx}.  The options \option{add-cmds}, \option{add-silent-cmds},
     numbers          = left,
     numberstyle      = \tiny,
     xleftmargin      = 1em,
-    numbersep        = .5em,
+    numbersep        = .75em,
     gobble           = \cnltx@gobble ,
     columns          = fullflexible,
     literate         =
@@ -1267,7 +1295,19 @@ called \code{cnltx}.  The options \option{add-cmds}, \option{add-silent-cmds},
         description,document,
         end,enumerate,
         figure,flushleft,flushright,
-        itemize,
+        itemize,list,
+        otherlanguage,
+        table,tabu,tabular
+      },
+    deletekeywords   =
+      {
+        a,o,u,A,O,U,
+        begin,
+        center,
+        description,document,
+        end,enumerate,
+        figure,flushleft,flushright,
+        itemize,list,
         otherlanguage,
         table,tabu,tabular
       },
@@ -1276,22 +1316,22 @@ called \code{cnltx}.  The options \option{add-cmds}, \option{add-silent-cmds},
     index            = [2][texcs2],
     indexstyle       = [2]\@gobble,
     moretexcs        = [2]{begin,end},
-    % environments:
+    % added environments that'll be indexed:
     texcsstyle       = [3]\color{env},
     index            = [3][texcs3],
-    indexstyle       = [3]\@gobble,
-    % control sequences:
-    texcsstyle       = [4]\color{cs},
+    indexstyle       = [3]\envidx,
+    % environments that won't be indexed:
+    texcsstyle       = [4]\color{env},
     index            = [4][texcs4],
-    indexstyle       = [4]\@gobble ,
-    % added control sequences:
+    indexstyle       = [4]\@gobble,
+    % control sequences that'll be indexed:
     texcsstyle       = [5]\color{cs},
     index            = [5][texcs5],
     indexstyle       = [5]\indexcs,
-    % added environments:
-    texcsstyle       = [6]\color{env},
+    % control sequences that won't be indexed:
+    texcsstyle       = [6]\color{cs},
     index            = [6][texcs6],
-    indexstyle       = [6]\envidx,
+    indexstyle       = [6]\@gobble
   }
 \end{sourcecode}
 
@@ -1378,11 +1418,19 @@ used with those names.  Instead colors are used whose names describe their
 function rather than the color.  For this the color names are mapped to actual
 colors and saved as a coloring scheme.  There are currently three predefined
 color schemes whose definitions are given below.  Those definitions also show
-the actually used color names:
+the actually used color names.  They are defined via the following command:
+
+\begin{commands}
+  \command{definecolorscheme}[\marg{name}\marg{color assignments}]
+    \sinceversion{0.5}Defines the color scheme \meta{name}.  When used all
+    assignments will be actually carried aout with \pkg{xcolor}'s
+    \cs*{colorlet} command.  How to input \meta{color assignments} will be
+    immediately clear from the examples below.
+\end{commands}
 
 The `default' color scheme is defined as follows:
 \begin{sourcecode}
-  \cnltx@define@colorscheme{default}{
+  \definecolorscheme{default}{
     cs            => cnltxbrown , % command sequences
     option        => cnltxyellow ,% options
     option        => cnltxyellow ,% modules
@@ -1404,7 +1452,7 @@ The `default' color scheme is defined as follows:
 
 The `blue' color scheme is defined this way:
 \begin{sourcecode}
-  \cnltx@define@colorscheme{blue}{
+  \definecolorscheme{blue}{
     cs            => cnltxbrown ,
     option        => cnltxgreen ,
     module        => cnltxred ,
@@ -1426,7 +1474,7 @@ The `blue' color scheme is defined this way:
 
 Finally the `formal' color scheme is defined like this:
 \begin{sourcecode}
-  \cnltx@define@colorscheme{formal}{
+  \definecolorscheme{formal}{
     cs            => black ,
     option        => cnltxformalblue ,
     module        => cnltxblue ,
@@ -1447,7 +1495,6 @@ Finally the `formal' color scheme is defined like this:
 \end{sourcecode}
 
 \section{Language Support}
-
 \noindent\sinceversion{0.2}The \cnltxdoc\ and the \cnltxexample\ package both
 rely on the \pkg{translations} package~\cite{pkg:translations} for providing
 some document language dependent strings.  Currently only translations for
@@ -1753,7 +1800,7 @@ those on some parts, though.
 Below are listed all \emph{predefined} control sequence names that are treated
 as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
 
-\begin{multicols}{3}
+\begin{multicols}{3}\small
   \RaggedRight\listsilentenvs
 \end{multicols}
 

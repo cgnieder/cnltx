@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/09/18}
+\def\cnltx@@date{2013/09/20}
 \def\cnltx@@version{v0.5}
 \def\cnltx@@info{LaTeX examples the CN way}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
@@ -160,6 +160,9 @@
 \xdefinecolor{cnltxformalred}{rgb}{0.8,0.1,0.2}
 
 % set a color-scheme for the manual:
+\newrobustcmd\definecolorscheme{%
+  \cnltx@define@colorscheme
+}
 \def\cnltx@define@colorscheme#1#2{%
   \csgdef{cnltx@color@scheme@#1}{}%
   \forcsvlist{\cnltx@get@color{#1}}{#2}%
@@ -181,7 +184,7 @@
 }
 
 % predefined color-schemes:
-\cnltx@define@colorscheme{default}{
+\definecolorscheme{default}{
   cs            => cnltxbrown ,
   option        => cnltxyellow ,
   module        => cnltxblue ,
@@ -200,7 +203,7 @@
   unexpandable  => black
 }
 
-\cnltx@define@colorscheme{blue}{
+\definecolorscheme{blue}{
   cs            => cnltxbrown ,
   option        => cnltxgreen ,
   module        => cnltxred ,
@@ -219,7 +222,7 @@
   unexpandable  => black
 }
 
-\cnltx@define@colorscheme{formal}{
+\definecolorscheme{formal}{
   cs            => black ,
   option        => cnltxformalblue ,
   module        => cnltxblue ,
@@ -255,4 +258,5 @@ HISTORY:
                 - added long versions of tokenlist manipulation macros
 2013/09/14 v0.4 - added \cnltx@fullexpand@afterarg
                 - new colors `bibentry' and `bibentryfield'
-2013/09/17 v0.5 - added colors `expandable' and `unexpandable'
+2013/09/20 v0.5 - added colors `expandable' and `unexpandable'
+                - added \definecolorscheme

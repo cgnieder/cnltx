@@ -279,9 +279,11 @@
   date,
   dh,
   DH,
+  DeclareDictTranslation,
   DeclareListParser,
   DeclareRobustCommand,
-%  DeclareTranslation,DeclareTranslationFallback,
+  DeclareLanguage,DeclareLanguageAlias,DeclareLanguageDialect,
+  DeclareTranslation,DeclareTranslationFallback,
   deffootnote,deffootnotemark,
   definecolor,
   descriptionlabel,
@@ -305,7 +307,7 @@
   foreignlanguage,
   frenchspacing,
   % G
-%  GetTranslation,
+  GetTranslation,GetTranslationFor,
   global,
   % H
   H,
@@ -347,6 +349,7 @@
   linebreak,linewidth,
   listadd,
   LoadClassWithOptions,LoadClass,
+  LoadDictionary,LoadDictionaryFor,
   lstinline,lstinputlisting,
   ltx@ifnextchar,
   LuaLaTeX,LuaTeX,
@@ -366,6 +369,7 @@
   newline,
   newpage,
   newrobustcmd,
+  NewTranslation,
   ng,NG,
   node,
   nolinebreak,
@@ -402,6 +406,7 @@
   protecting,
   providecommand,providerobustcmd,
   ProvidesClass,
+  ProvideDictionaryFor,
   ProvidesPackage,
   % Q
   quad,qquad,
@@ -412,6 +417,7 @@
   refstepcounter,
   relax,
   renewcommand,renewrobustcmd,
+  RenewTranslation,
   RequirePackage,
   rightarrow,
   robustify,
@@ -420,6 +426,7 @@
   % S
   S,
   samepage,
+  SaveTranslation,SaveTranslationFor, 
   scriptsize,
   scshape,
   section,
@@ -527,8 +534,10 @@
   flushright,
   itemize,
   labeling,
+  list,
   longtable,
   otherlanguage,
+  quote,quoting,
   tabbing,
   table,
   tabu,
@@ -572,6 +581,8 @@
 HISTORY:
 
 2013/09/15 v0.4 - first published version
-2013/09/18 v0.5 - merged with `cnltx-csnames', added a number of command names
+2013/09/20 v0.5 - merged with `cnltx-csnames', added a number of command names
 
-
+TODO:
+- add control sequence names implicitly defined by `listings' to the list of
+  explicitly defined silent names.
