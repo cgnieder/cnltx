@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/09/20}
-\def\cnltx@@version{v0.5}
+\def\cnltx@@date{2013/09/24}
+\def\cnltx@@version{v0.6}
 \def\cnltx@@info{LaTeX examples the CN way}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox}
@@ -60,15 +60,26 @@
 % setup command
 \newrobustcmd\setcnltx[1]{\pgfqkeys{/cnltx}{#1}}
 
-% --------------------------------------------------------------------------
-% expansion helpers
-
 \def\cnltx@par{\par}
 
+% --------------------------------------------------------------------------
+% conditionals
 \def\cnltx@ifsym#1#2{\@ifnextchar#1{\@firstoftwo{#2}}}
 \def\cnltx@ifdash{\cnltx@ifsym{-}}
 \def\cnltx@ifbang{\cnltx@ifsym{!}}
 
+
+% an idea by Herbert Voß (http://tex.stackexchange.com/a/7183/5049):
+\def\cnltx@ifisnum#1{%
+  \if!\ifnum9<1#1!\else_\fi
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+
+% --------------------------------------------------------------------------
+% expansion helpers
 % \exp_args:Nx
 \long\def\cnltx@fullexpand@arg#1#2{%
   \begingroup
@@ -249,14 +260,15 @@
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/08 v0.1 - first working version
-2013/09/10 v0.2 - added `cnltx-tools' to the bundle
-                - extended the messaging creation to class messages
-2013/09/12 v0.3 - added index style file `cnltx.ist'
-                - added color `module'
-                - added \cnltx@remove@once and \cnltx@remove@all
-                - added long versions of tokenlist manipulation macros
-2013/09/14 v0.4 - added \cnltx@fullexpand@afterarg
-                - new colors `bibentry' and `bibentryfield'
-2013/09/20 v0.5 - added colors `expandable' and `unexpandable'
-                - added \definecolorscheme
+2013/09/08 v0.1  - first working version
+2013/09/10 v0.2  - added `cnltx-tools' to the bundle
+                 - extended the messaging creation to class messages
+2013/09/12 v0.3  - added index style file `cnltx.ist'
+                 - added color `module'
+                 - added \cnltx@remove@once and \cnltx@remove@all
+                 - added long versions of tokenlist manipulation macros
+2013/09/14 v0.4  - added \cnltx@fullexpand@afterarg
+                 - new colors `bibentry' and `bibentryfield'
+2013/09/20 v0.5  - added colors `expandable' and `unexpandable'
+                 - added \definecolorscheme
+2013/09/24 v0.6  - added \cnltx@ifisnum

@@ -58,6 +58,7 @@
     % internal macros:
     cnltx@define@colorscheme,
     cnltx@gobble,
+    cnltx@ifisnum,
     cnltx@ifsym,
     cnltx@bibtex@listings@style,cnltx@listings@style,
     cnltx@mdframed@options,
@@ -69,8 +70,9 @@
     CTANurl,
     darg,Default,default,
     definecolorscheme,
-    env,environment,
+    env,envidx,environment,
     expandable,
+    indexcs,
     inputexample,inputsidebyside,inputsourcecode,
     key,keybool,keychoice,keyval,
     marg,Marg,module,Module,
@@ -86,7 +88,9 @@
     carlisle,
     foothree,
     GetTranslation,
-    nohyperpage
+    nohyperpage,
+    superiors@spaced,
+    textsu
   } ,
   add-envs = {
     commands,
@@ -119,6 +123,8 @@
 \newname\hoffmann{Jobst}{Hoffmann}
 \newname\daniel{Marco}{Daniel}
 
+\usepackage{abbreviations}
+
 \newcommand*\file[1]{\code{#1}}
 \newcommand*\latin[1]{\textit{#1}}
 
@@ -126,7 +132,7 @@
 
 \newenvironment{colors}
   {%
-    \def\colour##1{\item\code{\textcolor{##1}{##1}}}%
+    \def\colour##1{\item[]\code{\textcolor{##1}{##1}}\hfill\newline}%
     \cnltxlist
   }
   {\endcnltxlist}
@@ -559,7 +565,7 @@ section~\vref{sec:envs:description} items are input via the following command:
     value of an option.  The definition will then be placed on the same line
     flush right.  The star prevents the insertion of \cs*{newline} after it.
     The optional bang adds the information that an option is mandatory,
-    \latin{i.e.}, it has to be set.
+    \ie, it has to be set.
   \command{expandable}
     \sinceversion{0.5}Adds the symbol \textcolor{expandable}{\expandablesign}
     to the left of a command in the margin to indicate that the command is
@@ -620,7 +626,7 @@ different kinds of options.
     value of an option.  The definition will then be placed on the same line
     flush right.  The star prevents the insertion of \cs*{newline} after it.
     The optional bang adds the information that an option is mandatory,
-    \latin{i.e.}, it has to be set.
+    \ie, it has to be set.
   \command{Module}[\sarg\code{!}\marg{name}]
     \sinceversion{0.3}This command can be placed after \cs{option} but before
     \cs{Default} in order to determine the module the option belongs to.  It
@@ -788,8 +794,8 @@ The source code is formatted using the \pkg{listings}
 package~\cite{pkg:listings}.  Similar options exist to adapt \pkg{listings}'
 options that are used for formatting the source code.  The predifined style
 has many options that will not be mentioned here.  If you're interested you
-can find them in \file{cnltx-listings.sty} or in
-section~\vref{sec:known:csnames}.
+can find them in \file{cnltx-example.sty} or in
+section~\vref{sec:listings-sourcecode}.
 \begin{options}
   \keyval-{gobble}{integer}\Default{2}
     The number of initial characters that is gobbled from each line.
@@ -895,6 +901,13 @@ defined by the \cnltxexample\ package except where indicated differently.
 \begin{options}
   \keyval{title-format}{definition}\Default{\cs*{bfseries}\cs*{scshape}}
     \sinceversion{0.2}Formatting of the document title.
+  \keyval{abstract-width}{dimension}\Default{.75\cs*{linewidth}}
+    \sinceversion{0.6}The width of the \cs*{parbox} the abstract as set with
+    the \option{abstract} option is placed in.
+  \keyval{abstract-format}{definition}%
+    \Default{\cs*{setlength}\cs*{parskip}\Marg{.333\cs*{baselineskip}}}
+    \sinceversion{0.6}Code that is placed in the parbox the abstract is placed
+    in \emph{before} the abstract text.
   \keyval{caption-font}{definition}%
     \Default{\cs*{normalfont}\cs*{small}\cs*{sffamily}}
     This option only has any effect if you use the option
@@ -911,6 +924,9 @@ defined by the \cnltxexample\ package except where indicated differently.
     Formatting of the listings.
   \keyval{expl-format}{definition}\Default
     Special formatting of the output of a listing.
+  \keyval{module-sep}{definition}\Default{\cs*{,}>{}>\cs*{,}}
+    \byclass Change the separator between module name and corresponding option
+    name.
   \keyval{version-note-format}{definition}%
   \Default{\cs*{footnotesize}\cs*{sffamily}\cs*{RaggedRight}}
     \byclass Formatting of the notes introduced in
@@ -979,7 +995,8 @@ title page of the manual.
     \changedversion{0.4}Comma separated list of package/class authors.  After
     each author name you can add an email address by writing it in square
     brackets: \verbcode+Some Name[some@name.com]+.  Email addresses specified
-    this way get written as a footnote.
+    this way get written as a footnote.  At least one author should always be
+    given.
   \keyval{version}{version number}
     Version number of the package/class.  \cnltx\ tries to extract the
     information from the given \option{package} or \option{class}.  This
@@ -993,7 +1010,7 @@ title page of the manual.
     information from the given \option{package} or \option{class}.  This
     option can be used to set it explicitly.
   \keyval{subtitle}{subtitle}
-    A subtitle that is typeset \emph{instead} of the package/class info.
+    A subtitle, printed below the package/class name.
   \keyval{url}{url}
     The homepage of the package.
   \keyval{email}{email}
@@ -1091,6 +1108,14 @@ Using the option will include the following code:
   % you can get it at https://bitbucket.org/cgnieder/libertinehologopatch/
   \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
+  % libertine does not have superior letters:
+  \def\@makefnmark{%
+    \hbox{%
+      \cnltx@ifisnum{\@thefnmark}
+        {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
+        {\@textsuperscript{\normalfont\@thefnmark}}%
+    }%
+  }
   \RequirePackage{microtype}
   % activate my microtype settings for tracking of small caps
   % with \microtypesetup{tracking=scshape}
@@ -1253,7 +1278,7 @@ with these values:
 \end{sourcecode}
 
 \subsection{\pkg*{listings}}
-\subsubsection{Sourcecode}
+\subsubsection{Sourcecode}\label{sec:listings-sourcecode}
 
 The code of the source code environments (see
 section~\vref{sec:usage:examples}) is formatted with the help of the
@@ -1396,7 +1421,7 @@ The \cnltxbase\ package defines a number of colors:
   \colour{cnltxbrown}
     Per default used for the control sequences.
   \colour{cnltxblue}
-    Unused per default.
+    Per default used for module names.
   \colour{cnltxred}
     Per default used as base color in various places.
   \colour{cnltxgreen}
@@ -1404,7 +1429,7 @@ The \cnltxbase\ package defines a number of colors:
   \colour{cnltxgray}
     Per default used for formatting comments.
   \colour{cnltxyellow}
-    Per default used for options.
+    Per default used for option names.
   \colour{cnltxformalblue}
     Unused per default.
   \colour{cnltxformalred}
@@ -1423,7 +1448,7 @@ the actually used color names.  They are defined via the following command:
 \begin{commands}
   \command{definecolorscheme}[\marg{name}\marg{color assignments}]
     \sinceversion{0.5}Defines the color scheme \meta{name}.  When used all
-    assignments will be actually carried aout with \pkg{xcolor}'s
+    assignments will be actually carried out with \pkg{xcolor}'s
     \cs*{colorlet} command.  How to input \meta{color assignments} will be
     immediately clear from the examples below.
 \end{commands}
@@ -1433,7 +1458,7 @@ The `default' color scheme is defined as follows:
   \definecolorscheme{default}{
     cs            => cnltxbrown , % command sequences
     option        => cnltxyellow ,% options
-    option        => cnltxyellow ,% modules
+    module        => cnltxblue ,  % modules
     comment       => cnltxgray ,  % comments
     beginend      => red ,        % \begin and \end
     env           => black ,      % environment names
@@ -1521,7 +1546,7 @@ used in indexing strings and in different parts of the document.
       >{\RaggedRight}p{.25\linewidth}
     }
     \toprule
-      Package       & key word          & English version & German version\\
+      Package/Class & key word          & English version & German version\\
     \midrule
       \cnltxexample & cnltx-package &
         \GetTranslation{cnltx-package} &
@@ -1613,6 +1638,10 @@ the other packages and classes.
     A wrapper for \verbcode+\cnltx@ifsym{-}+.
   \command{cnltx\at ifbang}[\marg{true}\marg{false}]
     \sinceversion{0.3}A wrapper for \verbcode+\cnltx@ifsym{!}+.
+  \command{cnltx\at ifisnum}[\marg{token list}\marg{true}\marg{false}]
+    \sinceversion{0.6}Checks if \meta{token list} is an integer zero or
+    greater and leaves \meta{true} in the input stream if it is an
+    \meta{false} if it isn't.
   \command{cnltx\at expand\at arg}[\marg{cs}\marg{macro}]
     Expands \meta{macro} once before it is passed as argument to \meta{cs}.
   \command{cnltx\at fullexpand\at arg}[\marg{cs}\marg{argument}]
@@ -1624,7 +1653,7 @@ the other packages and classes.
     command \cs*{@expandtwoargs} defined for the sake of consistency.
   \command{cnltx\at fullexpand\at afterarg}[\marg{cs}\marg{argument}\marg{code}]
     \sinceversion{0.4}Places the exhaustivly exanpanded \meta{code} after
-    \meta{cs}\marg{argument} in the input stream (\latin{e.g.} for expanding
+    \meta{cs}\marg{argument} in the input stream (\eg\ for expanding
     an argument to an environment).
   \command{cnltx\at stripbs}
     A shortcut for \verbcode+\expandafter\@gobble\string+.
@@ -1785,11 +1814,7 @@ the other packages and classes.
 \section{List of Known \LaTeX\ Control Sequences}\label{sec:known:csnames}
 
 Below are listed all \emph{predefined} control sequence names that are treated
-as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.  You
-may notice that the list does not cover all control sequences that are
-formatted.  That is because \pkg{listings}~\cite{pkg:listings} already has a
-number of known control sequence names.  This list probably overlaps with
-those on some parts, though.
+as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
 
 \begin{multicols}{3}\small
   \RaggedRight\listsilentcmds

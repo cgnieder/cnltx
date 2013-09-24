@@ -100,6 +100,14 @@
   \RequirePackage[oldstyle]{libertine}
   \RequirePackage{libertinehologopatch}
   \RequirePackage[supstfm=libertinesups]{superiors}
+  % libertine does not have superior letters:
+  \def\@makefnmark{%
+    \hbox{%
+      \cnltx@ifisnum{\@thefnmark}
+        {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
+        {\@textsuperscript{\normalfont\@thefnmark}}%
+    }%
+  }
   \RequirePackage{microtype}
   \ifboolexpr{not bool{xetex} and not bool{luatex}}
     {\RequirePackage[scaled=.81]{beramono}}
@@ -204,11 +212,14 @@
 \newbool{cnltx@package@email}
 \def\cnltx@package@abstract{??}
 \newbool{cnltx@package@abstract}
+\newlength\cnltx@package@abstract@width
+\setlength\cnltx@package@abstract@width{.75\linewidth}
+\def\cnltx@package@abstract@format{\setlength\parskip{.333\baselineskip}}
 
-\def\cnltx@package@name@format#1{\textcolor{cnltx}{\textsc{#1}}}
+\protected\def\cnltx@package@name@format#1{\textcolor{cnltx}{\textsc{#1}}}
 
 \def\cnltx@newpackagename#1#2{%
-  \newcommand*#1{\cnltx@package@name@format{#2}}%
+  \newcommand*#1{\texorpdfstring{\cnltx@package@name@format{#2}}{#2}}%
 }
 \newrobustcmd*\newpackagename{\cnltx@newpackagename}
 
@@ -307,8 +318,17 @@
       \gdef\cnltx@package@email{#1}
       \booltrue{cnltx@package@email} ,
     abstract/.code =
-      \gdef\cnltx@package@abstract{\parbox{.75\linewidth}{#1}}
+      \gdef\cnltx@package@abstract{%
+        \parbox{\cnltx@package@abstract@width}{%
+          \cnltx@package@abstract@format
+          #1%
+        }%
+      }
       \booltrue{cnltx@package@abstract} ,
+    abstract-width/.code =
+      \setlength\cnltx@package@abstract@width{#1} ,
+    abstract-format/.code =
+      \def\cnltx@package@abstract@format{#1}
 }
 % --------------------------------------------------------------------------
 % command descriptions:
@@ -533,7 +553,7 @@
 
 % --------------------------------------------------------------------------
 % modules:
-\def\cnltx@module@sep{ >> }
+\def\cnltx@module@sep{\,>>\,}
 \pgfkeys{
   cnltx/.cd,
     module-sep/.code = \def\cnltx@module@sep{#1}
@@ -761,17 +781,17 @@
 \DeclareTranslationFallback{cnltx-license}{%
   Permission is granted to copy, distribute and/or modify this software under
   the terms of the \LPPL\ (\lppl), version 1.3 or later
-  (\url{http://www.latex-project.org/lppl.txt}). The software has the status%
+  (\url{http://www.latex-project.org/lppl.txt}).  The software has the status%
 }
 \DeclareTranslation{English}{cnltx-license}{%
   Permission is granted to copy, distribute and/or modify this software under
   the terms of the \LPPL\ (\lppl), version 1.3 or later
-  (\url{http://www.latex-project.org/lppl.txt}). The software has the status%
+  (\url{http://www.latex-project.org/lppl.txt}).  The software has the status%
 }
 \DeclareTranslation{German}{cnltx-license}{%
-  Es ist erlaubt, diese Software zu kopieren und zu verteilen unter den
-  Bedingungen der \LPPL\ (\lppl), Version 1.3 oder sp\"ater.
-  (\url{http://www.latex-project.org/lppl.txt}). Sie hat den Status%
+  Es ist erlaubt, diese Software unter den  Bedingungen der \LPPL\ (\lppl),
+  Version 1.3 oder sp\"ater, zu kopieren und zu verteilen
+  (\url{http://www.latex-project.org/lppl.txt}).  Sie hat den Status%
 }
 
 \DeclareTranslationFallback{cnltx-introduced}{Introduced in version}
@@ -830,6 +850,9 @@ HISTORY:
                    `quote-format' and `quote-author-format'
                  - changed scaling of `beramono' from `.83' to `.81' -- seems
                    a better fit in relation to Linux Libertine
+2013/09/24 v0.6  - workaround for footnotes in minipages => libertine does not
+                   have superior letters
+                 - new options `abstract-format' and `abstract-width'
 
 % --------------------------------------------------------------------------
 TODO:
