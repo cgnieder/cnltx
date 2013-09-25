@@ -1,6 +1,6 @@
 % arara: pdflatex
-% arara: biber
-% arara: pdflatex
+% !arara: biber
+% !arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
 % the CNLTX bundle
@@ -86,6 +86,7 @@
   add-silent-cmds = {
     at,
     carlisle,
+    cnltx,
     foothree,
     GetTranslation,
     nohyperpage,
@@ -274,7 +275,7 @@ locally.
 \section{Available Commands}
 \subsection{Description of Macros, Environments and  Options}\label{sec:cmds:macros}
 
-The commands described in this section all are provided by the \cnltx\
+The commands described in this section all are provided by the \cnltxexample\
 package\bypackage{example}.  They all are related to the typesetting of
 provided macros, options and the like.
 
@@ -330,7 +331,7 @@ provided macros, options and the like.
   \command{module}[\sarg\marg{name}]
     A module \meta{name}, \cs{module}\Marg{name}: \module{name}.  Adds a
     corresponding index entry.  The starred form does not add an index entry.
-    In some of my package I like to organize options by grouping them in
+    In some of my packages I like to organize options by grouping them in
     different classes that I call ``modules''.  This command refers to those
     modules.
   \command{moduleidx}[\sarg\marg{name}]
@@ -561,7 +562,7 @@ section~\vref{sec:envs:description} items are input via the following command:
     command name and can thus be used for adding arguments.
   \command{Default}[\sarg\code{!}\marg{code}]
     \changedversion{0.3}This command can be placed after \cs{command} or
-    \cs{option}  in order to give a default definition of a macro or a default
+    \cs{opt}  in order to give a default definition of a macro or a default
     value of an option.  The definition will then be placed on the same line
     flush right.  The star prevents the insertion of \cs*{newline} after it.
     The optional bang adds the information that an option is mandatory,
@@ -622,11 +623,12 @@ different kinds of options.
     \code{false}.  The star prevents an index entry.
   \command{Default}[\sarg\code{!}\marg{code}]
     \changedversion{0.3}This command can be placed after \cs{command} or
-    \cs{option}  in order to give a default definition of a macro or a default
-    value of an option.  The definition will then be placed on the same line
-    flush right.  The star prevents the insertion of \cs*{newline} after it.
-    The optional bang adds the information that an option is mandatory,
-    \ie, it has to be set.
+    \cs{opt} (or any of the other commands for adding an option to the
+    \env{options} list) in order to give a default definition of a macro or a
+    default value of an option.  The definition will then be placed on the
+    same line flush right.  The star prevents the insertion of \cs*{newline}
+    after it. The optional bang adds the information that an option is
+    mandatory, \ie, it has to be set.
   \command{Module}[\sarg\code{!}\marg{name}]
     \sinceversion{0.3}This command can be placed after \cs{option} but before
     \cs{Default} in order to determine the module the option belongs to.  It
@@ -790,11 +792,11 @@ customize it:
     Overwrite the options with new ones.
 \end{options}
 
-The source code is formatted using the \pkg{listings}
-package~\cite{pkg:listings}.  Similar options exist to adapt \pkg{listings}'
-options that are used for formatting the source code.  The predifined style
-has many options that will not be mentioned here.  If you're interested you
-can find them in \file{cnltx-example.sty} or in
+The source code is formatted using the great \pkg{listings}
+package~\cite{pkg:listings} by \heinz, \moses, and \hoffmann.  Similar options
+exist to adapt \pkg{listings}' options that are used for formatting the source
+code.  The predifined style has many options that will not be mentioned here.
+If you're interested you can find them in \file{cnltx-example.sty} or in
 section~\vref{sec:listings-sourcecode}.
 \begin{options}
   \keyval-{gobble}{integer}\Default{2}
@@ -817,11 +819,11 @@ section~\vref{sec:listings-sourcecode}.
   \keyval{add-listings-options}{\pkg{listings} options}\Default
     Additional options for the \pkg{listings}~\cite{pkg:listings}
     environments.  \emph{This redefines the \code{cnltx} \pkg{listings} style
-      anf this effects all sourcecode environments!}
+      which will affect all sourcecode environments!}
   \keyval{listings-options}{\pkg{listings} options}
     Overwrite existing options with new ones.  This can be used to build an own
     style from scratch.  \emph{This redefines the \code{cnltx} \pkg{listings}
-      style anf this effects all sourcecode environments!}
+      style which will affect all sourcecode environments!}
   \keyval{sourcecode-options}{\pkg{listings} options}
     \sinceversion{0.4}These options are added to the \pkg{listings} options of
     the source code environments without redefing the main style.  Hence it
