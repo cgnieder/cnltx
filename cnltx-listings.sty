@@ -28,10 +28,10 @@
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx-listings}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
-\cnltx@create@message{listings}{Error}
-\cnltx@create@message{listings}{Warning}
-\cnltx@create@message{listings}{WarningNoLine}
-\cnltx@create@message{listings}{Info}
+\cnltx@create@bundle@message{listings}{Error}
+\cnltx@create@bundle@message{listings}{Warning}
+\cnltx@create@bundle@message{listings}{WarningNoLine}
+\cnltx@create@bundle@message{listings}{Info}
 
 \RequirePackage{listings}
 
@@ -220,6 +220,59 @@
   morestring = [b]{"} ,
   morecomment = [l]{\%} ,
   sensitive = false
+}
+
+\lstdefinelanguage{makeindex}{
+  morekeywords = {
+    actual,           % @
+    arg_open,         % {
+    arg_close,        % }
+    encap,            % |
+    escape,           % \\
+    keyword,          % \\indexentry
+    level,            % !
+    page_compositor,  % -
+    quote,            % "
+    range_open,       % (
+    range_close,      % )
+    preamble,         % \\begin{theindex} \n
+    postamble,        % \n\n \end{theindex} \n
+    setpage_prefix,   % \n \\setcounter{page}{
+    setpage_suffix,   % } \n
+    group_skip,       % \n\n \\indexspace \n
+    headings_flag,    % 0
+    heading_prefix,   %
+    heading_suffix,   %
+    symhead_positive, % Symbols
+    symhead_negative, % symbols
+    numhead_positive, % Numbers
+    numhead_negative, % numbers
+    item_0,           % \n \\item
+    item_1,           % \n \\subitem
+    item_2,           % \n \\subsubitem
+    item_01,          % \n \\subitem
+    item_x1,          % \n \\subitem
+    item_12,          % \n \\subsubitem
+    item_x2,          % \n \\subsubitem
+    delim_0,          % , 
+    delim_1,          % , 
+    delim_2,          % , 
+    delim_n,          % , 
+    delim_r,          % --
+    delim_t,          %
+    suffix_2p,        %
+    suffix_3p,        %
+    suffix_mp,        %
+    encap_prefix,     % \\
+    encap_infix,      % {
+    encap-suffix,     % }
+    line_max,         % 72
+    indent_space,     % \t\t
+    indent_length     % 16
+  } ,
+  morestring = [b]{"} ,
+  morecomment = [l]{\%} ,
+  sensitive = true
 }
 
 % --------------------------------------------------------------------------
@@ -473,6 +526,7 @@
   ddot,
   ddots,
   deadcycles,
+  DeclareCharacterInheritance,
   DeclareDictTranslation,
   DeclareErrorFont,
   DeclareFixedFont,
@@ -493,6 +547,11 @@
   DeclareMathSizes,
   DeclareMathSymbol,
   DeclareMathVersion,
+  DeclareMicrotypeAlias,
+  DeclareMicrotypeBabelHook,
+  DeclareMicrotypeSet,
+  DeclareMicrotypeSetDefault,
+  DeclareMicrotypeVariants,
   DeclareOldFontCommand,
   DeclareOption,
   DeclarePreloadSizes,
@@ -536,6 +595,7 @@
   dimen,
   dimendef,
   dimexpr,
+  DisableLigatures,
   discretionary,
   displayindent,
   displaylimits,
@@ -924,6 +984,7 @@
   LoadClass,
   LoadDictionary,
   LoadDictionaryFor,
+  LoadMicrotypeFile,
   log,
   long,
   longleftarrow,
@@ -938,6 +999,8 @@
   lower,
   lowercase,
   lq,
+  lslig,
+  lsstyle,
   lstinline,
   lstinputlisting,
   lrbox,
@@ -1013,6 +1076,8 @@
   message,
   MessageBreak,
   mho,
+  microtypecontext,
+  microtypesetup,
   mid,
   midinsert,
   min,
@@ -1344,6 +1409,9 @@
   setbox,
   setcapindent,
   setcounter,
+  SetExpansion,
+  SetExtraKerning,
+  SetExtraSpacing,
   setfnpct,
   setkomafont,
   setlanguage,
@@ -1355,12 +1423,14 @@
   setmonofont,
   setotherlanguage,
   setotherlanguages,
+  SetProtrusion,
   setsansfont,
   SetSymbolFont,
   settabs,
   settodepth,
   settoheight,
   settowidth,
+  SetTracking,
   sevenbf,
   seveni,
   sevensy,
@@ -1507,6 +1577,8 @@
   textit,
   textheight,
   textless,
+  textls,
+  textmicrotypecontext,
   textmd,
   textnormal,
   textogonekcentered,
@@ -1634,6 +1706,7 @@
   usebox,
   usecounter,
   usefont,
+  UseMicrotypeSet,
   usepackage,
   UseTextAccent,UseTextSymbol,
   upshape,
@@ -1745,7 +1818,7 @@
 
 \pgfkeys{
   cnltx/.cd,
-    list-known-sep/.code = \def\cnltx@print@list@sep{#1}
+    list-sep/.code = \def\cnltx@print@list@sep{#1}
 }
 
 \newrobustcmd*\cnltx@write@list@entry[2]{%
@@ -1760,11 +1833,86 @@
 }
 
 \newrobustcmd*\listsilentcmds{%
-  \cnltx@write@list\cnltx@predefined@control@sequences\cs
+  \begingroup
+    \cnltx@write@list\cnltx@predefined@control@sequences\cs
+  \endgroup
 }
 \newrobustcmd*\listsilentenvs{%
-  \cnltx@write@list\cnltx@predefined@environments\env
+  \begingroup
+    \cnltx@write@list\cnltx@predefined@environments\env
+  \endgroup
 }
+
+
+% --------------------------------------------------------------------------
+% read bibfiles and get name and type of entries:
+\RequirePackage{catchfile}
+\DeclareListParser*{\cnltx@parse@bibfile}{@}
+
+\def\cnltx@bibfile@entries{}
+
+\long\def\cnltx@get@bibfile@entry#1{\ifblank{#1}{}{\cnltx@parse@bibfile@entry#1}}
+
+\long\def\cnltx@parse@bibfile@entry#1#{%
+  \cnltx@parse@bibfile@entry@aux{#1}%
+}
+
+\def\cnltx@parse@bibfile@entry@aux#1#2{%
+  \ifblank{#2}{}{%
+    \cnltx@parse@bibfile@entry@aux@i{#1}#2\q@stop
+  }%
+}
+\long\def\cnltx@parse@bibfile@entry@aux@i#1#2,#3\q@stop{%
+  \listadd\cnltx@bibfile@entries{{#1}{#2}}%
+}
+
+\def\cnltx@read@bibfile@entry#1#2#3{#1#2#3}
+
+\def\cnltx@bibentry@key#1#2#3{%
+  #1{#3}\def\cnltx@bibentry@key##1##2##3{\cnltx@print@list@sep##1{##3}}}
+
+\def\cnltx@bibentry@type#1#2#3{%
+  #1{@#2}\def\cnltx@bibentry@type##1##2##3{\cnltx@print@list@sep##1{@##2}}}
+
+\def\cnltx@bibentry#1#2#3{%
+  #1{#3} (#1{@#2})%
+  \def\cnltx@bibentry##1##2##3{\cnltx@print@list@sep##1{##3} (##1{@##2})}%
+}
+
+% #1: cs with three args: first formats, second is the type of the entry, the
+% third is the name
+% #2: cs with one arg that formats whatever #1 prints, passed to #1
+% #3: filename
+\def\cnltx@read@bibfile#1#2#3{%
+  \def\cnltx@bibfile@entries{}%
+  \CatchFileDef\cnltx@tmpa{#3}{}%
+  \expandafter\cnltx@parse@bibfile
+  \expandafter\cnltx@get@bibfile@entry
+  \expandafter{\cnltx@tmpa}%
+  \forlistloop{\cnltx@read@bibfile@entry#1#2}\cnltx@bibfile@entries
+}
+
+\newrobustcmd*\listbibfilekeys[1]{%
+  \begingroup
+    \makeatletter
+    \cnltx@read@bibfile\cnltx@bibentry@key\code{#1}%
+  \endgroup
+}
+
+\newrobustcmd*\listbibfiletypes[1]{%
+  \begingroup
+    \makeatletter
+    \cnltx@read@bibfile\cnltx@bibentry@type\code{#1}%
+  \endgroup
+}
+
+\newrobustcmd*\listbibfileentries[1]{%
+  \begingroup
+    \makeatletter
+    \cnltx@read@bibfile\cnltx@bibentry\code{#1}%
+  \endgroup
+}
+
 \endinput
 
 % --------------------------------------------------------------------------
@@ -1773,5 +1921,8 @@ HISTORY:
 2013/09/15 v0.4  - first published version
 2013/09/20 v0.5  - merged with `cnltx-csnames', added a number of command names
 2013/09/21 v0.6  - added loads of command names
+2013/09/30 v0.7  - added \listbibfilekeys, \listbibfiletypes and
+                   \listbibfileentries
+                 - added listings language `makeindex'
 
 TODO:

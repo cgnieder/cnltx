@@ -29,10 +29,10 @@
 \ProvidesPackage{cnltx-example}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{cnltx-listings}
 
-\cnltx@create@message{example}{Error}
-\cnltx@create@message{example}{Warning}
-\cnltx@create@message{example}{WarningNoLine}
-\cnltx@create@message{example}{Info}
+\cnltx@create@bundle@message{example}{Error}
+\cnltx@create@bundle@message{example}{Warning}
+\cnltx@create@bundle@message{example}{WarningNoLine}
+\cnltx@create@bundle@message{example}{Info}
 
 % --------------------------------------------------------------------------
 \RequirePackage{translations}
@@ -304,15 +304,43 @@
   showstringspaces = false ,
 }
 
-\cnltx@fullexpand@twoargs
-  \lstdefinestyle
+\def\cnltx@makeindex@listings@style{
+  language         = makeindex,
+  basicstyle       = {\sourceformat},
+  numbers          = left,
+  numberstyle      = \tiny,
+  xleftmargin      = 1em,
+  numbersep        = .75em,
+  gobble           = \cnltx@gobble ,
+  columns          = fullflexible,
+  literate         =
+    {ä}{{\"a}}1
+    {ö}{{\"o}}1
+    {ü}{{\"u}}1
+    {Ä}{{\"A}}1
+    {Ö}{{\"O}}1
+    {Ü}{{\"U}}1
+    {ß}{{\ss}}1 ,
+  breaklines       = true,
+  keepspaces       = true,
+  breakindent      = 1em,
+  commentstyle     = \color{comment},
+  keywordstyle     = \color{makeidxkey}\bfseries ,
+  stringstyle      = \color{makeidxstring} ,
+  showstringspaces = false ,
+}
+
+\cnltx@expandargs(nx)\lstdefinestyle
   {cnltx}
   {\expandonce\cnltx@listings@style}
 
-\cnltx@fullexpand@twoargs
-  \lstdefinestyle
+\cnltx@expandargs(nx)\lstdefinestyle
   {cnltx-bibtex}
   {\expandonce\cnltx@bibtex@listings@style}
+
+\cnltx@expandargs(nx)\lstdefinestyle
+  {cnltx-makeindex}
+  {\expandonce\cnltx@makeindex@listings@style}
 
 \lstdefinestyle
   {cnltx-inline}
@@ -322,58 +350,49 @@
   }
 
 \def\cnltx@addcmds#1{%
-  \cnltx@fullexpand@twoargs
-    \lstdefinestyle
-      {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}}%
+  \cnltx@expandargs(nx)\lstdefinestyle
+    {cnltx}
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}%
   }%
 }
 
 \def\cnltx@addsilentcmds#1{%
-  \cnltx@fullexpand@twoargs
-    \lstdefinestyle
-      {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
+  \cnltx@expandargs(nx)\lstdefinestyle
+    {cnltx}
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
   }%
 }
 
-\cnltx@expand@arg
-  \cnltx@addsilentcmds
-  \cnltx@predefined@control@sequences
+\cnltx@expandargs(o)\cnltx@addsilentcmds{\cnltx@predefined@control@sequences}
 
 \def\cnltx@addenvs#1{%
-  \cnltx@fullexpand@twoargs
-    \lstdefinestyle
-      {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
+  \cnltx@expandargs(nx)\lstdefinestyle
+    {cnltx}
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}%
   }%
 }
 
 \def\cnltx@addsilentenvs#1{%
-  \cnltx@fullexpand@twoargs
-    \lstdefinestyle
-      {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
+  \cnltx@expandargs(nx)\lstdefinestyle
+    {cnltx}
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
   }%
 }
 
-\cnltx@expand@arg
-  \cnltx@addsilentenvs
-  \cnltx@predefined@environments
+\cnltx@expandargs(o)\cnltx@addsilentenvs{\cnltx@predefined@environments}
 
 \def\cnltx@addlistingsoptions#1{%
-  \cnltx@fullexpand@twoargs
-    \lstdefinestyle
-      {cnltx}
-      {\expandonce\cnltx@listings@style,\unexpanded{#1}}%
+  \cnltx@expandargs(nx)\lstdefinestyle
+    {cnltx}
+    {\expandonce\cnltx@listings@style,\unexpanded{#1}}%
   \edef\cnltx@listings@style{%
     \expandonce\cnltx@listings@style,\unexpanded{#1}%
   }%
@@ -399,16 +418,14 @@
     linecolor       = cnltx ,
     roundcorner     = 5pt
   }
-\cnltx@fullexpand@twoargs
-  \mdfdefinestyle
+\cnltx@expandargs(nx)\mdfdefinestyle
   {cnltx}
   {\expandonce\cnltx@mdframed@options}
 
 \def\cnltx@addmdframedoptions#1{%
-  \cnltx@fullexpand@twoargs
-    \mdfdefinestyle
-      {cnltx}
-      {\expandonce\cnltx@mdframed@options,\unexpanded{#1}}%
+  \cnltx@expandargs(nx)\mdfdefinestyle
+    {cnltx}
+    {\expandonce\cnltx@mdframed@options,\unexpanded{#1}}%
 }
 
 \newbool{cnltx@sidebyside}
@@ -474,7 +491,7 @@
 
 \newcommand*\cnltx@example@start[1]{%
   \pgfqkeys{/cnltx}{#1}%
-  \cnltx@fullexpand@arg\lstset{
+  \cnltx@expandargs(x)\lstset{
     style=cnltx,
     \expandonce\cnltx@local@listings@options
   }%
@@ -561,9 +578,11 @@
 }
 
 \def\cnltx@input@sourcecode@file#1#2{%
-  \cnltx@example@start{#1}%
-  \lstinputlisting{#2}%
-  \cnltx@example@end{#2}%
+  \begingroup
+    \cnltx@example@start{#1}%
+    \lstinputlisting{#2}%
+    \cnltx@example@end{#2}%
+  \endgroup
 }
 
 \def\cnltx@new@input@source@file#1#2{%
@@ -632,24 +651,25 @@
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/08 v0.1 - first working version
-2013/09/10 v0.2 - added \keyis
-                - lot's of improvements on the source code example
-                  environments
-                - disable indexing commands in PDF strings
-                - added hooks to the source example environments
-                - added possibility for internationalization
-                - new macro \verbcode
-                - added optional argument to \newarg
-                - new macros \Marg, \Oarg, \Darg
-                - option for formatting the \default command
-2013/09/12 v0.3 - added \module
-                - added \newsourcecodeenv and \newinputsourcefilecmd
-                - added \inputexample, \inputsidebyside and \inputsourcecode
-                - renamed `example*' into `sidebyside'
-2013/09/15 v0.4 - new listings style `cnltx-bibtex'
-2013/09/20 v0.5 - new command \implementation
-                - fixed wrong indexing behaviour: keywords in the silent lists
-                  are now correctly indexed if added with `add-cmds' or
-                  `add-envs'
+2013/09/08 v0.1  - first working version
+2013/09/10 v0.2  - added \keyis
+                 - lot's of improvements on the source code example
+                   environments
+                 - disable indexing commands in PDF strings
+                 - added hooks to the source example environments
+                 - added possibility for internationalization
+                 - new macro \verbcode
+                 - added optional argument to \newarg
+                 - new macros \Marg, \Oarg, \Darg
+                 - option for formatting the \default command
+2013/09/12 v0.3  - added \module
+                 - added \newsourcecodeenv and \newinputsourcefilecmd
+                 - added \inputexample, \inputsidebyside and \inputsourcecode
+                 - renamed `example*' into `sidebyside'
+2013/09/15 v0.4  - new listings style `cnltx-bibtex'
+2013/09/20 v0.5  - new command \implementation
+                 - fixed wrong indexing behaviour: keywords in the silent lists
+                   are now correctly indexed if added with `add-cmds' or
+                   `add-envs'
+2013/09/30 v0.7  - added listings style `cnltx-makeindex'
 

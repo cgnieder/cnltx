@@ -29,10 +29,10 @@
 \ProvidesPackage{cnltx-tools}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
 % --------------------------------------------------------------------------
-\cnltx@create@message{tools}{Error}
-\cnltx@create@message{tools}{Warning}
-\cnltx@create@message{tools}{WarningNoLine}
-\cnltx@create@message{tools}{Info}
+\cnltx@create@bundle@message{tools}{Error}
+\cnltx@create@bundle@message{tools}{Warning}
+\cnltx@create@bundle@message{tools}{WarningNoLine}
+\cnltx@create@bundle@message{tools}{Info}
 
 % --------------------------------------------------------------------------
 \newcommand*\cnltx@name@first[1]{#1}
@@ -123,9 +123,98 @@
 
 \newcommand*\cnltxacronym{\cnltx@acronym}
 
+% --------------------------------------------------------------------------
+% abbreviations:
+
+% \def\cnltx@abbr@ifdot{\ltx@ifnextchar@nospace.}
+\protected\def\cnltx@abbr@dot#1{\cnltx@ifpunctuation*[.]{#1\@}{#1.\@}}
+
+% --------------------------------------------------------------------------
+% \defabbr
+\protected\def\cnltx@defabbr@dot#1#2{\def#1{\cnltx@abbr@dot{#2}}}
+\protected\def\cnltx@defabbr@nodot#1#2{\def#1{#2}}
+
+% \newabbr
+\protected\def\cnltx@newabbr@dot#1#2{%
+  \cnltx@ifdef#1{}{\protected\def#1{\cnltx@abbr@dot{#2}}}}
+
+\protected\def\cnltx@newabbr@nodot#1#2{%
+  \cnltx@ifdef#1{}{\protected\def#1{#2}}}
+
+% \renewabbr
+\protected\def\cnltx@renewabbr@dot#1#2{%
+  \cnltx@ifdef#1{\protected\def#1{\cnltx@abbr@dot{#2}}}{}}
+
+\protected\def\cnltx@renewabbr@nodot#1#2{%
+  \cnltx@ifdef#1{\protected\def#1{#2}}{}}
+
+\def\cnltx@ifdef#1{%
+  \ifcsname\expandafter\@gobble\string#1\endcsname
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+
+\newrobustcmd*\newabbr{%
+  \@ifstar{\cnltx@newabbr@nodot}{\cnltx@newabbr@dot}%
+}
+
+\newrobustcmd*\renewabbr{%
+  \@ifstar{\cnltx@renewabbr@nodot}{\cnltx@renewabbr@dot}%
+}
+
+\newrobustcmd*\defabbr{%
+  \@ifstar{\cnltx@defabbr@nodot}{\cnltx@defabbr@dot}%
+}
+
+% --------------------------------------------------------------------------
+\RequirePackage{translations}
+
+\newcommand*\cnltxlatin[1]{\textit{#1}}
+
+\DeclareTranslationFallback{cnltx-i.e.}{\cnltxlatin{i.\,e}}
+\DeclareTranslation{English}{cnltx-i.e.}{\cnltxlatin{i.\,e}}
+\DeclareTranslation{German}{cnltx-i.e.}{d.\,h}
+
+\DeclareTranslationFallback{cnltx-e.g.}{\cnltxlatin{e.\,g}}
+\DeclareTranslation{English}{cnltx-e.g.}{\cnltxlatin{e.\,g}}
+\DeclareTranslation{German}{cnltx-e.g.}{z.\,B}
+
+\DeclareTranslationFallback{cnltx-cf.}{\cnltxlatin{cf}}
+\DeclareTranslation{English}{cnltx-cf.}{\cnltxlatin{cf}}
+\DeclareTranslation{German}{cnltx-cf.}{vgl}
+
+\DeclareTranslationFallback{cnltx-etc.}{\cnltxlatin{etc}}
+\DeclareTranslation{English}{cnltx-etc.}{\cnltxlatin{etc}}
+\DeclareTranslation{German}{cnltx-etc.}{etc}
+
+\newabbr\ie{\GetTranslation{cnltx-i.e.}}
+\newabbr\eg{\GetTranslation{cnltx-e.g.}}
+\newabbr\cf{\GetTranslation{cnltx-cf.}}
+\newabbr\etc{\GetTranslation{cnltx-etc.}}
+
+\newabbr\zB{z.\,B}
+\newabbr\ZB{Z.\,B}
+\newabbr\usw{usw}
+\newabbr\usf{usf}
+\newabbr\uswusf{usw.\@\space usf}
+\newabbr\dsh{d.\,h}
+\newabbr\Dsh{D.\,h}
+\newabbr\vgl{vgl}
+\newabbr\Vgl{Vgl}
+
+\newcommand*\cnltxtimeformat[1]{\textsc{\,#1}}
+\newabbr\PM{\cnltxtimeformat{p.m}}
+\newabbr\AM{\cnltxtimeformat{a.m}}
+\newabbr\BC{\cnltxtimeformat{b.c}}
+\newabbr\AD{\cnltxtimeformat{a.d}}
+
 \endinput
 
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/10 v0.2 - first published version
+2013/09/10 v0.2  - first published version
+2013/09/30 v0.7  - added abbreviations
+

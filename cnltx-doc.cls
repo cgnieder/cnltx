@@ -29,17 +29,17 @@
 \ProvidesClass{cnltx-doc}[\cnltx@@date\space \cnltx@@version\space
  \cnltx@@info]
 
-\cnltx@create@message*{doc}{Error}
-\cnltx@create@message*{doc}{Warning}
-\cnltx@create@message*{doc}{WarningNoLine}
-\cnltx@create@message*{doc}{Info}
+\cnltx@create@bundle@message*{doc}{Error}
+\cnltx@create@bundle@message*{doc}{Warning}
+\cnltx@create@bundle@message*{doc}{WarningNoLine}
+\cnltx@create@bundle@message*{doc}{Info}
 
 \newbool{cnltx@load@preamble}
 \newbool{cnltx@add@index}
 \newbool{cnltx@add@bib}
 
-\def\cnltx@scrartcl@options{}
-\def\cnltx@babel@options{english}
+\newcommand*\cnltx@scrartcl@options{}
+\newcommand*\cnltx@babel@options{english}
 
 
 \pgfkeys{
@@ -61,13 +61,13 @@
 \LoadClass{scrartcl}
 
 
-\def\cnltx@index@prologue{}
+\newcommand*\cnltx@index@prologue{}
 \newbool{cnltx@index@prologue}
 \newlength\cnltx@index@space
 
-\def\cnltx@index@setup{othercode=\footnotesize,level=\addsec}
-\def\cnltx@makeindex@setup{columns=2,columnsep=1em}
-\def\cnltx@index@style{cnltx.ist}
+\newcommand*\cnltx@index@setup{othercode=\footnotesize,level=\addsec}
+\newcommand*\cnltx@makeindex@setup{columns=2,columnsep=1em}
+\newcommand*\cnltx@index@style{cnltx.ist}
 
 \pgfkeys{
   cnltx/.cd,
@@ -83,8 +83,8 @@
 
 \RequirePackage{cnltx-tools,cnltx-example,cnltx-listings,translations}
 
-\def\cnltx@caption@font{\normalfont\small\sffamily}
-\def\cnltx@captionlabel@font{\cnltx@caption@font\scshape}
+\newcommand*\cnltx@caption@font{\normalfont\small\sffamily}
+\newcommand*\cnltx@captionlabel@font{\cnltx@caption@font\scshape}
 
 \pgfkeys{
   cnltx/.cd,
@@ -109,6 +109,31 @@
     }%
   }
   \RequirePackage{microtype}
+  \ifboolexpr
+    {
+      test {\ifcsdef{MT@pr@set@@romansans}} and
+      test {\ifcsdef{MT@pr@set@@romansans}}
+    }
+    {}
+    {
+      \DeclareMicrotypeSet{romansans}{
+        encoding = {*},
+        family   = {rm*,sf*}
+      }
+    }
+  \ifcsdef{MT@tr@set@@scshape}
+    {}
+    {
+      \DeclareMicrotypeSet[tracking]{scshape}{
+        encoding = {*} ,
+        shape    = {sc,scit,si}
+      }
+    }
+  \microtypesetup{
+    tracking   = scshape ,
+    protrusion = romansans ,
+    expansion  = romansans
+  }
   \ifboolexpr{not bool{xetex} and not bool{luatex}}
     {\RequirePackage[scaled=.81]{beramono}}
     {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
@@ -188,46 +213,46 @@
 
 % --------------------------------------------------------------------------
 % package information:
-\def\cnltx@getfileinfo#1#2{%
-  \def\@tempb##1 ##2 ##3\relax##4\relax{%
+\newrobustcmd*\cnltx@getfileinfo[2]{%
+  \def\cnltx@tmpa##1 ##2 ##3\relax##4\relax{%
     \gdef\cnltx@package@date{##1}%
     \gdef\cnltx@package@version{##2}%
     \gdef\cnltx@package@info{##3}}%
-  \edef\@tempa{\csname ver@#1.#2\endcsname}%
-  \expandafter\@tempb\@tempa\relax? ? \relax\relax}
+  \edef\cnltx@tmpb{\csname ver@#1.#2\endcsname}%
+  \expandafter\cnltx@tmpa\cnltx@tmpb\relax? ? \relax\relax}
 
-\def\cnltx@package@name{??}
+\newcommand*\cnltx@package@name{??}
 \newbool{cnltx@package@name}
-\def\cnltx@package@date{??}
-\def\cnltx@package@version{??}
-\def\cnltx@package@info{??}
-\def\cnltx@package@title{??}
-\def\cnltx@title@format{\bfseries\scshape}
+\newcommand*\cnltx@package@date{??}
+\newcommand*\cnltx@package@version{??}
+\newcommand*\cnltx@package@info{??}
+\newcommand*\cnltx@package@title{??}
+\newcommand*\cnltx@title@format{\bfseries\scshape}
 \newbool{cnltx@package@title}
-\def\cnltx@package@subtitle{??}
+\newcommand*\cnltx@package@subtitle{??}
 \newbool{cnltx@package@subtitle}
-\def\cnltx@package@url{??}
+\newcommand*\cnltx@package@url{??}
 \newbool{cnltx@package@url}
-\def\cnltx@package@email{??}
+\newcommand*\cnltx@package@email{??}
 \newbool{cnltx@package@email}
-\def\cnltx@package@abstract{??}
+\newcommand*\cnltx@package@abstract{??}
 \newbool{cnltx@package@abstract}
 \newlength\cnltx@package@abstract@width
 \setlength\cnltx@package@abstract@width{.75\linewidth}
-\def\cnltx@package@abstract@format{\setlength\parskip{.333\baselineskip}}
+\newcommand*\cnltx@package@abstract@format{\setlength\parskip{.333\baselineskip}}
 
-\protected\def\cnltx@package@name@format#1{\textcolor{cnltx}{\textsc{#1}}}
+\newrobustcmd*\cnltx@package@name@format[1]{\textcolor{cnltx}{\textsc{#1}}}
 
-\def\cnltx@newpackagename#1#2{%
+\newrobustcmd*\cnltx@newpackagename[2]{%
   \newcommand*#1{\texorpdfstring{\cnltx@package@name@format{#2}}{#2}}%
 }
 \newrobustcmd*\newpackagename{\cnltx@newpackagename}
 
 % --------------------------------------------------------------------------
 % authors:
-\def\cnltx@package@author@list{}
-\def\cnltx@package@author@pdflist{}
-\def\cnltx@new@author#1{%
+\newcommand*\cnltx@package@author@list{}
+\newcommand*\cnltx@package@author@pdflist{}
+\newrobustcmd*\cnltx@new@author[1]{%
   \listadd\cnltx@package@author@list
     {\cnltx@read@name{#1}}%
   \listadd\cnltx@package@author@pdflist
@@ -235,10 +260,10 @@
 }
 
 % writing the names and email addresses:
-\def\cnltx@read@name#1{%
+\newcommand*\cnltx@read@name[1]{%
   \cnltx@read@name@aux#1[]\q@stop
 }
-\def\cnltx@read@name@aux#1[#2]\q@stop{%
+\protected\def\cnltx@read@name@aux#1[#2]\q@stop{%
   \cnltx@get@first@and@second@name#1 \q@stop
   \ifblank{#2}{}
     {\cnltx@write@author@email#2\q@stop}%
@@ -247,7 +272,7 @@
   \ifblank{#1}{}
     {\footnote{\href{mailto:#1}{#1}}}%
 }
-\def\cnltx@get@first@and@second@name#1 #2\q@stop{%
+\protected\def\cnltx@get@first@and@second@name#1 #2\q@stop{%
   \ifblank{#2}
     {%
       \cnltx@name[]{#1}%
@@ -260,7 +285,7 @@
 }
 
 % getting the names for the pdf properties:
-\def\cnltx@extract@name#1{%
+\newcommand*\cnltx@extract@name[1]{%
   \cnltx@extract@name@aux#1[]\q@stop
 }
 \def\cnltx@extract@name@aux#1[#2]\q@stop{%
@@ -268,7 +293,7 @@
 }
 \def\cnltx@extract@name@aux@i#1][\q@stop{}
 
-\def\cnltx@package@authors{%
+\newrobustcmd*\cnltx@package@authors{%
   \gdef\cnltx@author@sep{\gdef\cnltx@author@sep{\qquad}}%
   \forlistloop{\cnltx@author@sep}\cnltx@package@author@list
 }
@@ -332,19 +357,19 @@
 }
 % --------------------------------------------------------------------------
 % command descriptions:
-\def\cnltx@command{%
+\newcommand*\cnltx@command{%
   \@ifstar
     {\cnltx@command@star}
     {\cnltx@command@nostar}%
 }
 
-\def\cnltx@command@star#1{%
+\newrobustcmd*\cnltx@command@star[1]{%
   \@ifnextchar[
     {\cnltx@command@star@opt{#1}}
     {\cnltx@command@star@opt{#1}[]}%
 }
 
-\def\cnltx@command@nostar#1{%
+\newrobustcmd*\cnltx@command@nostar[1]{%
   \@ifnextchar[
     {\cnltx@command@nostar@opt{#1}}
     {\cnltx@command@nostar@opt{#1}[]}%
@@ -377,7 +402,7 @@
     }%
 }
 
-\def\cmltx@list@setup{%
+\newcommand*\cmltx@list@setup{%
   \leftmargin=0pt
   \labelwidth=2em
   \labelsep=0pt
@@ -402,35 +427,35 @@
 
 % --------------------------------------------------------------------------
 % option descriptions:
-\def\@cnltx@option@item#1{%
+\newcommand*\@cnltx@option@item[1]{%
   \@ifstar
     {\@cnltx@option@item@aux@star{#1}}
     {\@cnltx@option@item@aux@nostar{#1}}%
 }
 
-\def\@cnltx@option@item@aux@star#1{%
+\newcommand*\@cnltx@option@item@aux@star[1]{%
   \cnltx@ifdash
     {\@cnltx@option@item@aux{#1}*-}
     {\@cnltx@option@item@aux{#1}*{}}%
 }
-\def\@cnltx@option@item@aux@nostar#1{%
+\newcommand*\@cnltx@option@item@aux@nostar[1]{%
   \cnltx@ifdash
     {\@cnltx@option@item@aux{#1}{}-}
     {\@cnltx@option@item@aux{#1}{}{}}%
 }
 
-\def\@cnltx@option@item@aux#1#2#3#4{%
+\newrobustcmd*\@cnltx@option@item@aux[4]{%
   \@ifnextchar\bgroup
     {\@cnltx@option@two{#1#2#3}{#4}}
     {\@cnltx@option@one{#1#2#3}{#4}}%
 }
 
-\def\@cnltx@option@one#1#2{%
+\newcommand*\@cnltx@option@one[2]{%
   \item#1{#2}%
   \cnltx@checkdefault{\hfill\newline}%
 }
 
-\def\@cnltx@option@two#1#2#3{%
+\newcommand*\@cnltx@option@two[3]{%
   \item#1{#2}{#3}%
   \cnltx@checkdefault{\hfill\newline}%
 }
@@ -448,19 +473,19 @@
 
 % --------------------------------------------------------------------------
 % environment descriptions:
-\def\cnltx@environment{%
+\newcommand*\cnltx@environment{%
   \@ifstar
     {\cnltx@environment@star}
     {\cnltx@environment@nostar}%
 }
 
-\def\cnltx@environment@star#1{%
+\newcommand*\cnltx@environment@star[1]{%
   \@ifnextchar[
     {\cnltx@environment@star@opt{#1}}
     {\cnltx@environment@star@opt{#1}[]}%
 }
 
-\def\cnltx@environment@nostar#1{%
+\newcommand*\cnltx@environment@nostar[1]{%
   \@ifnextchar[
     {\cnltx@environment@nostar@opt{#1}}
     {\cnltx@environment@nostar@opt{#1}[]}%
@@ -488,7 +513,7 @@
 
 % --------------------------------------------------------------------------
 % default values:
-\def\cnltx@Default#1{%
+\newrobustcmd*\cnltx@Default[1]{%
   \null\hfill
   \@ifnextchar\bgroup
     {\cnltx@Default@initial{#1}}
@@ -499,22 +524,22 @@
     }%
 }
 
-\def\cnltx@Default@initial#1#2{%
+\newcommand*\cnltx@Default@initial[2]{%
   \llap{\GetTranslation{cnltx-default}: \code{#2}}%
   \ifblank{#1}{\newline}{}%
 }
 
-\def\cnltx@Default@required#1{%
+\newcommand*\cnltx@Default@required[1]{%
   \llap{(\GetTranslation{cnltx-required})}%
   \ifblank{#1}{\newline}{}%
 }
 
-\def\cnltx@Default@empty#1{%
+\newcommand*\cnltx@Default@empty[1]{%
   \llap{(\GetTranslation{cnltx-empty})}%
   \ifblank{#1}{\newline}{}%
 }
 
-\newrobustcmd\Default{%
+\newrobustcmd*\Default{%
   \@ifstar
     {\cnltx@Default{*}}
     {\cnltx@Default{}}%
@@ -523,28 +548,28 @@
 \newrobustcmd*\expandable{\cnltx@expandable@ornot\cnltx@expandable}
 \newrobustcmd*\unexpandable{\cnltx@expandable@ornot\cnltx@unexpandable}
 
-\def\cnltx@expandable@ornot#1{%
+\newrobustcmd*\cnltx@expandable@ornot[1]{%
   \let\cnltx@item\item
   \def\item{\cnltx@item#1\let\item\cnltx@item}%
 }
-\def\cnltx@expandable@note#1{%
+\newrobustcmd\cnltx@expandable@note[1]{%
   \begingroup
     \reversemarginpar
     \marginnote{\hfill#1\space}%
   \endgroup
 }
-\def\cnltx@expandable{%
+\newcommand*\cnltx@expandable{%
   \cnltx@expandable@note{%
     \textcolor{expandable}{\expandablesign}%
   }%
 }
-\def\cnltx@unexpandable{%
+\newcommand*\cnltx@unexpandable{%
   \cnltx@expandable@note{%
     \textcolor{unexpandable}{\expandablesign}%
   }%
 }
 
-\def\expandablesign{\textasteriskcentered}
+\newcommand*\expandablesign{\textasteriskcentered}
 
 \pgfkeys{
   cnltx/.cd,
@@ -553,22 +578,23 @@
 
 % --------------------------------------------------------------------------
 % modules:
-\def\cnltx@module@sep{\,>>\,}
+\newcommand*\cnltx@module@sep{\,>>\,}
+
 \pgfkeys{
   cnltx/.cd,
     module-sep/.code = \def\cnltx@module@sep{#1}
 }
 
-\def\cnltx@module#1{%
+\newrobustcmd*\cnltx@module[1]{%
   \cnltx@ifbang
     {\cnltx@write@module{#1}{}}
     {\cnltx@write@module{#1}{*}}%
 }
-\def\cnltx@write@module#1#2#3{
+\newcommand*\cnltx@write@module[3]{
   \cnltx@module@text{#2}{#3}%
   \ifblank{#1}{\cnltx@checkdefault{\hfill\newline}}{}%
 }
-\def\cnltx@module@text#1#2{%
+\newcommand*\cnltx@module@text[2]{%
   \begingroup
     \reversemarginpar
     \marginnote{\hfill\module#1{#2}\cnltx@module@sep}%
@@ -583,8 +609,8 @@
 
 % --------------------------------------------------------------------------
 % a environment for block quotes
-\def\cnltx@quote@author@format{\itshape}
-\def\cnltx@quote@format{\small\sffamily}
+\newcommand*\cnltx@quote@author@format{\itshape}
+\newcommand*\cnltx@quote@format{\small\sffamily}
 
 \pgfkeys{
   cnltx/.cd ,
@@ -633,7 +659,7 @@
   }%
 }
 
-\def\cnltx@title@information{%
+\newrobustcmd*\cnltx@title@information{%
   \thispagestyle{plain}
   \begin{center}
     \ifbool{cnltx@load@preamble}{}
@@ -690,7 +716,7 @@
     version-note-format/.code = \renewcommand*\versionnoteformat{#1} ,
 }
 
-\long\def\cnltx@version@note#1{%
+\newcommand\cnltx@version@note[1]{%
   \@bsphack
   \begingroup
     \reversemarginpar
@@ -703,18 +729,17 @@
   \@esphack
 }
 
-\def\cnltx@newnote{%
+\newcommand*\cnltx@newnote{%
   \@ifstar
     {\cnltx@newnote@aux{*}}
     {\cnltx@newnote@aux{}}%
 }
-
-\def\cnltx@newnote@aux#1#2{%
+\newrobustcmd\cnltx@newnote@aux[2]{%
   \@ifnextchar[%]
     {\cnltx@newnote@aux@i{#1}{#2}}
     {\cnltx@newnote@aux@i{#1}{#2}[0]}%
 }
-\long\def\cnltx@newnote@aux@i#1#2[#3]#4{%
+\protected\long\def\cnltx@newnote@aux@i#1#2[#3]#4{%
   \ifblank{#1}
     {\newrobustcmd#2[#3]{\cnltx@version@note{#4}}}
     {\newrobustcmd*#2[#3]{\cnltx@version@note{#4}}}%
@@ -853,6 +878,8 @@ HISTORY:
 2013/09/24 v0.6  - workaround for footnotes in minipages => libertine does not
                    have superior letters
                  - new options `abstract-format' and `abstract-width'
+2013/09/30 v0.7  - added better microtype settings to the predefined preamble
+                 - replaced \def's with \newcommand or \newrobustcmd
 
 % --------------------------------------------------------------------------
 TODO:
