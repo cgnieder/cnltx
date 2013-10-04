@@ -13,7 +13,7 @@
 \RequireBibliographyStyle{alphabetic}
 \ExecuteBibliographyOptions{block=ragged}
 
-\DeclareBibliographyDriver{package}{%
+\DeclareBibliographyDriver{latex}{%
   \usebibmacro{bibindex}%
   \usebibmacro{begentry}%
   \usebibmacro{author}%
@@ -28,11 +28,14 @@
   \newunit\newblock
   \usebibmacro{finentry}%
 }
+\DeclareBibliographyAlias{package}{latex}
+\DeclareBibliographyAlias{class}{latex}
+\DeclareBibliographyAlias{bundle}{latex}
 
 \newbibmacro{title+subtitle}{%
   \iffieldundef{title}{}{%
-    \printfield[package]{title}%
-    \ifbibindex{\indexfield[package]{title}}{}%
+    \printfield{title}%
+    \ifbibindex{\indexfield{title}}{}%
     \setunit{\adddot\addspace}%
     \iffieldundef{subtitle}{}{%
       \printfield{subtitle}%
@@ -57,22 +60,54 @@
 }
 
 \DeclareNameAlias[package]{maintainer}{default}
+\DeclareNameAlias[class]{maintainer}{default}
+\DeclareNameAlias[bundle]{maintainer}{default}
+
 \DeclareIndexNameAlias[package]{maintainer}{default}
-%  \DeclareIndexNameFormat[package]{maintainer}{\cnltx@name@idx{#1}}
+\DeclareIndexNameAlias[class]{maintainer}{default}
+\DeclareIndexNameAlias[bundle]{maintainer}{default}
+
 \DeclareFieldFormat[package]{title}{\pkg*{#1}}
+\DeclareFieldFormat[class]{title}{\cls*{#1}}
+\DeclareFieldFormat[bundle]{title}{\bnd*{#1}}
+
 \DeclareIndexFieldFormat[package]{title}{%
   \ifstrequal{#1}{\KOMAScript}
     {\pkgidx[KOMA-Script]{\KOMAScript}}
     {\pkgidx{#1}}%
 }
+\DeclareIndexFieldFormat[class]{title}{%
+  \ifstrequal{#1}{\KOMAScript}
+    {\clsidx[KOMA-Script]{\KOMAScript}}
+    {\clsidx{#1}}%
+}
+\DeclareIndexFieldFormat[bundle]{title}{%
+  \ifstrequal{#1}{\KOMAScript}
+    {\bndidx[KOMA-Script]{\KOMAScript}}
+    {\bndidx{#1}}%
+}
+
 \DeclareIndexFieldFormat[package]{indextitle}{%
   \ifstrequal{#1}{\KOMAScript}
     {\pkgidx[KOMA-Script]{\KOMAScript}}
     {\pkgidx{#1}}%
 }
-\DeclareFieldFormat[package]{subtitle}{\mkbibemph{#1}}
+\DeclareIndexFieldFormat[class]{indextitle}{%
+  \ifstrequal{#1}{\KOMAScript}
+    {\clsidx[KOMA-Script]{\KOMAScript}}
+    {\clsidx{#1}}%
+}
+\DeclareIndexFieldFormat[bundle]{indextitle}{%
+  \ifstrequal{#1}{\KOMAScript}
+    {\bndidx[KOMA-Script]{\KOMAScript}}
+    {\bndidx{#1}}%
+}
 
-\DeclareLabelname[package]{%
+\DeclareFieldFormat[package]{subtitle}{\mkbibemph{#1}}
+\DeclareFieldFormat[class]{subtitle}{\mkbibemph{#1}}
+\DeclareFieldFormat[bundle]{subtitle}{\mkbibemph{#1}}
+
+\DeclareLabelname[package,class,bundle]{%
   \field{shortauthor}
   \field{author}
   \field{maintainer}
@@ -88,3 +123,8 @@
 }
 
 \endinput
+
+HISTORY:
+
+2013/10/04 v0.7a - added drivers `@class' and `@bundle'
+

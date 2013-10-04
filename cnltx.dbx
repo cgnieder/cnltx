@@ -9,7 +9,7 @@
     }%
 }
 \DeclareDatamodelFields[type=list, datatype=name]{maintainer}
-\DeclareDatamodelEntryfields[package]{
+\DeclareDatamodelEntryfields[package,class,bundle]{
   author,
   maintainer,
   info,
@@ -29,3 +29,9 @@
   urlyear,
   version
 }
+
+\endinput
+
+HISTORY:
+
+2013/10/04 v0.7a - added drivers `@class' and `@bundle'

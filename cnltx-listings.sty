@@ -82,7 +82,9 @@
     @standard,
     @video,
     % cnltx types:
-    @package
+    @bundle,
+    @class,
+    @package,
   } ,
   % entry fields:
   morekeywords = [2]{
@@ -1863,7 +1865,21 @@
   }%
 }
 \long\def\cnltx@parse@bibfile@entry@aux@i#1#2,#3\q@stop{%
-  \listadd\cnltx@bibfile@entries{{#1}{#2}}%
+  \cnltx@ifinlist{{#1}{#2}}\cnltx@bibfile@entries{}
+    {\listadd\cnltx@bibfile@entries{{#1}{#2}}}%
+}
+\newbool{cnltx@inlist}
+\long\protected\def\cnltx@ifinlist#1#2#3#4{%
+  \def\do##1{%
+    \boolfalse{cnltx@inlist}%
+    \ifstrequal{##1}{#1}
+      {\booltrue{cnltx@inlist}\listbreak}
+      {}%
+  }%
+  \dolistloop{#2}%
+  \ifbool{cnltx@inlist}
+    {#3}
+    {#4}%
 }
 
 \def\cnltx@read@bibfile@entry#1#2#3{#1#2#3}
@@ -1924,5 +1940,8 @@ HISTORY:
 2013/09/30 v0.7  - added \listbibfilekeys, \listbibfiletypes and
                    \listbibfileentries
                  - added listings language `makeindex'
+2013/10/04 v0.7a - the \listbib... commands remove duplicate entries from the
+                   list if they're equal both in entry type and cite key
+                 - added drivers `@class' and `@bundle'
 
 TODO:

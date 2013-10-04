@@ -112,7 +112,7 @@
   \ifboolexpr
     {
       test {\ifcsdef{MT@pr@set@@romansans}} and
-      test {\ifcsdef{MT@pr@set@@romansans}}
+      test {\ifcsdef{MT@ex@set@@romansans}}
     }
     {}
     {
@@ -241,10 +241,10 @@
 \setlength\cnltx@package@abstract@width{.75\linewidth}
 \newcommand*\cnltx@package@abstract@format{\setlength\parskip{.333\baselineskip}}
 
-\newrobustcmd*\cnltx@package@name@format[1]{\textcolor{cnltx}{\textsc{#1}}}
+\newrobustcmd*\cnltxpackagenameformat[1]{\textcolor{cnltx}{\textsc{#1}}}
 
 \newrobustcmd*\cnltx@newpackagename[2]{%
-  \newcommand*#1{\texorpdfstring{\cnltx@package@name@format{#2}}{#2}}%
+  \newcommand*#1{\texorpdfstring{\cnltxpackagenameformat{#2}}{#2}}%
 }
 \newrobustcmd*\newpackagename{\cnltx@newpackagename}
 
@@ -739,7 +739,17 @@
     {\cnltx@newnote@aux@i{#1}{#2}}
     {\cnltx@newnote@aux@i{#1}{#2}[0]}%
 }
-\protected\long\def\cnltx@newnote@aux@i#1#2[#3]#4{%
+\protected\def\cnltx@newnote@aux@i#1#2[#3]{%
+  \@ifnextchar[%]
+    {\cnltx@newnote@aux@ii{#1}{#2}{#3}}
+    {\cnltx@newnote@aux@iii{#1}{#2}{#3}}%
+}
+\protected\long\def\cnltx@newnote@aux@ii#1#2#3[#4]#5{%
+  \ifblank{#1}
+    {\newrobustcmd#2[#3][#4]{\cnltx@version@note{#5}}}
+    {\newrobustcmd*#2[#3][#4]{\cnltx@version@note{#5}}}%
+}
+\protected\long\def\cnltx@newnote@aux@iii#1#2#3#4{%
   \ifblank{#1}
     {\newrobustcmd#2[#3]{\cnltx@version@note{#4}}}
     {\newrobustcmd*#2[#3]{\cnltx@version@note{#4}}}%
@@ -768,6 +778,7 @@
   \RequirePackage{hyperref}%
   \pdfstringdefDisableCommands{%
     \def\cnltx@name[#1]#2{#1 #2, }%
+    \def\cnltxpackagenameformat#1{#1}%
   }%
   \hypersetup
     {
@@ -880,6 +891,12 @@ HISTORY:
                  - new options `abstract-format' and `abstract-width'
 2013/09/30 v0.7  - added better microtype settings to the predefined preamble
                  - replaced \def's with \newcommand or \newrobustcmd
+2013/10/04 v0.7a - renamed \cnltx@package@name@format into
+                   \cnltxpackagenameformat
+                 - added \cnltxpackagenameformat to the disabled pdfstring
+                   commands
+                 - added possibility to define a opitonal argument with
+                   \newnote
 
 % --------------------------------------------------------------------------
 TODO:

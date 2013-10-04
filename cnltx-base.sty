@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/09/30}
-\def\cnltx@@version{v0.7}
+\def\cnltx@@date{2013/10/04}
+\def\cnltx@@version{v0.7a}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds}
@@ -321,14 +321,12 @@
 \def\cnltx@newexpcmd@i#1[#2]{%
   \@ifnextchar[%]
     {\cnltx@newexpcmd@ii{#1}{#2}}
-    {\cnltx@newexpcmd@ii{#1}{#2}[\q@nil]}%
+    {\new@command#1[#2]}%
 }
 
 \def\cnltx@newexpcmd@ii#1#2[#3]{%
   \edef\cnltx@newexpcmd@args{\cnltx@num@to@args{#2}}%
-  \ifstrequal{\q@nil}{#3}
-    {\new@command#1[#2]}
-    {\expandafter\cnltx@defexpcmd\expandafter{\cnltx@newexpcmd@args}{#2}[#3]#1}%
+  \expandafter\cnltx@defexpcmd\expandafter{\cnltx@newexpcmd@args}{#2}[#3]#1%
 }
 
 \long\def\cnltx@defexpcmd#1#2[#3]#4#5{%

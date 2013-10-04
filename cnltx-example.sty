@@ -65,23 +65,9 @@
 % \cs
 \newidxcmd\cs{\code{\textbackslash\textcolor{cs}{#1}}}
 
-% see http://tex.stackexchange.com/a/114580/5049 for reference on the `nolig'
-% trick, thanks to @egreg!
-
-\newcommand\indexcs[1]{%
-  \begingroup
-    \let\lst@nolig\@empty
-    \def\cnltx@tmp@index{#1}%
-    \expandafter\cnltx@replace@all
-      \expandafter\cnltx@tmp@index
-      \expandafter{\cnltxotherat}{\cnltxat}%
-    \cnltx@replace@all\cnltx@tmp@index{@}{\cnltxat}%
-    \expandafter\csidx\expandafter{\cnltx@tmp@index}%
-  \endgroup
-}
-
 % \env
 \newidxcmd\env{\code{#1}}[\ (\GetTranslation{cnltx-environment})]
+
 % \begin, \end
 \newidxcmd\beginend{\code{\textbackslash\textcolor{beginend}{#1}}}
 \def\beginenv{\@ifstar{\beginend*{begin}}{\beginend{begin}}}
@@ -197,6 +183,26 @@
     expl-format/.code = \renewcommand*\exampleformat{#1} ,
 }
 
+% see http://tex.stackexchange.com/a/114580/5049 for reference on the `nolig'
+% trick, thanks to @egreg!
+
+\newrobustcmd\cnltx@treat@lst@index[2]{%
+  \newrobustcmd#1[1]{%
+    \begingroup
+      \let\lst@nolig\@empty
+      \def\cnltx@tmp@index{##1}%
+      \expandafter\cnltx@replace@all
+        \expandafter\cnltx@tmp@index
+        \expandafter{\cnltxotherat}{\cnltxat}%
+      \cnltx@replace@all\cnltx@tmp@index{@}{\cnltxat}%
+      \expandafter#2\expandafter{\cnltx@tmp@index}%
+    \endgroup
+  }%
+}
+
+\cnltx@treat@lst@index{\indexcs}{\csidx}
+\cnltx@treat@lst@index{\indexenv}{\envidx}
+
 % this command is undocumented and not used; it requires `cnltx-tools':
 \newcommand\cnltx@copyablespace{%
   \cnltx@accsupp{00A0}{method=hex,unicode}{\ }%
@@ -263,7 +269,7 @@
   % added environments that'll be indexed:
   texcsstyle       = [3]\color{env},
   index            = [3][texcs3],
-  indexstyle       = [3]\envidx,
+  indexstyle       = [3]\indexenv,
   % environments that won't be indexed:
   texcsstyle       = [4]\color{env},
   index            = [4][texcs4],
@@ -495,7 +501,9 @@
     style=cnltx,
     \expandonce\cnltx@local@listings@options
   }%
-  \mdframed[style=cnltx]%
+  \ifbool{cnltx@sidebyside}
+    {\mdframed[style=cnltx,nobreak=true]}
+    {\mdframed[style=cnltx,nobreak=false]}%
 }
 
 \newcommand*\cnltx@example@end[1]{%
@@ -571,6 +579,11 @@
     {%
       \cnltx@source@input@end
       \cnltx@example@end{\jobname.cnltx.code}%
+      % see http://tex.stackexchange.com/a/136264/5049
+      % for the reasoning behind this:
+      \if@nobreak
+        \@nobreakfalse
+      \fi
     }%
 }
 \newrobustcmd\newsourcecodeenv[2][]{%
@@ -610,9 +623,11 @@
 % packages and classes:
 \newcommand*\packageformat{\sffamily}
 \newcommand*\classformat{\sffamily}
+\newcommand*\bundleformat{\sffamily}
 
 \newidxcmd\pkg{{\packageformat#1}}[\ (\GetTranslation{cnltx-package})]
 \newidxcmd\cls{{\classformat#1}}[\ (\GetTranslation{cnltx-class})]
+\newidxcmd\bnd{{\bundleformat#1}}[\ (\GetTranslation{cnltx-bundle})]
 
 \pgfkeys{
   cnltx/.cd,
@@ -630,6 +645,7 @@
     \def\option*{}%
     \def\pkg*{}%
     \def\cls*{}%
+    \def\bnd*{}%
     \def\key*#1#2{#1 = #2}%
   }%
 }
@@ -645,6 +661,10 @@
 \DeclareTranslationFallback{cnltx-class}{class}
 \DeclareTranslation{English}{cnltx-class}{class}
 \DeclareTranslation{German}{cnltx-class}{Klasse}
+
+\DeclareTranslationFallback{cnltx-bundle}{bundle}
+\DeclareTranslation{English}{cnltx-bundle}{bundle}
+\DeclareTranslation{German}{cnltx-bundle}{Bundle}
 
 \endinput
 
@@ -672,4 +692,7 @@ HISTORY:
                    are now correctly indexed if added with `add-cmds' or
                    `add-envs'
 2013/09/30 v0.7  - added listings style `cnltx-makeindex'
+2013/10/04 v0.7a - new command \cnltx@treat@lst@index
+                 - changed \envidx in listings into \indexenv
+                 - added \bnd for package bundles
 
