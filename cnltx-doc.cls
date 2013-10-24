@@ -37,6 +37,8 @@
 \newbool{cnltx@load@preamble}
 \newbool{cnltx@add@index}
 \newbool{cnltx@add@bib}
+\newbool{cnltx@load@fonts}
+\newbool{cnltx@microtype}
 
 \newcommand*\cnltx@scrartcl@options{}
 \newcommand*\cnltx@babel@options{english}
@@ -44,12 +46,23 @@
 
 \pgfkeys{
   cnltx-doc/.cd,
-    scrartcl/.code       = \PassOptionsToClass{#1}{scrartcl} ,
-    load-preamble/.is if = cnltx@load@preamble ,
-    add-index/.is if     = cnltx@add@index ,
-    add-bib/.is if       = cnltx@add@bib ,
-    load-preamble+/.code =
+    scrartcl/.code         = \PassOptionsToClass{#1}{scrartcl} ,
+    load-preamble--/.is if = cnltx@load@preamble ,
+    load-fonts/.is if      = cnltx@load@fonts ,
+    load-microtype/.is if  = cnltx@microtype ,
+    load-preamble-/.code   =
       \booltrue{cnltx@load@preamble}
+      \booltrue{cnltx@microtype} ,
+    load-preamble/.code    =
+      \booltrue{cnltx@load@preamble}
+      \booltrue{cnltx@load@fonts}
+      \booltrue{cnltx@microtype} ,
+    add-index/.is if       = cnltx@add@index ,
+    add-bib/.is if         = cnltx@add@bib ,
+    load-preamble+/.code   =
+      \booltrue{cnltx@load@preamble}
+      \booltrue{cnltx@load@fonts}
+      \booltrue{cnltx@microtype}
       \booltrue{cnltx@add@index}
       \booltrue{cnltx@add@bib} ,
     babel-options/.code  = \def\cnltx@babel@options{#1}
@@ -94,49 +107,82 @@
 
 \ifbool{cnltx@load@preamble}{
   \RequirePackage{ifxetex,ifluatex}
-  \ifboolexpr{not bool{xetex} and not bool{luatex}}
-    {\RequirePackage[T1]{fontenc}}
-    {\RequirePackage{fontspec}}
-  \RequirePackage[oldstyle]{libertine}
-  \RequirePackage{libertinehologopatch}
-  \RequirePackage[supstfm=libertinesups]{superiors}
-  % libertine does not have superior letters:
-  \def\@makefnmark{%
-    \hbox{%
-      \cnltx@ifisnum{\@thefnmark}
-        {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
-        {\@textsuperscript{\normalfont\@thefnmark}}%
-    }%
-  }
-  \RequirePackage{microtype}
-  \ifboolexpr
+  \ifbool{cnltx@load@fonts}
     {
-      test {\ifcsdef{MT@pr@set@@romansans}} and
-      test {\ifcsdef{MT@ex@set@@romansans}}
+      \ifboolexpr{not bool{xetex} and not bool{luatex}}
+        {\RequirePackage[T1]{fontenc}}
+        {\RequirePackage{fontspec}}
+      \RequirePackage[oldstyle]{libertine}
+      \RequirePackage{libertinehologopatch}
+      \RequirePackage[supstfm=libertinesups]{superiors}
+      % libertine does not have superior letters:
+      \def\@makefnmark{%
+        \hbox{%
+          \cnltx@ifisnum{\@thefnmark}
+            {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
+            {\@textsuperscript{\normalfont\@thefnmark}}%
+        }%
+      }
     }
     {}
+  \ifbool{cnltx@microtype}
+    {\RequirePackage{microtype}}
+    {}
+  \ifboolexpr
+    {
+      bool {cnltx@microtype} and
+      not test {\ifcsdef{MT@pr@set@@romansans}} and
+      not test {\ifcsdef{MT@ex@set@@romansans}} and
+      bool {cnltx@load@fonts}
+    }
     {
       \DeclareMicrotypeSet{romansans}{
         encoding = {*},
         family   = {rm*,sf*}
       }
     }
-  \ifcsdef{MT@tr@set@@scshape}
     {}
+  \ifboolexpr
+    {
+      bool {cnltx@microtype} and
+      not test {\ifcsdef{MT@tr@set@@scshape}} and
+      bool {cnltx@load@fonts}
+    }
     {
       \DeclareMicrotypeSet[tracking]{scshape}{
         encoding = {*} ,
         shape    = {sc,scit,si}
       }
     }
-  \microtypesetup{
-    tracking   = scshape ,
-    protrusion = romansans ,
-    expansion  = romansans
-  }
-  \ifboolexpr{not bool{xetex} and not bool{luatex}}
-    {\RequirePackage[scaled=.81]{beramono}}
-    {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
+    {}
+  \ifboolexpr
+    {
+      not bool {xetex} and
+      bool {cnltx@load@fonts} and
+      bool {cnltx@microtype}
+    }
+    {
+      \microtypesetup{
+        tracking   = scshape ,
+        protrusion = romansans ,
+        expansion  = romansans
+      }
+      \DisableLigatures{ family = tt* }
+    }
+    {}
+  \ifbool{cnltx@load@fonts}
+    {
+      \ifboolexpr{not bool{xetex} and not bool{luatex}}
+        {\RequirePackage[scaled=.81]{beramono}}
+        {
+          \setmonofont[
+            Scale = MatchLowercase ,
+            Ligatures = {NoCommon,NoRequired,NoContextual}
+          ]{Bitstream Vera Sans Mono}
+        }
+      \recalctypearea
+    }
+    {}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
   \renewcommand*\othersectionlevelsformat[3]{%
@@ -576,6 +622,19 @@
     expandable-sign/.code = \def\expandablesign{#1}
 }
 
+\newrobustcmd*\visualizespaces{%
+  \begingroup
+    \obeyspaces
+    \begingroup\lccode`~=`\ %
+    \lowercase{\endgroup\let~}\visiblespace
+    \cnltx@visualizespaces@aux}
+\newrobustcmd\cnltx@visualizespaces@aux[1]{%
+    \edef\cnltx@x{#1}\scantokens\expandafter{\cnltx@x\noexpand}%
+  \endgroup
+}
+\newcommand*\visiblespace{\allowbreak\textvisiblespace\allowbreak}
+
+
 % --------------------------------------------------------------------------
 % modules:
 \newcommand*\cnltx@module@sep{\,>>\,}
@@ -897,6 +956,11 @@ HISTORY:
                    commands
                  - added possibility to define a opitonal argument with
                    \newnote
+2013/10/21 v0.8  - disable ligatures for teletype font
+                 - extended preamble loading
+                   * choice if fonts are loaded
+                   * choice if microtype is loaded
+                 - \visualizespaces and \visiblespace
 
 % --------------------------------------------------------------------------
 TODO:

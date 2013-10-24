@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/10/04}
-\def\cnltx@@version{v0.7a}
+\def\cnltx@@date{2013/10/24}
+\def\cnltx@@version{v0.8}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds}
@@ -147,6 +147,38 @@
 % an idea by Herbert Voß (http://tex.stackexchange.com/a/7183/5049):
 \newcommand*\cnltx@ifisnum[1]{%
   \iftest{\if!\ifnum9<1#1!\else_\fi}%
+}
+
+% ``\@ifnextchars''
+% list parser with no separator:
+\DeclareListParser*\cnltx@add@tokens{}
+
+% the list that holds the tokens to be checked:
+\def\cnltx@tokens@list{}
+
+% set the tokens list (the parser does not like blank lists):
+\newrobustcmd*\cnltx@set@tokens[1]{%
+  \def\cnltx@tokens@list{}%
+  \ifblank{#1}
+    {}
+    {\cnltx@add@tokens{\listadd\cnltx@tokens@list}{#1}}%
+}
+
+% check for token but leave it where it is:
+\newrobustcmd\cnltx@ifnextchars[3]{%
+  \cnltx@set@tokens{#1}%
+  \ltx@ifnextchar{ }
+    {\cnltx@ifnextchars@aux{#2}{#3}{}}
+    {\cnltx@ifnextchars@aux{#2}{#3}}%
+}
+
+\newrobustcmd\cnltx@ifnextchars@aux[3]{%
+  \ifblank{#3}{#2}{%
+    \ifinlist{#3}{\cnltx@tokens@list}
+      {#1}
+      {#2}%
+    }%
+  #3%
 }
 
 % --------------------------------------------------------------------------
@@ -711,3 +743,4 @@ HISTORY:
                  - generalized expansion helpers (by copying expl3's
                    \exp_arg:N<spec> idea)
                  - \iftest and \nottest
+2013/10/21 v0.8  - \cnltx@ifnextchars

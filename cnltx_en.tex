@@ -587,10 +587,10 @@ that can be used to add definitions you like:
     \meta{definitions} are placed before the source code is inserted.
   \keyval{after-code}{definitions}
     \meta{definitions} are placed after the source code is inserted.
-  \keyval{pre-source}{definitions}
+  \keyval{pre-output}{definitions}
     \meta{definitions} are placed before the output of the source code is
     inserted.
-  \keyval{after-source}{definitions}
+  \keyval{after-output}{definitions}
     \meta{definitions} are placed after the output of the source code is
     inserted.
 \end{options}
@@ -2227,6 +2227,11 @@ the other packages and classes.
     This is a command in the spirit of \pkg{etoolbox}'s \cs*{notbool} that does
     the same for a boolean \meta{bool} defined with
     \cs*{newif}\cs*{if\meta{bool}} or \cs*{newbool}\marg{bool}.
+  \command{cnltx\at ifnextchars}[\marg{list of
+    tokens}\marg{true}\marg{false}\meta{trailing token}]
+    \sinceversion{0.8}Tests if \meta{trailing token} is any of those in
+    \meta{list of tokens} and either places \meta{true} or \meta{false} in the
+    input stream without removing \meta{trailing token}.
   \command{cnltx\at ifsym}[\marg{token}\marg{true}\marg{false}]
     A generic version of \LaTeX's \cs*{@ifstar} that checks if \meta{token}
     follows if the input stream.  If yes it is removed and \meta{true} is
