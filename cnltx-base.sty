@@ -25,11 +25,11 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/10/24}
-\def\cnltx@@version{v0.8}
+\def\cnltx@@date{2013/11/12}
+\def\cnltx@@version{v0.9}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
-\RequirePackage{pgfopts,etoolbox,ltxcmds}
+\RequirePackage{pgfopts,etoolbox,ltxcmds,pdftexcmds}
 
 % --------------------------------------------------------------------------
 % error messaging
@@ -119,6 +119,29 @@
 \newrobustcmd\setcnltx[1]{\pgfqkeys{/cnltx}{#1}}
 
 \def\cnltx@par{\par}
+% --------------------------------------------------------------------------
+% scratch variables
+\newcounter{cnltx@tmpa}
+\newcounter{cnltx@tmpb}
+\newcounter{cnltx@tmpc}
+
+\newlength\cnltx@tmpa@length
+\newlength\cnltx@tmpb@length
+\newlength\cnltx@tmpc@length
+
+\newcommand*\cnltx@tmpa{}
+\newcommand*\cnltx@tmpb{}
+\newcommand*\cnltx@tmpc{}
+
+% --------------------------------------------------------------------------
+% who knows what they might be good for -- well, for indexing:
+\newrobustcmd*\cnltxat{@}
+\let\cnltxletterat\cnltxat
+\makeatother
+\newrobustcmd*\cnltxotherat{@}
+\makeatletter
+\newrobustcmd*\cnltxbang{!}
+\newrobustcmd*\cnltxequal{=}
 
 % --------------------------------------------------------------------------
 % generic conditionals
@@ -144,10 +167,20 @@
 \newcommand*\cnltx@ifdash{\cnltx@ifsym{-}}
 \newcommand*\cnltx@ifbang{\cnltx@ifsym{!}}
 
+% test if shellescape is enabled:
+\newcommand*\cnltx@ifshellescape{%
+  \iftest{\ifnum\pdf@shellescape=1 }%
+}
+
 % an idea by Herbert Voß (http://tex.stackexchange.com/a/7183/5049):
 \newcommand*\cnltx@ifisnum[1]{%
   \iftest{\if!\ifnum9<1#1!\else_\fi}%
 }
+
+% an idea by Enrico Gregorio (http://tex.stackexchange.com/a/34449/5049):
+\newcommand*\cnltx@truncdiv[2]{((#1-(#2-1)/2)/#2)}
+\newcommand*\cnltx@modulo@op[2]{(#1-\cnltx@truncdiv{#1}{#2}*#2)}
+\newcommand*\cnltx@modulo[2]{\number\numexpr\cnltx@modulo@op{#1}{#2}\relax}
 
 % ``\@ifnextchars''
 % list parser with no separator:
@@ -180,6 +213,11 @@
     }%
   #3%
 }
+
+% --------------------------------------------------------------------------
+
+% \newcount\pdflastximagepages
+% \def\pdfximage#1{\pdflastximagepages=\XeTeXpdfpagecount"#1"\relax}
 
 % --------------------------------------------------------------------------
 % expansion helper
@@ -250,6 +288,7 @@
 % tokenlist manipulation
 \newcommand*\cnltx@stripbs{\expandafter\@gobble\string}
 
+% again we borrow an idea from expl3:
 % \cnltx@if@in{tokenlist}{search}{true}{false}
 \newrobustcmd\cnltx@if@in[2]{%
   \def\cnltx@ifin@tmp##1#2{}%
@@ -259,42 +298,44 @@
 }
 
 % \cnltx@replace@once{macro}{search}{replace}
-\newrobustcmd\cnltx@long@replace@once{\cnltx@replace@once@longorshort\long}
-\newrobustcmd*\cnltx@replace@once{\cnltx@replace@once@longorshort\@empty}
-
-\newrobustcmd\cnltx@replace@once@longorshort[4]{%
-  \expandafter\cnltx@if@in\expandafter{#2}{#3}
-    {%
-      #1\def\cnltx@ro@tmp##1#3##2\q@stop{%
-        #1\def#2{##1#4##2}%
-      }%
-      \expandafter\cnltx@ro@tmp#2\q@stop
-    }
-    {}%
-}
-
 % \cnltx@replace@all{macro}{search}{replace}
-\newrobustcmd\cnltx@replace@all[3]{%
-  \cnltx@replace@once#1{#2}{#3}%
-  \expandafter\cnltx@if@in\expandafter{#1}{#2}
-    {\cnltx@replace@all#1{#2}{#3}}
-    {}%
-}
+\newrobustcmd*\cnltx@replace@once {\@@cnltx@replace\@@cnltx@replace@once\edef}
+\newrobustcmd*\cnltx@greplace@once{\@@cnltx@replace\@@cnltx@replace@once\xdef}
+\newrobustcmd*\cnltx@replace@all  {\@@cnltx@replace\@@cnltx@replace@all \edef}
+\newrobustcmd*\cnltx@greplace@all {\@@cnltx@replace\@@cnltx@replace@all \xdef}
 
-\newrobustcmd\cnltx@long@replace@all[3]{%
-  \cnltx@long@replace@once#1{#2}{#3}%
-  \expandafter\cnltx@if@in\expandafter{#1}{#2}
-    {\cnltx@long@replace@all#1{#2}{#3}}
-    {}%
+\long\def\cnltx@remove@to@q@stop#1\q@stop{}
+
+\newrobustcmd\@@cnltx@replace[5]{%
+  \ifstrempty{#4}
+    {}
+    {%
+      \ifnum\iffalse{\fi`}=\z@\fi
+      \edef\cnltx@tmpa##1##2#4{%
+        ##2%
+        \noexpand\q@mark
+        \noexpand\cnltx@remove@to@q@stop
+        \unexpanded{\unexpanded{#5}}%
+        ##1%
+      }%
+      \ifnum`{=\z@}\fi
+      #2#3{\expandafter#1#3\q@mark#4\q@stop}%
+    }%
 }
+\long\def\@@cnltx@replace@aux#1\q@mark#2{\expandonce{#1}}
+\newcommand*\@@cnltx@replace@all{%
+  \expandafter\@@cnltx@replace@aux\cnltx@tmpa\@@cnltx@replace@all\@empty
+}
+\def\@@cnltx@replace@once{%
+  \expandafter\@@cnltx@replace@aux\cnltx@tmpa
+    {\@@cnltx@replace@once@end\@empty}\@empty
+}
+\long\def\@@cnltx@replace@once@end#1\q@mark#2\q@stop{\expandonce{#1}}
 
 % \cnltx@remove@once{macro}{search}
-\newrobustcmd\cnltx@remove@once[2]{\cnltx@replace@once#1{#2}{}}
-\newrobustcmd\cnltx@long@remove@once[2]{\cnltx@long@replace@once#1{#2}{}}
-
 % \cnltx@remove@all{macro}{search}
+\newrobustcmd\cnltx@remove@once[2]{\cnltx@replace@once#1{#2}{}}
 \newrobustcmd\cnltx@remove@all[2]{\cnltx@replace@all#1{#2}{}}
-\newrobustcmd\cnltx@long@remove@all[2]{\cnltx@long@replace@all#1{#2}{}}
 
 % --------------------------------------------------------------------------
 % an equivalent of \newcommand that where the macro with the optional argument
@@ -744,3 +785,8 @@ HISTORY:
                    \exp_arg:N<spec> idea)
                  - \iftest and \nottest
 2013/10/21 v0.8  - \cnltx@ifnextchars
+2013/11/12 v0.9  - \cnltx@modulo
+                 - scratch variables
+                 - \cnltx@ifshellescape
+                 - \cnltx@greplace@once, \cnltx@greplace@all,
+                   \cnltx@gremove@once, \cnltx@gremove@all

@@ -1,6 +1,7 @@
-% arara: pdflatex
-% !arara: biber
+% !arara: pdflatex: { shell: on }
 % !arara: pdflatex
+% arara: biber
+% arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
 % the CNLTX bundle
@@ -33,7 +34,7 @@
 \usepackage[utf8]{inputenc}
 
 \usepackage{varioref}
-
+\usepackage{amsmath}
 \usepackage{array,booktabs}
 \usepackage{tikz}
 \usetikzlibrary{chains}
@@ -70,6 +71,7 @@
     cnltx@ifpunctuation,
     cnltx@ifsym,
     cnltx@listings@style,
+    cnltx@makeindex@listings@style,
     cnltx@mdframed@options,
     cnltx@scrartcl@options,
     cnltx@trailpunct,
@@ -121,6 +123,7 @@
     foo,
     foothree,
     GetTranslation,
+    lipsum,
     minusone,multoffourrm,
     nohyperpage,
     superiors@spaced,
@@ -163,7 +166,11 @@
 \newname\hoffmann{Jobst}{Hoffmann}
 \newname\daniel{Marco}{Daniel}
 
+\usepackage{fixfoot}
+\DeclareFixedFootnote\oberdiekfn{\CTANurl{oberdiek}}
+
 \newcommand*\file[1]{\code{#1}}
+\newidxcmd\prg{\code{#1}}[ (program)]
 \newcommand*\latin[1]{\cnltxlatin{#1}}
 
 \newcommand*\PDF{\cnltxacronym{PDF}{pdf}}
@@ -295,7 +302,8 @@ files:
 The \cnltxbase\ package loads the following packages:
 \needpackage{pgfopts}~\cite{pkg:pgfopts},
 \needpackage{etoolbox}~\cite{pkg:etoolbox},
-\pkg{ltxcmds}\footnote{\CTANurl{oberdiek}}~\cite{pkg:ltxcmds},
+\pkg{ltxcmds}\oberdiekfn~\cite{pkg:ltxcmds},
+\pkg{pdftexcmds}\oberdiekfn~\cite{pkg:pdftexcmds},
 \needpackage{trimspaces}~\cite{pkg:trimspaces} and
 \needpackage{xcolor}~\cite{pkg:xcolor}.
 
@@ -313,20 +321,48 @@ additional packages, see section~\vref{sec:preamble} for details.
 
 The \cnltxexample\ package loads the packages: \cnltxbase, \cnltxlistings,
 \cnltxtools, \needpackage{translations},
-\needpackage{mdframed}~\cite{pkg:mdframed} and
-\needpackage{idxcmds}~\cite{pkg:idxcmds}.
+\needpackage{mdframed}~\cite{pkg:mdframed},
+\needpackage{idxcmds}~\cite{pkg:idxcmds},
+\needpackage{ifxetex}~\cite{pkg:ifxetex},
+\needpackage{adjustbox}~\cite{pkg:adjustbox}.
 
 The \cnltxlistings\ package loads the packages \cnltxbase,
 \needpackage{listings}~\cite{pkg:listings} and
 \needpackage{catchfile}~\cite{pkg:catchfile}.
 
 The \cnltxtools\ package loads the packages \cnltxbase\ and
-\needpackage[macros/latex/contrib/oberdiek]{accsupp}~\cite{pkg:accsupp}.
+\pkg{accsupp}\oberdiekfn~\cite{pkg:accsupp}.
 
 All other packages that are loaded are loaded by the mentioned packages and
 not directly by any of the packages or classes of the \cnltx\ bundle.  Like
 all of my packages \cnltx\ implicitly relies on an up to date \TeX\
 distribution.
+
+\section{Usage of the Bundle}
+The intended use of this bundle is three-fold:
+\begin{itemize}
+  \item The main use-case is documenting my own \LaTeX\ packages.  This is
+    done with
+    \begin{sourcecode}[gobble=6]
+      \documentclass{cnltx-doc}
+    \end{sourcecode}
+    and actually loads most if not all of the bundle.
+  \item The module \cnltxbase\ is also intended as a programming tools package
+    that will be used in other packages eventually.  It is already used by the
+    \pkg{cntformats} package from the \bnd{exsheets}
+    bundle~\cite{bnd:exsheets}.
+  \item In case parts of this bundle prove useful to be used in a document the
+    recommended way is to add
+    \begin{sourcecode}[gobble=6]
+      \usepackage{cnltx}
+    \end{sourcecode}
+    to the preamble which will load the \cnltxbase\ module.  Other needed
+    modules can be given as package option.
+    \begin{sourcecode}[gobble=6]
+      \usepackage[example]{cnltx}
+    \end{sourcecode}
+    would load \cnltxexample.
+\end{itemize}
 
 \part{Details of Available Commands, Environments and Options}
 
@@ -900,6 +936,199 @@ section~\vref{sec:listings-sourcecode}.
     Like \option{add-silent-cmds} but for environment names.
 \end{options}
 
+\subsection{Compile Source Examples}\label{sec:comp-source-exampl}
+\subsubsection{The Compliation Process}\label{sec:compliation-process}
+When you input an example like
+\begin{sourcecode}
+  \begin{example}
+    \documentclass{article}
+    \begin{document}
+      foo
+    \end{document}
+  \end{example}
+\end{sourcecode}
+you'll get an error since the code is input as is and you'll end up with
+\cs*{documentclass} after \verbcode=\begin{document}=.  There's a way out,
+though. 
+
+\cnltxexample\sinceversion{0.9} provides the possibility to compile the source
+code file externally and input the compiled \PDF.
+
+\begin{sourcecode}
+  \begin{example}[compile]
+    \documentclass{article}
+    \begin{document}
+      foo
+    \end{document}
+  \end{example}
+\end{sourcecode}
+
+This needs \code{shellescape} enabled.  The default compilation program is
+\prg{pdflatex} which will compile the file two times.  The process can be
+customized with the following options:
+
+\begin{options}
+  \keybool{compile}\Default{false}
+    Compile the source code file.  Although this option can be set globally it
+    really shouldn't be!  It's best to give this option explicitly to the
+    source code environment whose body should be compiled.  If enabled
+    globally \emph{all} examples would be compiled and most likely lead to
+    various errors since most examples won't be complete \LaTeX\ documents.
+  \keychoice{program}{pdflatex,lualatex,xelatex,arara}\Default{pdflatex}
+    The program to compile the source file.
+  \keyval{runs}{number}\Default{2}
+    The number of compilations.
+  \keyval{exe-with}{options}\Default
+    Command line options that can be given to the compilation program chosen
+    with \option{program}.
+\end{options}
+
+The compiled document will be input with \cs*{includegraphics}, each page
+separately.  Since the pages of the document are most likely as large as the
+ones from the main document itself they are scaled down.  This is best
+demonstrated with an example.  The following input
+\begin{sourcecode}
+  \begin{example}[compile]
+    \documentclass[a5paper]{scrartcl}
+    \usepackage{showframe,lipsum}
+    \author{Clemens Niederberger}
+    \title{A Test File}
+    \begin{document}
+      \maketitle
+      \tableofcontents
+      \section{A Section Title}
+      \lipsum[1-10]
+    \end{document}
+  \end{example}
+\end{sourcecode}
+will lead to this output:
+
+\begin{example}[compile]
+  \documentclass[a5paper]{scrartcl}
+  \usepackage{showframe,lipsum}
+  \author{Clemens Niederberger}
+  \title{A Test File}
+  \begin{document}
+    \maketitle
+    \tableofcontents
+    \section{A Section Title}
+    \lipsum[1-10]
+  \end{document}
+\end{example}
+
+The pages get scaled according to two parameters:
+\begin{options}
+  \keyval{max-pages}{number}\Default{4}
+    The maximum number of pages in a row.  The pages width is scaled to
+    $\text{\cs*{linewidth}}/n$ where $n$ is either the number of pages $p$ of
+    the compiled document or \meta{number} if $p>\text{\meta{number}}$.
+  \keyval{max-height}{dimension}\Default{.5\cs*{textheight}}
+    The maximum height of a page.
+\end{options}
+
+There's another possibility to influence the appearance of the output:
+\begin{options}
+  \keyval{graphics}{options}\Default
+    \meta{options} are passed to \cs*{includegraphics} for every page that is
+    input.
+\end{options}
+
+\subsubsection{Floating Output}\label{sec:floating-output}
+Since the output can become a quite large figure it might be preferable to
+have it as a floating figure.  This is also possible by using the option
+\option{float}.
+\begin{options}
+  \keychoice{float}{\default{true},false,\meta{float
+      parameters}}\Default{false}
+    Choose if the output should be placed in a \env*{figure} of it's own.  You
+    can also use this option to specify the floating parameters for the float.
+  \keyval{float-pos}{float parameters}\Default{tbp}
+    Set the standard floating parameters that are used if
+    \keyis{float}{true}. The default is actually the expansion of
+    \cs*{fps@figure} and not directly \code{tbp}.
+  \keyval{caption}{text}\Default
+    \meta{text} will be used as caption.  If left blank no caption will be
+    typeset.  Implicitly sets \keyis{float}{true}.
+\end{options}
+Please note that \option{float} only has an effect if \keyis{compile}{true}
+has been set.
+
+\subsubsection{Selective Output}\label{sec:selective-output}
+Sometimes it may be preferable not to include all pages of a compiled document
+but only specific pages.  This is possible with the following option.
+
+\begin{options}
+  \keyval{pages}{specifications}
+    Select the included pages.  \meta{specification} is a comma-separated list
+    of page numbers and page ranges, \eg, \code{1,3,4} or
+    \code{1,3-5}. \code{1,3-5} is the same as \code{1,3,4,5}.  If the list
+    includes page numbers larger than the maximum number of pages the \PDF\
+    has a warnung message will be issued and a replacement text will occur in
+    the output where the page would have been.
+\end{options}
+
+The input
+\begin{sourcecode}
+  \begin{example}[compile,pages=1]
+    \documentclass[a5paper]{scrartcl}
+    \usepackage{showframe,lipsum}
+    \author{Clemens Niederberger}
+    \title{A Test File}
+    \begin{document}
+      \maketitle
+      \tableofcontents
+      \section{A Section Title}
+      \lipsum[1-10]
+    \end{document}
+  \end{example}
+\end{sourcecode}
+will lead to this output:
+
+\begin{example}[compile,pages=1]
+  \documentclass[a5paper]{scrartcl}
+  \usepackage{showframe,lipsum}
+  \author{Clemens Niederberger}
+  \title{A Test File}
+  \begin{document}
+    \maketitle
+    \tableofcontents
+    \section{A Section Title}
+    \lipsum[1-10]
+  \end{document}
+\end{example}
+
+Together with the \option{graphics} option this can be used to output a part
+of a page. The following source
+
+\begin{sourcecode}
+  \begin{example}[compile,pages=1,graphics={trim={0pt 12cm 0pt 0pt},clip}]
+    \documentclass[a5paper]{scrartcl}
+    \usepackage{showframe,lipsum}
+    \author{Clemens Niederberger}
+    \title{A Test File}
+    \begin{document}
+      \maketitle
+      \tableofcontents
+      \section{A Section Title}
+      \lipsum[1-10]
+    \end{document}
+  \end{example}
+\end{sourcecode}
+will give this output:
+
+\begin{example}[compile,pages=1,graphics={trim={0pt 12cm 0pt 0pt},clip}]
+  \documentclass[a5paper]{scrartcl}
+  \usepackage{showframe,lipsum}
+  \author{Clemens Niederberger}
+  \title{A Test File}
+  \begin{document}
+    \maketitle
+    \tableofcontents
+    \section{A Section Title}
+    \lipsum[1-10]
+  \end{document}
+\end{example}
+
 \subsection{Example File}
 Let's say you're documenting a package called \code{mypackage} that provides
 the command \cs*{mycommand} and the environment \env*{myenv}.  The basic
@@ -1027,8 +1256,8 @@ with the (integer) value of the counter.
     Redefines an existing counter representation command and its internal
     equivalent.  In the \meta{definition} \code{\#1} is used to refer to the
     counter \emph{number}, that is, the value of \cs*{c@\meta{counter}}.  This
-    command will issue an error if either the user command or the internal
-    command (\cf\ \cs*{arabic} and \cs*{@arabic}) or both already exist.
+    command will issue an error if neither the user command nor the internal
+    command (\cf\ \cs*{arabic} and \cs*{@arabic}) already exist.
 \end{commands}
 
 Let's take a look at what is actually defined by these commands:
@@ -1095,7 +1324,6 @@ The commands presented in this section are highly experimental. \emph{Use them
     opt}\marg{definition}]
     \sinceversion{0.7}The equivalent of \cs*{renewcommand}. See description of
     \cs{newexpandablecmd} for further details.
-    is to \cs*{newcommand}.
   \command{provideexpandablecmd}[\sarg\marg{cs}\oarg{num args}\oarg{default
     opt}\marg{definition}]
     \sinceversion{0.7}The equivalent of \cs*{providecommand}. See description
@@ -1119,7 +1347,7 @@ functionality also in contexts \emph{not} documenting a \LaTeX\ package.
       string} as \PDF\ string and for sorting the index entry that is added.
     This command was used to define \cs{lppl} and \cs{ctan}.  \emph{This is
       not intended as a replacement for packages like
-      \pkg*{acro}~\cite{pkg:acro} or \pkg*{glossaries}\cite{pkg:glossaries}!}
+      \pkg*{acro}~\cite{pkg:acro} or \pkg*{glossaries}~\cite{pkg:glossaries}!}
     In fact it is a ``poor man's'' solution that allows me not to require one
     of those packages.
   \command{newabbr}[\sarg\marg{control sequence}\marg{definition}]
@@ -1187,7 +1415,7 @@ Let's see some example:
   \ttfamily% <= this will amplify the visual effect of \nonfrenchspacing
   \newabbr\ab{a.b}%
   \newabbr\AB{A.B}%
-  \newabbr*\cd{c.d.}%
+  \newabbr*\cd{cd}%
   \ab\ and some words\par
   \ab. and some words\par
   \AB\ and some words\par
@@ -1701,8 +1929,8 @@ entry types and the \code{maintainer} entry field.
 Along with the bibliography style a citation style \code{cnltx} is provided,
 again a clone of the \code{alphabetic} style.  The only addition it makes is
 that indexing of maintainer names is enabled if \pkg{biblatex}'s
-\code{indexing} option is used.  \emph{The styles can only be used with the
-  \cnltxdoc\ class} as it relies on definitions made by it.
+\code{indexing} option is used.  The styles load \cnltxexample\ as it relies
+on definitions made by it.
 
 This document uses the following call of \pkg{biblatex}:
 \begin{sourcecode}
@@ -2124,7 +2352,7 @@ used in indexing strings and in different parts of the document.
       \cnltxdoc     & cnltx-maintainer &
         \GetTranslation{cnltx-maintainer} &
         \GetTranslationFor{German}{cnltx-maintainer} \\
-      \cnltxdoc     & cnltx-maintainer &
+      \cnltxdoc     & cnltx-maintainers &
         \GetTranslation{cnltx-maintainers} &
         \GetTranslationFor{German}{cnltx-maintainers} \\
       \cnltxtools   & cnltx-i.e. &
@@ -2206,7 +2434,7 @@ the other packages and classes.
     message \emph{except for the error command which gets two arguments}, the
     first for the short version and the second for the detailed message.
     \meta{prefix} will be all lowercase in the generated command.
-  \command{cnltx\at par}
+  \expandable\command{cnltx\at par}
     Expands to \cs*{par}.  Sometimes you need to smuggle a \cs*{par} in a
     short macro \ldots
   \expandable\command{iftest}[\marg{test directive}\marg{true}\marg{false}]
@@ -2244,6 +2472,9 @@ the other packages and classes.
     \sinceversion{0.6}Checks if \meta{token list} is an integer zero or
     greater and leaves \meta{true} in the input stream if it is an
     \meta{false} if it isn't.
+  \expandable\command{cnltx\at ifshellescape}[\marg{true}\marg{false}]
+    \sinceversion{0.9}Checks if shellescape is enabled.  It returns true if
+    \pkg{pdftexcmds}' \cs*{pdf@shellescape} has the value \code{1}.
   \command{cnltx\at expandargs}[\darg{specs}\meta{control sequence}]
     \sinceversion{0.7}This is a \LaTeXe\ version of expl3's
     \cs*{exp\_args:N}\meta{specs}.  The command expands the arguments of
@@ -2265,27 +2496,46 @@ the other packages and classes.
   \command{cnltx\at replace\at once}[\marg{cs}\marg{search}\marg{replace}]
     Replaces the first occurence of \meta{search} in the first expansion of
     \meta{cs} with \meta{replace}.
-  \command{cnltx\at long\at replace\at once}[\marg{cs}\marg{search}\marg{replace}]
-    \sinceversion{0.3}The same as \cs{cnltx\at replace\at once} but \meta{cs}
-    will be redefined with \cs*{long}.
+  \command{cnltx\at greplace\at once}[\marg{cs}\marg{search}\marg{replace}]
+    \sinceversion{0.9}The same as \cs{cnltx\at replace\at once} but acts
+    globally.
   \command{cnltx\at replace\at all}[\marg{cs}\marg{search}\marg{replace}]
     Replaces all occurences of \meta{search} in the first expansion of
     \meta{cs} with \meta{replace}.
-  \command{cnltx\at long\at replace\at all}[\marg{cs}\marg{search}\marg{replace}]
-    \sinceversion{0.3}The same as \cs{cnltx\at replace\at all} but \meta{cs}
-    will be redefined with \cs*{long}.
+  \command{cnltx\at greplace\at all}[\marg{cs}\marg{search}\marg{replace}]
+    \sinceversion{0.9}The same as \cs{cnltx\at replace\at all} but acts
+    globally.
   \command{cnltx\at remove\at once}[\marg{cs}\marg{search}]
     \sinceversion{0.3}Removes the first occurence of \meta{search} in the
     first expansion of \meta{cs}.
-  \command{cnltx\at long\at remove\at once}[\marg{cs}\marg{search}]
-    \sinceversion{0.3}The same as \cs{cnltx\at remove\at once} but \meta{cs}
-    will be redefined with \cs*{long}.
+  \command{cnltx\at gremove\at once}[\marg{cs}\marg{search}]
+    \sinceversion{0.9}The same as \cs{cnltx\at remove\at once} but acts
+    globally.
   \command{cnltx\at remove\at all}[\marg{cs}\marg{search}]
     \sinceversion{0.3}Removes all occurences of \meta{search} in the first
     expansion of \meta{cs}.
-  \command{cnltx\at long\at remove\at all}[\marg{cs}\marg{search}]
-    \sinceversion{0.3}The same as \cs{cnltx\at remove\at all} but \meta{cs}
-    will be redefined with \cs*{long}.
+  \command{cnltx\at gremove\at all}[\marg{cs}\marg{search}]
+    \sinceversion{0.9}The same as \cs{cnltx\at remove\at all} but acts
+    globally.
+  \command{cnltxat}
+    Robust command that typesets `\at' with category code 11.  An @ in command
+    names confuses the indexing of the command names.  Either one uses another
+    symbol for makeindex's ``actual'' recognition and also tells
+    \pkg{idxcmds}~\cite{pkg:idxcmds} about it or one uses \cs{cnltxat} in
+    \cs{cs} and friends.  For the sake of convenience you can define a command
+    like \cs*{at} that expands to it\footnote{This is important.  If you
+      \cs*{let} it to \cs{cnltxat} index entries may be sorted differently!
+      Remember: \cs{cnltxat} is robust.}.  In order not to overwrite any such
+    existing macro it is not defined by \cnltxexample.  This document for
+    example defines \verbcode+\def\at{\cnltxat}+.
+  \command{cnltxletterat}
+    An alias of \cs{cnltxat}.
+  \command{cnltxotherat}
+    The same as \cs{cnltxat} but with a `\at' with category code 12.
+  \command{cnltxbang}
+    The same as \cs{cnltxotherat} except that it contains a `\bang'.
+  \command{cnltxequal}
+    The same as \cs{cnltxotherat} except that it contains a `\equal'.
 \end{commands}
 
 \subsection{Defined by \cnltxdoc}
@@ -2326,25 +2576,6 @@ the other packages and classes.
     Issue a warning message using \cs*{PackageWarningNoLine}\Marg{cnltx-example}.
   \command{cnltx\at example\at info}[\marg{message}]
     Issue a message using \cs*{PackageInfo}\Marg{cnltx-example}.
-  \command{cnltxat}
-    Robust command that typesets `\at' with category code 11.  An @ in command
-    names confuses the indexing of the command names.  Either one uses another
-    symbol for makeindex's ``actual'' recognition and also tells
-    \pkg{idxcmds}~\cite{pkg:idxcmds} about it or one uses \cs{cnltxat} in
-    \cs{cs} and friends.  For the sake of convenience you can define a command
-    like \cs*{at} that expands to it\footnote{This is important.  If you
-      \cs*{let} it to \cs{cnltxat} index entries may be sorted differently!
-      Remember: \cs{cnltxat} is robust.}.  In order not to overwrite any such
-    existing macro it is not defined by \cnltxexample.  This document for
-    example defines \verbcode+\def\at{\cnltxat}+.
-  \command{cnltxletterat}
-    An alias of \cs{cnltxat}.
-  \command{cnltxotherat}
-    The same as \cs{cnltxat} but with a `\at' with category code 12.
-  \command{cnltxbang}
-    The same as \cs{cnltxotherat} except that it contains a `\bang'.
-  \command{cnltxequal}
-    The same as \cs{cnltxotherat} except that it contains a `\equal'.
   \command{cnltx\at isvalue}
     Used in definitions of the key/value option typesetting commands.  Inserts
     a \code{=} with some stretchable space around and a legal break-point
@@ -2370,7 +2601,8 @@ the other packages and classes.
     \changedversion{0.2}Command used to define the argument commands:
     \verbcode+\newarg\marg{\{}{\}}+.  The optional argument determines how the
     argument of the new command will be formatted.  This is done with
-    \cs{meta} per default.  \verbcode+\newarg[\code]\Marg{\{}{\}}+
+    \cs{meta} per default.  \cs{Marg} is defined
+    \verbcode+\newarg[\code]\Marg{\{}{\}}+
   \command{MakePercentComment}
     Sets the category code of \code{\%} to 14.
   \command{cnltx\at copyablespace}

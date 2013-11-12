@@ -1,13 +1,14 @@
-\@ifclassloaded{cnltx-doc}{}{%
-  \GenericError
-    {(cnltx.cbx)\@spaces\@spaces\@spaces\@spaces}
-    {cnltx citation style error: invalid class}
-    {See the cnltx bundle documentation for explanation.}
-    {%
-      The `cnltx' citation style can only be used with the `cnltx-doc'
-      document class%
-    }%
-}
+% \@ifclassloaded{cnltx-doc}{}{%
+%   \GenericError
+%     {(cnltx.cbx)\@spaces\@spaces\@spaces\@spaces}
+%     {cnltx citation style error: invalid class}
+%     {See the cnltx bundle documentation for explanation.}
+%     {%
+%       The `cnltx' citation style can only be used with the `cnltx-doc'
+%       document class%
+%     }%
+% }
+\RequirePackage{cnltx-example}
 \ProvidesFile{cnltx.cbx}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
 \RequireCitationStyle{alphabetic}
@@ -24,3 +25,7 @@
 
 
 \endinput
+
+HISTORY
+2013/10/04 v0.4  - first version added to the bundle
+2013/10/04 v0.9  - made independent from the `cnltx-doc' class

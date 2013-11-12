@@ -39,16 +39,8 @@
 \PassOptionsToPackage{framemethod=tikz}{mdframed}
 \RequirePackage{mdframed}
 \RequirePackage{idxcmds}
-
-% --------------------------------------------------------------------------
-% who knows what they might be good for -- well, for indexing:
-\newrobustcmd*\cnltxat{@}
-\let\cnltxletterat\cnltxat
-\makeatother
-\newrobustcmd*\cnltxotherat{@}
-\makeatletter
-\newrobustcmd*\cnltxbang{!}
-\newrobustcmd*\cnltxequal{=}
+\RequirePackage{adjustbox}
+\RequirePackage{ifxetex}
 
 % --------------------------------------------------------------------------
 % \code
@@ -434,26 +426,47 @@
     {\expandonce\cnltx@mdframed@options,\unexpanded{#1}}%
 }
 
-\newbool{cnltx@sidebyside}
-\newbool{cnltx@codeleft}
+\newbool {cnltx@sidebyside}
+\newbool {cnltx@codeleft}
 \booltrue{cnltx@codeleft}
-\newbool{cnltx@codeonly}
+\newbool {cnltx@codeonly}
+\newbool {cnltx@compile}
+\newbool {cnltx@float}
+\newbool {cnltx@pagelist}
 
 \newsavebox\cnltx@example@box
 
 \newcommand*\cnltx@examplesep{\hrulefill}
-
 \newcommand*\cnltx@pre@source@hook{}
 \newcommand*\cnltx@after@source@hook{}
 \newcommand*\cnltx@pre@example@hook{}
 \newcommand*\cnltx@after@example@hook{}
+\newcommand*\cnltx@image@max@height{.5\textheight}
+\newcommand*\cnltx@image@options{}
+\newcommand*\cnltx@float@type{figure}
+\newcommand*\cnltx@float@pos{}
+  \edef\cnltx@float@pos{[\csuse{fps@\cnltx@float@type}]}
+\newcommand*\cnltx@float@caption{}
+\newcommand*\cnltx@float@start{}
+\newcommand*\cnltx@init@float{%
+  \edef\cnltx@float@start{%
+    \noexpand\begin{\expandonce\cnltx@float@type}\expandonce\cnltx@float@pos}%
+}
+\cnltx@init@float
 
+\newcounter{cnltx@filenumber}
+\newcounter{cnltx@runs}
+\setcounter{cnltx@runs}{2}
+\newcounter{cnltx@pdfpages}
+\newcounter{cnltx@maxpages}
+\setcounter{cnltx@maxpages}{4}
 
 \pgfkeys{
   cnltx/.cd,
     side-by-side/.is if        = cnltx@sidebyside ,
     code-only/.is if           = cnltx@codeonly ,
     code-left/.is if           = cnltx@codeleft ,
+    compile/.is if             = cnltx@compile ,
     code-sep/.code             = \def\cnltx@examplesep{#1} ,
     pre-code/.code             = \def\cnltx@pre@source@hook{#1} ,
     after-code/.code           = \def\cnltx@after@source@hook{#1} ,
@@ -462,10 +475,62 @@
     add-frame-options/.code    = \cnltx@addmdframedoptions{#1} ,
     frame-options/.code        = \mdfdefinestyle{cnltx}{#1} ,
     gobble/.code               = \def\cnltx@gobble{#1} ,
+    max-pages/.code            = \setcounter{cnltx@maxpages}{#1} ,
+    max-height/.code           = \def\cnltx@image@max@height{#1} ,
+    pages/.code                =
+      \cnltx@get@page@list{#1}
+      \booltrue{cnltx@pagelist} ,
+    runs/.code                 = \setcounter{cnltx@runs}{#1} ,
+    program/.code              = \def\cnltx@compilation@method{#1} ,
+    exe-with/.code             = \def\cnltx@compilation@options{#1} ,
+    graphics/.code             = \def\cnltx@image@options{#1} ,
+    float/.code                =
+      \ifstrequal{#1}{true}
+        {%
+          \booltrue{cnltx@float}%
+          \edef\cnltx@float@pos{[\csuse{fps@\cnltx@float@type}]}%
+        }{%
+          \ifstrequal{#1}{false}
+            {\boolfalse{cnltx@float}}
+            {%
+              \booltrue{cnltx@float}%
+              \def\cnltx@float@pos{[#1]}%
+            }%
+        }
+      \cnltx@init@float ,
+    float/.default             = true ,
+    caption/.code              =
+      \booltrue{cnltx@float}%
+      \renewcommand\cnltx@float@caption{#1} ,
+    float-pos/.code            = \def\cnltx@float@pos{[#1]}\cnltx@init@float
+}
+
+\newcommand*\cnltx@get@page@list[1]{%
+  \forcsvlist{\cnltx@read@page@list@item}{#1}%
+}
+\newcommand*\cnltx@read@page@list@item[1]{%
+  \cnltx@if@in{#1}{-}
+    {\cnltx@addrangeto@page@list#1\q@stop}
+    {\cnltx@addto@page@list{#1}}%
+}
+\newcommand*\cnltx@pagelist{}
+\newcommand*\cnltx@addto@page@list[1]{\listadd\cnltx@pagelist{#1}}
+\newcommand*\cnltx@addrangeto@page@list{}
+\def\cnltx@addrangeto@page@list#1-#2\q@stop{%
+  \setcounter{cnltx@tmpa}{#1}%
+  \setcounter{cnltx@tmpb}{#2}%
+  \whileboolexpr
+    { test {\ifnumgreater{\value{cnltx@tmpb}+1}{\value{cnltx@tmpa}}} }
+    {%
+      \listeadd\cnltx@pagelist{\arabic{cnltx@tmpa}}%
+      \stepcounter{cnltx@tmpa}%
+    }%
 }
 
 \newcommand*\cnltx@example@input[1]{%
   \trivlist\item\relax
+  % this is from \@verbatim
+  \leftskip\@totalleftmargin\rightskip\z@skip
   % don't know why this is necessary but it is:
   \catcode`\^^M=5\relax
   \makeatother
@@ -481,6 +546,41 @@
   \endtrivlist
 }
 
+\newcommand*\cnltx@exe{\immediate\write18}
+\newcommand*\cnltx@program@pdflatex{pdflatex}
+\newcommand*\cnltx@program@lualatex{lualatex}
+\newcommand*\cnltx@program@xelatex {xelatex}
+\newcommand*\cnltx@program@arara   {arara}
+\newcommand*\cnltx@compile[3]{%
+  \ifcsdef{cnltx@program@#1}
+    {%
+      \setcounter{cnltx@tmpa}{\value{cnltx@runs}}%
+      \whileboolexpr
+        { test {\ifnumgreater{\value{cnltx@tmpa}}{0}} }
+        {
+          \cnltx@exe{\csuse{cnltx@program@#1}\ifblank{#2}{}{ #2} #3}%
+          \addtocounter{cnltx@tmpa}{-1}%
+        }%
+    }
+    {\cnltx@example@error{Unknown compilation method `#1'}}%
+}
+\newcommand*\cnltx@compilation@method{pdflatex}
+\newcommand*\cnltx@compilation@options{}
+
+\newrobustcmd*\cnltx@get@pdfpages[1]{%
+  \begingroup
+    \ifxetex
+      \edef\cnltx@tmpa{\the\XeTeXpdfpagecount #1 }%
+      \setcounter{cnltx@pdfpages}{\cnltx@tmpa}%
+    \else
+      \sbox0{%
+        \includegraphics{#1}%
+        \setcounter{cnltx@pdfpages}{\pdflastximagepages}%
+      }%
+    \fi
+  \endgroup
+}
+
 \newcommand*\cnltx@source@input@start[1]{%
   \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
     {\setbox\cnltx@example@box=\hbox\bgroup}{\cnltx@pre@source@hook}%
@@ -493,8 +593,6 @@
     {\egroup}{\cnltx@after@source@hook}%
 }
 
-% 
-
 \newcommand*\cnltx@example@start[1]{%
   \pgfqkeys{/cnltx}{#1}%
   \cnltx@expandargs(x)\lstset{
@@ -506,13 +604,72 @@
     {\mdframed[style=cnltx,nobreak=false]}%
 }
 
+% #1: filename
+% #2: number of pages
+% #3: current page
+\newcommand*\cnltx@print@documentpage[3]{%
+  \cnltx@expandargs(x)\setlength\cnltx@tmpa@length{%
+    \strip@pt\dimexpr1pt/%
+    \ifnumgreater{#2}{\value{cnltx@maxpages}}
+      {\value{cnltx@maxpages}}
+      {#2}%
+    \relax \noexpand\linewidth
+  }%
+  \ifblank{#3}{}{%
+    \adjustbox{
+      frame,
+      max width = \cnltx@tmpa@length ,
+      max height = \cnltx@image@max@height
+    }{%
+      \ifnumgreater{#3}{\value{cnltx@pdfpages}}
+        {%
+          \cnltx@example@warning
+            {
+              The file `#1.pdf' has less than #3 pages, namely
+              \arabic{cnltx@pdfpages}%
+            }%
+          \parbox[b]{\cnltx@tmpa@length}{%
+            \raggedright
+            Page number #3 does not exist.  \code{#1} only has
+            \arabic{cnltx@pdfpages} pages.%
+          }%
+        }
+        {%
+          \expandafter\includegraphics
+          \expandafter[\cnltx@image@options,page=#3]
+            {\jobname-cnltx-\arabic{cnltx@filenumber}.pdf}%
+        }%
+    }%
+    \ifboolexpr
+      {
+        test
+         {\ifnumgreater{#2}{\value{cnltx@maxpages}}}
+        and test
+         {
+           \ifnumequal
+              {\cnltx@modulo{#3}{\value{cnltx@maxpages}}}
+              {0}
+          }
+      }
+      {\newline}{}%
+  }%
+}
+
+\newcommand*\cnltx@stepcounter@ifnotempty[2]{%
+  \ifblank{#2}{}{\stepcounter{#1}}%
+}
+
 \newcommand*\cnltx@example@end[1]{%
   \ifblank{#1}{\booltrue{cnltx@codeonly}}{}
-  \ifbool{cnltx@codeonly}
+  \ifboolexpr
+    {
+      bool {cnltx@codeonly} or
+      bool {cnltx@compile}
+    }
     {}
-    {%
+    {% direct input of code example
       \ifbool{cnltx@sidebyside}
-        {%
+        {% side-by-side
           \ifbool{cnltx@codeleft}
             {%
               \minipage[c]{%
@@ -532,7 +689,7 @@
                 \relax
               }%
                 \cnltx@pre@example@hook
-                \cnltx@example@input{#1}%
+                \cnltx@example@input{#1.code}%
                 \cnltx@after@example@hook
               \endminipage
             }
@@ -544,7 +701,7 @@
                 \relax
               }%
                 \cnltx@pre@example@hook
-                \cnltx@example@input{#1}%
+                \cnltx@example@input{#1.code}%
                 \cnltx@after@example@hook
               \endminipage\hfill
               \minipage[c]{%
@@ -559,14 +716,86 @@
               \endminipage
             }%
         }
-        {%
+        {% example below
           \par\noindent\cnltx@examplesep
           \cnltx@pre@example@hook
-          \cnltx@example@input{#1}%
+          \cnltx@example@input{#1.code}%
           \cnltx@after@example@hook
         }%
     }%
-  \endmdframed
+  \ifbool{cnltx@compile}
+    {% compile file and include document
+      \cnltx@ifshellescape
+        {%
+          \cnltx@example@info
+            {%
+              Compiling example `#1.tex' \arabic{cnltx@runs}
+              time\ifnum\value{cnltx@runs}>1s\fi\space with
+              \cnltx@compilation@method
+            }%
+          \cnltx@expandargs(oo)\cnltx@compile
+            {\cnltx@compilation@method}
+            {\cnltx@compilation@options}
+            {#1.tex}%
+        }
+        {%
+          \cnltx@example@warning
+            {`shellescape' or `write18' nor enabled -- I'm  not compiling}%
+        }%
+      \IfFileExists{#1.pdf}
+        {%
+          \cnltx@get@pdfpages{#1.pdf}%
+          \setcounter{cnltx@tmpa}{1}%
+          \setcounter{cnltx@tmpb}{\value{cnltx@pdfpages}}%
+          \ifbool{cnltx@float}
+            {%
+              \endmdframed
+              \cnltx@float@start
+            }
+            {\par\noindent\cnltx@examplesep\par}%
+          \cnltx@pre@example@hook
+          \ifbool{cnltx@pagelist}
+            {%
+              \setcounter{cnltx@tmpa}{0}%
+              \forlistloop
+                {\cnltx@stepcounter@ifnotempty{cnltx@tmpa}}
+                \cnltx@pagelist
+              \ifnumgreater{\value{cnltx@tmpa}}{1}
+                {\noindent}
+                {\centering}%
+              \forlistloop
+                {\cnltx@print@documentpage{#1.pdf}{\value{cnltx@tmpa}}}
+                \cnltx@pagelist
+            }
+            {%
+              \ifnumequal{\value{cnltx@pdfpages}}{1}
+                {\centering}
+                {\noindent}%
+              \whileboolexpr
+                { test {\ifnumgreater{\value{cnltx@tmpb}}{0}} }
+                {%
+                  \cnltx@print@documentpage
+                    {#1.pdf}
+                    {\value{cnltx@pdfpages}}
+                    {\value{cnltx@tmpa}}%
+                  \stepcounter{cnltx@tmpa}%
+                  \setcounter{cnltx@tmpb}{\numexpr\value{cnltx@tmpb}-1\relax}%
+                }
+            }%
+          \ifbool{cnltx@float}
+            {%
+              \cnltx@after@example@hook
+              \ifdefvoid\cnltx@float@caption{}{\caption{\cnltx@float@caption}}%
+              \expandafter\end\expandafter{\cnltx@float@type}%
+            }
+            {%
+              \cnltx@after@example@hook
+              \endmdframed
+            }%
+        }
+        {\endmdframed}%
+    }% 
+    {\endmdframed}%
   \ignorespacesafterend
 }
 
@@ -574,11 +803,16 @@
   \lstnewenvironment{#2}[1][]
     {%
       \cnltx@example@start{##1,#1}%
-      \cnltx@source@input@start{\jobname.cnltx.code}%
+      \ifbool{cnltx@compile}{%
+        \stepcounter{cnltx@filenumber}%
+        \cnltx@source@input@start{\jobname-cnltx-\arabic{cnltx@filenumber}.tex}%
+      }{\cnltx@source@input@start{\jobname-cnltx.code}}%
     }
     {%
       \cnltx@source@input@end
-      \cnltx@example@end{\jobname.cnltx.code}%
+      \ifbool{cnltx@compile}
+        {\cnltx@example@end{\jobname-cnltx-\arabic{cnltx@filenumber}}}
+        {\cnltx@example@end{\jobname-cnltx}}%
       % see http://tex.stackexchange.com/a/136264/5049
       % for the reasoning behind this:
       \if@nobreak
@@ -695,4 +929,16 @@ HISTORY:
 2013/10/04 v0.7a - new command \cnltx@treat@lst@index
                  - changed \envidx in listings into \indexenv
                  - added \bnd for package bundles
+2013/11/12 v0.9  - new option `compile' that allows to compile source code
+                   examples (which need to be complete, of course) with
+                   pdflatex and include the documents afterwards
+                 - new options `max-pages' that determines the maximum number
+                   of pages before a line break if documents are included with
+                   `compile'
+                 - new option `graphics'
+                 - new option `runs' that specifies the number of compilation
+                   runs of the included example
+                 - new options `program' and `exe-with'
+                 - new option `float', `float-pos' and `caption'
+
 
