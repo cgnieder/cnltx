@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/11/12}
+\def\cnltx@@date{2013/11/22}
 \def\cnltx@@version{v0.9}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
@@ -173,9 +173,17 @@
 }
 
 % an idea by Herbert Voß (http://tex.stackexchange.com/a/7183/5049):
-\newcommand*\cnltx@ifisnum[1]{%
-  \iftest{\if!\ifnum9<1#1!\else_\fi}%
+%   make the test character an (hopefully extremely) unlikely % with
+%   catcode!=14;  let's make & a temporary comment char
+%   save both catcodes just in case someone changed the defaults:
+\edef\cnltx@tmpa{\catcode`\%=\the\catcode`\% \catcode`\&=\the\catcode`\&}
+\catcode`\%=3
+\catcode`\&=14
+& the test:
+\newcommand*\cnltx@ifisnum[1]{&
+  \iftest{\if%\ifnum9<1#1%\else_\fi}&
 }
+\cnltx@tmpa
 
 % an idea by Enrico Gregorio (http://tex.stackexchange.com/a/34449/5049):
 \newcommand*\cnltx@truncdiv[2]{((#1-(#2-1)/2)/#2)}
@@ -785,8 +793,10 @@ HISTORY:
                    \exp_arg:N<spec> idea)
                  - \iftest and \nottest
 2013/10/21 v0.8  - \cnltx@ifnextchars
-2013/11/12 v0.9  - \cnltx@modulo
+2013/11/22 v0.9  - \cnltx@modulo
                  - scratch variables
                  - \cnltx@ifshellescape
                  - \cnltx@greplace@once, \cnltx@greplace@all,
                    \cnltx@gremove@once, \cnltx@gremove@all
+                 - \cnltx@ifisnum now also returns <false> if the test
+                   argument is `<num>!'

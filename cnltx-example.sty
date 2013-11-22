@@ -74,44 +74,49 @@
 \newidxcmd\option{\code{\textcolor{option}{#1}}}
 \newidxcmd\module{\code{\textcolor{module}{#1}}}
 
-\newcommand*\key{\@ifstar{\cnltx@key@star}{\cnltx@key@nostar}}
+\newrobustcmd*\key{\@ifstar{\cnltx@key@star}{\cnltx@key@nostar}}
 
-\def\cnltx@key@star{%
+\newrobustcmd*\cnltx@key@star{%
   \cnltx@ifdash
     {\cnltx@key@aux*\meta}
     {\cnltx@key@aux*\marg}%
 }
-\def\cnltx@key@nostar{%
+\newrobustcmd*\cnltx@key@nostar{%
   \cnltx@ifdash
     {\cnltx@key@aux{}\meta}
     {\cnltx@key@aux{}\marg}%
 }
-\def\cnltx@key@aux#1#2#3#4{%
+\newcommand*\cnltx@key@aux[4]{%
   \code{\option#1{#3}\cnltx@isvalue#2{#4}}%
 }
 
-\newcommand*\keyis{%
+\newrobustcmd*\keyis{%
   \@ifstar
-    {\cnltx@key@aux*\@firstofone}
-    {\cnltx@key@aux{}\@firstofone}%
+    {\cnltx@keyis*}
+    {\cnltx@keyis{}}%
+}
+\newrobustcmd*\cnltx@keyis[1]{%
+  \cnltx@ifdash
+    {\cnltx@key@aux{#1}\@firstofone}
+    {\cnltx@key@aux{#1}\Marg}%
 }
 
 
 % \DeclareListParser*\cnltx@choices{|}
-\newcommand*\choices[1]{%
+\newrobustcmd*\choices[1]{%
   \def\cnltx@choice@sep{\def\cnltx@choice@sep{|\hskip\z@}}%
   \forcsvlist{\cnltx@choice@sep\code}{#1}%
 }
 
 \RequirePackage[normalem]{ulem}
-\newcommand*\default[1]{\uline{#1}}
+\newrobustcmd*\default[1]{\uline{#1}}
 
 \pgfkeys{
   cnltx/.cd,
     default-value/.code = \def\default##1{#1{##1}}
 }
 
-\newcommand*\choicekey{%
+\newrobustcmd*\choicekey{%
   \@ifstar
     {\cnltx@choicekey@star}
     {\cnltx@choicekey@nostar}%
@@ -443,6 +448,7 @@
 \newcommand*\cnltx@after@example@hook{}
 \newcommand*\cnltx@image@max@height{.5\textheight}
 \newcommand*\cnltx@image@options{}
+\newcommand*\cnltx@example@fileext{pdf}
 \newcommand*\cnltx@float@type{figure}
 \newcommand*\cnltx@float@pos{}
   \edef\cnltx@float@pos{[\csuse{fps@\cnltx@float@type}]}
@@ -482,6 +488,7 @@
       \booltrue{cnltx@pagelist} ,
     runs/.code                 = \setcounter{cnltx@runs}{#1} ,
     program/.code              = \def\cnltx@compilation@method{#1} ,
+    file-ext/.code             = \def\cnltx@example@fileext{#1} ,
     exe-with/.code             = \def\cnltx@compilation@options{#1} ,
     graphics/.code             = \def\cnltx@image@options{#1} ,
     float/.code                =
@@ -528,22 +535,28 @@
 }
 
 \newcommand*\cnltx@example@input[1]{%
-  \trivlist\item\relax
-  % this is from \@verbatim
-  \leftskip\@totalleftmargin\rightskip\z@skip
-  % don't know why this is necessary but it is:
-  \catcode`\^^M=5\relax
-  \makeatother
-  \MakePercentComment
-  % want special formatting for the input example:
-  \exampleformat
-  % we're in a list so the first paragraph is not indented; let's make the
-  % input example be the second paragraph:
-  \if@minipage\else
-    \par\mbox{}\par\vskip-\baselineskip\relax
-  \fi
-  \input{#1}%
-  \endtrivlist
+  \begingroup
+    \trivlist\item\relax
+      % what about those:
+      % \leftskip\@totalleftmargin
+      % \rightskip\z@skip
+      % \@topsep\z@
+      % \parskip\z@
+      % \partopsep\z@
+      % don't know why this is necessary but it is:
+      \catcode`\^^M=5\relax
+      \makeatother
+      \MakePercentComment
+      % want special formatting for the input example:
+      \exampleformat
+      % we're in a list so the first paragraph is not indented;
+      % let's make the input example be the second paragraph:
+      \if@minipage\else
+        \par\mbox{}\par\vskip-\baselineskip\relax
+      \fi
+      \input{#1}%
+    \endtrivlist
+  \endgroup
 }
 
 \newcommand*\cnltx@exe{\immediate\write18}
@@ -625,8 +638,8 @@
         {%
           \cnltx@example@warning
             {
-              The file `#1.pdf' has less than #3 pages, namely
-              \arabic{cnltx@pdfpages}%
+              The file `#1.\cnltx@example@fileext' has less than #3 pages,
+              namely \arabic{cnltx@pdfpages}%
             }%
           \parbox[b]{\cnltx@tmpa@length}{%
             \raggedright
@@ -637,7 +650,7 @@
         {%
           \expandafter\includegraphics
           \expandafter[\cnltx@image@options,page=#3]
-            {\jobname-cnltx-\arabic{cnltx@filenumber}.pdf}%
+            {\jobname-cnltx-\arabic{cnltx@filenumber}.\cnltx@example@fileext}%
         }%
     }%
     \ifboolexpr
@@ -671,7 +684,7 @@
       \ifbool{cnltx@sidebyside}
         {% side-by-side
           \ifbool{cnltx@codeleft}
-            {%
+            {% code on the left
               \minipage[c]{%
                 \dimexpr
                   .49\linewidth
@@ -693,7 +706,7 @@
                 \cnltx@after@example@hook
               \endminipage
             }
-            {%
+            {% code on the right
               \minipage[c]{%
                 \dimexpr
                   .49\linewidth
@@ -742,9 +755,9 @@
           \cnltx@example@warning
             {`shellescape' or `write18' nor enabled -- I'm  not compiling}%
         }%
-      \IfFileExists{#1.pdf}
+      \IfFileExists{#1.\cnltx@example@fileext}
         {%
-          \cnltx@get@pdfpages{#1.pdf}%
+          \cnltx@get@pdfpages{#1.\cnltx@example@fileext}%
           \setcounter{cnltx@tmpa}{1}%
           \setcounter{cnltx@tmpb}{\value{cnltx@pdfpages}}%
           \ifbool{cnltx@float}
@@ -764,7 +777,7 @@
                 {\noindent}
                 {\centering}%
               \forlistloop
-                {\cnltx@print@documentpage{#1.pdf}{\value{cnltx@tmpa}}}
+                {\cnltx@print@documentpage{#1.\cnltx@example@fileext}{\value{cnltx@tmpa}}}
                 \cnltx@pagelist
             }
             {%
@@ -775,7 +788,7 @@
                 { test {\ifnumgreater{\value{cnltx@tmpb}}{0}} }
                 {%
                   \cnltx@print@documentpage
-                    {#1.pdf}
+                    {#1.\cnltx@example@fileext}
                     {\value{cnltx@pdfpages}}
                     {\value{cnltx@tmpa}}%
                   \stepcounter{cnltx@tmpa}%
@@ -929,7 +942,7 @@ HISTORY:
 2013/10/04 v0.7a - new command \cnltx@treat@lst@index
                  - changed \envidx in listings into \indexenv
                  - added \bnd for package bundles
-2013/11/12 v0.9  - new option `compile' that allows to compile source code
+2013/11/22 v0.9  - new option `compile' that allows to compile source code
                    examples (which need to be complete, of course) with
                    pdflatex and include the documents afterwards
                  - new options `max-pages' that determines the maximum number

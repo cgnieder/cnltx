@@ -1,5 +1,5 @@
 % !arara: pdflatex: { shell: on }
-% !arara: pdflatex
+% arara: pdflatex
 % arara: biber
 % arara: pdflatex
 % arara: pdflatex
@@ -90,6 +90,7 @@
     dsh,
     eg,env,envidx,environment,
     expandable,
+    iftest,
     indexcs,
     inputexample,inputsidebyside,inputsourcecode,
     key,keybool,keychoice,keyval,
@@ -126,6 +127,7 @@
     lipsum,
     minusone,multoffourrm,
     nohyperpage,
+    pdf@shellescape,
     superiors@spaced,
     textsu,
     twodigits
@@ -201,7 +203,7 @@ documentation of my packages.  The intention behind the new bundle is a
 cleaner interface and less unnecessary ballast, hence the separation into
 packages and classes.  This is actually a bit of a contradiction: the document
 class \cnltxdoc\ loads \emph{all} packages of the bundle which makes it more
-feature-rich than \cls{cnpkgdoc} eber used to be.  The bundle provides source
+feature-rich than \cls{cnpkgdoc} ever used to be.  The bundle provides source
 code environments that also print the output and defines quite a lot of macros
 for formatting of control sequence names, package names, package options and
 so on.
@@ -220,7 +222,7 @@ database files and index style files.  It provides a \pkg{biblatex} citation
 and bibliography style closely linked to \cnltxdoc.  It provides a
 bibliography database file containing many \LaTeX\ packages.  It
 provides\ldots\ Let's stop here.  You see that the bundle provides a lot of
-different features which explains why this manual is more than 50~pages long.
+different features which explains why this manual is more than 60~pages long.
 
 The most detailed documentation for the bundle is as always the source code of
 the \file{sty} and \file{cls} files but I'm trying to provide a documentation
@@ -245,7 +247,7 @@ environments will lead to wrong page numbers.
 
 The fancy frames of the source code examples are realized with the
 \pkg{mdframed} package by \daniel~\cite{pkg:mdframed}, loaded with the option
-\keyis*{framemethod}{tikz}.
+\keyis*-{framemethod}{tikz}.
 
 Besides all this I included some other ideas of mine in this bundle which are
 all provided by \cnltxtools.  This includes a mechansim for defining clever
@@ -258,6 +260,10 @@ abbreviations or macros that make it easy to index names the same way
 The \cnltx\ bundle currently bundles the following packages, classes and
 files:
 \begin{itemize}
+  \item \sinceversion{0.9}\cnltx\ -- a wrapper package for usage in documents.
+    It loads one or more of the following packages.  See
+    section~\ref{sec:usage-bundle} for details on the usage. \\
+    \verbcode+\usepackage{cnltx}+
   \item \cnltxbase\ -- a package that defines base macros for error-messaging,
     expansion control, tokenlist manipulation and defining of expandable
     macros.  It also provides color definitions and defines a few color
@@ -288,8 +294,9 @@ files:
     \option{add-index} for \cnltxdoc\ is activated and the option
     \option{index-style} is not used.
   \item \sinceversion{0.4}\file{cnltx.bib} -- a bibliography file that
-    contains a small but growing number of package entries.  Used by
-    \cnltxdoc\ when the \option{add-bib} is used.
+    contains a small but growing number of package entries, see
+    section~\ref{sec:list-entr-bib}.  Used by \cnltxdoc\ when the
+    \option{add-bib} is used.
   \item \sinceversion{0.4}\file{cnltx.bbx}, \file{cnltx.cbx} and
     \file{cnltx.dbx} -- files related to the \pkg{biblatex} style
     \code{cnltx}.  The \pkg{biblatex} style defined in those files is used
@@ -338,7 +345,7 @@ not directly by any of the packages or classes of the \cnltx\ bundle.  Like
 all of my packages \cnltx\ implicitly relies on an up to date \TeX\
 distribution.
 
-\section{Usage of the Bundle}
+\section{Usage of the Bundle}\label{sec:usage-bundle}
 The intended use of this bundle is three-fold:
 \begin{itemize}
   \item The main use-case is documenting my own \LaTeX\ packages.  This is
@@ -357,7 +364,8 @@ The intended use of this bundle is three-fold:
       \usepackage{cnltx}
     \end{sourcecode}
     to the preamble which will load the \cnltxbase\ module.  Other needed
-    modules can be given as package option.
+    modules can be given as package option by using the name part after the
+    dash as option.
     \begin{sourcecode}[gobble=6]
       \usepackage[example]{cnltx}
     \end{sourcecode}
@@ -450,9 +458,10 @@ provided macros, options and the like.
     index entry, the  optional \code{-} strips the braces around \meta{value};
     \cs{key}\Marg{key}\Marg{value}: \key{key}{value};
     \cs{key}\code{-}\Marg{key}\Marg{value}: \key-{key}{value}
-  \command{keyis}[\sarg\marg{name}\marg{value}]
+  \command{keyis}[\sarg\code{-}\marg{name}\marg{value}]
     \sinceversion{0.2}A key \meta{name} set to value \meta{value}, the
-    optional star prevents an index entry, \cs{key}\Marg{keyis}\Marg{value}:
+    optional star prevents an index entry, the  optional \code{-} strips the
+    braces around \code{value}; \cs{key}\Marg{keyis}\Marg{value}:
     \keyis{key}{value}.
   \command{choices}[\marg{clist of choices}]
     A list of choices, \cs{choices}\Marg{one,two,three}:
@@ -858,7 +867,7 @@ Both environments can be influenced by options:
     \env*{minipage} environments with all consequences that come with them
     (think of \cs*{parindent}, page breaks \ldots).  Since a \code{minipage}
     cannot be broken across pages the surrounding \pkg{mdframed} frame gets
-    the option \keyis*{nobreak}{true}.  This option has no effect on the
+    the option \keyis*-{nobreak}{true}.  This option has no effect on the
     \env{sourcecode} environment.
   \keybool{code-left}\Default{true}
     If \code{true} and the option \option{side-by-side} is chosen the source
@@ -877,7 +886,7 @@ same as using the \env{sidebyside} environment):
   a \LaTeX\ code example
 \end{example}
 
-\option{side-by-side} and \keyis{code-left}{false}:
+\option{side-by-side} and \keyis-{code-left}{false}:
 
 \begin{example}[side-by-side,code-left=false]
   a \LaTeX\ code example
@@ -981,6 +990,8 @@ customized with the following options:
   \keyval{exe-with}{options}\Default
     Command line options that can be given to the compilation program chosen
     with \option{program}.
+  \keyval{file-ext}{extension}\Default{pdf}
+    The file extension of the included file of a compiled example.
 \end{options}
 
 The compiled document will be input with \cs*{includegraphics}, each page
@@ -1019,7 +1030,7 @@ will lead to this output:
 The pages get scaled according to two parameters:
 \begin{options}
   \keyval{max-pages}{number}\Default{4}
-    The maximum number of pages in a row.  The pages width is scaled to
+    The maximum number of pages in a row.  The width of the pages is scaled to
     $\text{\cs*{linewidth}}/n$ where $n$ is either the number of pages $p$ of
     the compiled document or \meta{number} if $p>\text{\meta{number}}$.
   \keyval{max-height}{dimension}\Default{.5\cs*{textheight}}
@@ -1044,13 +1055,13 @@ have it as a floating figure.  This is also possible by using the option
     can also use this option to specify the floating parameters for the float.
   \keyval{float-pos}{float parameters}\Default{tbp}
     Set the standard floating parameters that are used if
-    \keyis{float}{true}. The default is actually the expansion of
+    \keyis-{float}{true}. The default is actually the expansion of
     \cs*{fps@figure} and not directly \code{tbp}.
   \keyval{caption}{text}\Default
     \meta{text} will be used as caption.  If left blank no caption will be
-    typeset.  Implicitly sets \keyis{float}{true}.
+    typeset.  Implicitly sets \keyis-{float}{true}.
 \end{options}
-Please note that \option{float} only has an effect if \keyis{compile}{true}
+Please note that \option{float} only has an effect if \keyis-{compile}{true}
 has been set.
 
 \subsubsection{Selective Output}\label{sec:selective-output}
@@ -1639,7 +1650,7 @@ The \cnltxdoc\ class only knows a few options:
     See section~\vref{sec:predefined-indexing} for details.
   \keyval{babel-options}{options}\Default{english}
     Options given to the \needpackage[macros/latex/required]{babel} package.
-    This option only has an effect if \keyis{load-preamble}{true}.
+    This option only has an effect if \keyis-{load-preamble}{true}.
   \keyval{scrartcl}{options}\Default
     Options that are passed to the underlying class \cls{scrartcl}.  \emph{All
     global options you want to use should be given here.}
@@ -2471,10 +2482,14 @@ the other packages and classes.
   \expandable\command{cnltx\at ifisnum}[\marg{token list}\marg{true}\marg{false}]
     \sinceversion{0.6}Checks if \meta{token list} is an integer zero or
     greater and leaves \meta{true} in the input stream if it is an
-    \meta{false} if it isn't.
+    \meta{false} if it isn't.  There is one hopefully extremely unlikely case
+    where the test fails: when \meta{token list} starts with
+    ``\code{\meta{integer}\%}'' where \code{\%} has a category code different
+    than 9 (ignored) or 14 (comment).
   \expandable\command{cnltx\at ifshellescape}[\marg{true}\marg{false}]
     \sinceversion{0.9}Checks if shellescape is enabled.  It returns true if
-    \pkg{pdftexcmds}' \cs*{pdf@shellescape} has the value \code{1}.
+    \pkg{pdftexcmds}' \cs*{pdf@shellescape} has the value~\code{1}.  This is a
+    wrapper for \verbcode+\iftest{\ifnum\pdf@shellescape=1 }+.
   \command{cnltx\at expandargs}[\darg{specs}\meta{control sequence}]
     \sinceversion{0.7}This is a \LaTeXe\ version of expl3's
     \cs*{exp\_args:N}\meta{specs}.  The command expands the arguments of
@@ -2692,7 +2707,7 @@ as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
   \RaggedRight\listsilentenvs
 \end{multicols}
 
-\section{List of Entries in \code{cnltx.bib}}
+\section{List of Entries in \code{cnltx.bib}}\label{sec:list-entr-bib}
 Most entries in \code{cnltx.bib} are entries of the \code{@package} type.
 The cite keys that the file currently contains are listed below.  This list is
 very likely to be extended significantly in the future.
