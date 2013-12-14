@@ -1,6 +1,6 @@
 % !arara: pdflatex: { shell: on }
-% arara: pdflatex
-% arara: biber
+% !arara: pdflatex
+% !arara: biber
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -877,6 +877,10 @@ Both environments can be influenced by options:
     Code that is inserted between a source code and the corresponding output
     when printed below each other.  This option has no effect on the
     \env{sourcecode} environment.
+  \keybool{outside}\Default{false}
+    \sinceversion{0.10}If \code{true} the output of an example is put outside
+    of the frame in the input stream.  This can be useful if the example code
+    contains a floating environment for example.
 \end{options}
 
 The same example again, this time using  \option{side-by-side} (which is the
@@ -972,7 +976,7 @@ code file externally and input the compiled \PDF.
   \end{example}
 \end{sourcecode}
 
-This needs \code{shellescape} enabled.  The default compilation program is
+This needs \code{shell-escape} enabled.  The default compilation program is
 \prg{pdflatex} which will compile the file two times.  The process can be
 customized with the following options:
 
@@ -992,6 +996,8 @@ customized with the following options:
     with \option{program}.
   \keyval{file-ext}{extension}\Default{pdf}
     The file extension of the included file of a compiled example.
+  \keybool{add-frame}\Default{true}
+    \sinceversion{0.10}If \code{true} every output page will get a frame.
 \end{options}
 
 The compiled document will be input with \cs*{includegraphics}, each page
@@ -1057,9 +1063,13 @@ have it as a floating figure.  This is also possible by using the option
     Set the standard floating parameters that are used if
     \keyis-{float}{true}. The default is actually the expansion of
     \cs*{fps@figure} and not directly \code{tbp}.
+  \keyval{float-env}{name}\Default{figure}
+    \sinceversion{0.10}The floating environment used when the option
+    \option{float} is used.
   \keyval{caption}{text}\Default
     \meta{text} will be used as caption.  If left blank no caption will be
-    typeset.  Implicitly sets \keyis-{float}{true}.
+    typeset.  If you want to add a \cs*{label} you can use it in this option.
+    Implicitly sets \keyis-{float}{true}.
 \end{options}
 Please note that \option{float} only has an effect if \keyis-{compile}{true}
 has been set.
@@ -2490,6 +2500,10 @@ the other packages and classes.
     \sinceversion{0.9}Checks if shellescape is enabled.  It returns true if
     \pkg{pdftexcmds}' \cs*{pdf@shellescape} has the value~\code{1}.  This is a
     wrapper for \verbcode+\iftest{\ifnum\pdf@shellescape=1 }+.
+  \command{expandtwice}[\marg{code}]
+    Expands \meta{code} twice in an \cs*{edef}-like context.  This is a
+    wrapper for
+    \cs*{unexpanded}\cs*{expandafter}\cs*{expandafter}\cs*{expandafter}.
   \command{cnltx\at expandargs}[\darg{specs}\meta{control sequence}]
     \sinceversion{0.7}This is a \LaTeXe\ version of expl3's
     \cs*{exp\_args:N}\meta{specs}.  The command expands the arguments of

@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2013/11/22}
-\def\cnltx@@version{v0.9}
+\def\cnltx@@date{2013/12/14}
+\def\cnltx@@version{v0.10}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds,pdftexcmds}
@@ -291,6 +291,9 @@
 
 % expanding an environment argument or something:
 \newcommand\cnltx@fullexpand@afterarg{\cnltx@expandargs(nx)}
+
+\providecommand*\expandtwice
+  {\unexpanded\expandafter\expandafter\expandafter}
 
 % --------------------------------------------------------------------------
 % tokenlist manipulation
@@ -721,7 +724,8 @@
   expandable    => red ,
   unexpandable  => black ,
   makeidxkey    => cnltxgreen ,
-  makeidxstring => black
+  makeidxstring => black ,
+  math          => cnltxgreen
 }
 
 \definecolorscheme{blue}{
@@ -742,7 +746,8 @@
   expandable    => red ,
   unexpandable  => black ,
   makeidxkey    => cnltxyellow ,
-  makeidxstring => black
+  makeidxstring => black ,
+  math          => cnltxgreen
 }
 
 \definecolorscheme{formal}{
@@ -763,7 +768,8 @@
   expandable    => red ,
   unexpandable  => black ,
   makeidxkey    => black ,
-  makeidxstring => black
+  makeidxstring => black ,
+  math          => cnltxgreen
 }
 
 % set the default:
@@ -800,3 +806,8 @@ HISTORY:
                    \cnltx@gremove@once, \cnltx@gremove@all
                  - \cnltx@ifisnum now also returns <false> if the test
                    argument is `<num>!'
+2013/12/14 v0.10 - \expandtwice
+
+TODO:
+  `color-scheme' Option dokumentieren
+
