@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013 Clemens Niederberger
+% Copyright 2013-2014 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -190,7 +190,10 @@
   \renewcommand*\partformat{%
     \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
-  \pagestyle{headings}
+  \RequirePackage{scrlayer-scrpage}
+  \chead{\rightmark}
+  \KOMAoptions{automark}
+  \pagestyle{scrheadings}
   \setcapindent{1.5em}
   \setkomafont{caption}{\cnltx@caption@font}
   \setkomafont{captionlabel}{\cnltx@captionlabel@font}
@@ -961,6 +964,7 @@ HISTORY:
                    * choice if fonts are loaded
                    * choice if microtype is loaded
                  - \visualizespaces and \visiblespace
+2014/01/05 v0.10 - adapt to KOMA-Script v3.12
 
 % --------------------------------------------------------------------------
 TODO:

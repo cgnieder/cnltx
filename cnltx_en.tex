@@ -1,8 +1,8 @@
-% !arara: pdflatex: { shell: on }
+% arara: pdflatex: { shell: on }
 % !arara: pdflatex
-% !arara: biber
-% arara: pdflatex
-% arara: pdflatex
+% arara: biber
+% !arara: pdflatex
+% !arara: pdflatex
 % --------------------------------------------------------------------------
 % the CNLTX bundle
 %
@@ -13,7 +13,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013 Clemens Niederberger
+% Copyright 2013-2014 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -115,15 +115,11 @@
   },
   add-silent-cmds = {
     @foo,
-    ab,AB,
-    at,
-    carlisle,
-    cd,
-    circled,circlenumber,
-    cnltx,
-    foo,
-    foothree,
+    ab,AB, at,
+    carlisle, cd, chead, circled,circlenumber, cnltx,
+    foo, foothree,
     GetTranslation,
+    KOMAoptions,
     lipsum,
     minusone,multoffourrm,
     nohyperpage,
@@ -905,6 +901,14 @@ customize it:
   \keyval{frame-options}{\pkg{mdframed} options}{}
     \Default{backgroundcolor=cnltxbg,linecolor=cnltx,roundcorner=5pt}
     Overwrite the settings with new ones.
+  \keyval{add-local-frame}{\pkg{mdframed} options}
+    \sinceversion{0.10}Add \pkg{mdframed} options to the environment where the
+    option is used only.  This is
+    basically \beginenv*\Marg{\env{mdframed}}\Oarg{style=cnltx,\meta{options}}.
+  \keyval{local-frame}{\pkg{mdframed} options}
+    \sinceversion{0.10}replace the default \pkg{mdframed} options to the
+    environment where the option is used only.  This is
+    basically \beginenv*\Marg{\env{mdframed}}\oarg{options}.
 \end{options}
 
 The source code is formatted using the great \pkg{listings}
@@ -939,10 +943,16 @@ section~\vref{sec:listings-sourcecode}.
     Overwrite existing options with new ones.  This can be used to build an own
     style from scratch.  \emph{This redefines the \code{cnltx} \pkg{listings}
       style which will affect all sourcecode environments!}
-  \keyval{sourcecode-options}{\pkg{listings} options}
+  \keyval{add-sourcecode-options}{\pkg{listings} options}
     \sinceversion{0.4}These options are added to the \pkg{listings} options of
     the source code environments without redefing the main style.  Hence it
-    can be used to locally add options to a source code environment.
+    can be used to locally add options to a source code environment.  This is
+    basically \cs*{lstset}\Marg{style=cnltx,\meta{options}}.
+  \keyval{sourcecode-options}{\pkg{listings} options}
+    \sinceversion{0.10}These options are added to the \pkg{listings} options
+    of the source code environments without redefing or using the main style.
+    Hence it can be used to locally add options to a source code environment.
+    This is basically \cs*{lstset}\marg{options}.
   \keyval{add-envs}{list of environment names}\Default
     Like \option{add-cmds} but for environment names.
   \keyval{add-silent-envs}{list of environment names}
@@ -1793,7 +1803,7 @@ passing an option as class option.
     Class option that preloads part of my custom preamble.
 \end{options}
 
-Using the option will include the following code:
+Using the option will include the following code:\changedversion{0.10}
 
 \begin{sourcecode}
   \RequirePackage{ifxetex,ifluatex}
@@ -1849,7 +1859,10 @@ Using the option will include the following code:
   \renewcommand*\partformat{%
     \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
-  \pagestyle{headings}
+  \RequirePackage{scrlayer-scrpage}
+  \chead{\rightmark}
+  \KOMAoptions{automark}
+  \pagestyle{scrheadings}
   \setcapindent{1.5em}
   \setkomafont{caption}{\cnltx@caption@font}
   \setkomafont{captionlabel}{\cnltx@captionlabel@font}
@@ -2434,13 +2447,13 @@ the other packages and classes.
 \end{commands}
 
 \subsubsection{Programming Tools}
-
+\paragraph{Message Handling}
 \begin{commands}
   \command{cnltx\at create\at message}%
     [\sarg\marg{prefix}\marg{package/class
       name}\Marg{\choices{Error,Warning,WarningNoLine,Info}} \marg{detailed
       error message}]
-    \changedversion{0.7}Create error and warning massaging commands
+    \changedversion{0.7}Create error and warning messaging commands
     \cs*{\meta{prefix}@\choices{error,warning,warningnoline,info}}\marg{message}.
     The starred version creates messages for a class the un-starred version
     messages for a package.  All commands have one argument which takes the
@@ -2448,21 +2461,23 @@ the other packages and classes.
   \command{cnltx\at create\at generic\at message}%
     [\sarg\marg{prefix}\marg{package/class
       name}\Marg{\choices{Error,Warning,WarningNoLine,Info}}]
-    \sinceversion{0.7}Create error and warning massaging commands
+    \sinceversion{0.7}Create error and warning messaging commands
     \cs*{\meta{prefix}@\choices{error,warning,warningnoline,info}}\marg{message}.
     The starred version creates messages for a class the un-starred version
     messages for a package.  All commands have one argument which takes the
     message \emph{except for the error command which gets two arguments}, the
     first for the short version and the second for the detailed message.
     \meta{prefix} will be all lowercase in the generated command.
-  \expandable\command{cnltx\at par}
-    Expands to \cs*{par}.  Sometimes you need to smuggle a \cs*{par} in a
-    short macro \ldots
+\end{commands}
+
+\paragraph{Conditionals}
+\begin{commands}
   \expandable\command{iftest}[\marg{test directive}\marg{true}\marg{false}]
     \sinceversion{0.7}Checks if \meta{test directive} is true and either
     places \meta{true} or \meta{false} in the input stream.  \meta{test
       directive} should be a \TeX\ test like
-    \cs*{ifx}\meta{token1}\meta{token2}.\\
+    \cs*{ifx}\meta{token1}\meta{token2}, \ie, demand an \cs*{else} and
+    \cs*{fi}.\\
     This is a command in the spirit of \pkg{etoolbox}'s \cs*{ifbool} that does
     the same for a boolean \meta{bool} defined with
     \cs*{newif}\cs*{if\meta{bool}} or \cs*{newbool}\marg{bool}.  It
@@ -2472,7 +2487,8 @@ the other packages and classes.
     \sinceversion{0.7}Checks if \meta{test directive} is not true and either
     places \meta{not true} or \meta{not false} in the input stream.  Test
     directive should be a \TeX\ test like
-    \cs*{ifx}\meta{token1}\meta{token2}.\\
+    \cs*{ifx}\meta{token1}\meta{token2}, \ie, demand an \cs*{else} and
+    \cs*{fi}.\\
     This is a command in the spirit of \pkg{etoolbox}'s \cs*{notbool} that does
     the same for a boolean \meta{bool} defined with
     \cs*{newif}\cs*{if\meta{bool}} or \cs*{newbool}\marg{bool}.
@@ -2500,9 +2516,33 @@ the other packages and classes.
     \sinceversion{0.9}Checks if shellescape is enabled.  It returns true if
     \pkg{pdftexcmds}' \cs*{pdf@shellescape} has the value~\code{1}.  This is a
     wrapper for \verbcode+\iftest{\ifnum\pdf@shellescape=1 }+.
+  \command{cnltx\at if\at in}[\marg{tokenlist}\marg{search}\marg{true}\marg{false}]
+    Places \meta{true} in the input stream if \meta{search} is found in
+    \meta{tokenlist} and \meta{false} if it isn't.
+  \expandable\command{cnltx\at ifstrequal}[\marg{string1}\marg{string2}%
+    \marg{true}\marg{false}]
+    \sinceversion{0.10}Tests if \meta{string1} is equal to \meta{string2} and
+    either leaves \meta{true} or \meta{false} in the input stream.  This test
+    doesn't take category codes into account.
+  \command{cnltx\at ifinlist}%
+    [\marg{item}\marg{listmacro}\marg{true}\marg{false}]
+    \sinceversion{0.10}A conditional for \pkg{etoolbox} lists similar to
+    \cs*{ifinlist} where braces in items are allowed.  This wraps around the
+    proposal in \pkg{etoolbox}'s documentation to redefine \cs*{do} and loop
+    through the list.
+  \command{cnltx\at ifinlistcs}%
+    [\marg{item}\marg{listcsname}\marg{true}\marg{false}]
+    \sinceversion{0.10}A conditional for \pkg{etoolbox} lists similar to
+    \cs*{ifinlistcs} where braces in items are allowed.  This wraps around the
+    proposal in \pkg{etoolbox}'s documentation to redefine \cs*{do} and loop
+    through the list.
+\end{commands}
+
+\paragraph{Expansion Tools}
+\begin{commands}
   \command{expandtwice}[\marg{code}]
-    Expands \meta{code} twice in an \cs*{edef}-like context.  This is a
-    wrapper for
+    \sinceversion{0.10}Expands \meta{code} twice in an \cs*{edef}-like
+    context.  This is a  wrapper for\newline
     \cs*{unexpanded}\cs*{expandafter}\cs*{expandafter}\cs*{expandafter}.
   \command{cnltx\at expandargs}[\darg{specs}\meta{control sequence}]
     \sinceversion{0.7}This is a \LaTeXe\ version of expl3's
@@ -2517,11 +2557,10 @@ the other packages and classes.
       \item \code{f} means braced group expanded with \cs*{romannumeral}, and
       \item \code{x} means braced group expanded with \cs*{edef}.
     \end{itemize}
-  \expandable\command{cnltx\at stripbs}
-    A shortcut for \verbcode+\expandafter\@gobble\string+.
-  \command{cnltx\at if\at in}[\marg{tokenlist}\marg{search}\marg{true}\marg{false}]
-    Places \meta{true} in the input stream if \meta{search} is found in
-    \meta{tokenlist} and \meta{false} if it isn't.
+\end{commands}
+
+\paragraph{Token List Manipulation}
+\begin{commands}
   \command{cnltx\at replace\at once}[\marg{cs}\marg{search}\marg{replace}]
     Replaces the first occurence of \meta{search} in the first expansion of
     \meta{cs} with \meta{replace}.
@@ -2546,6 +2585,15 @@ the other packages and classes.
   \command{cnltx\at gremove\at all}[\marg{cs}\marg{search}]
     \sinceversion{0.9}The same as \cs{cnltx\at remove\at all} but acts
     globally.
+\end{commands}
+
+\paragraph{Miscellaneous}
+\begin{commands}
+  \expandable\command{cnltx\at par}
+    Expands to \cs*{par}.  Sometimes you need to smuggle a \cs*{par} in a
+    short macro \ldots
+  \expandable\command{cnltx\at stripbs}
+    A shortcut for \verbcode+\expandafter\@gobble\string+.
   \command{cnltxat}
     Robust command that typesets `\at' with category code 11.  An @ in command
     names confuses the indexing of the command names.  Either one uses another
@@ -2568,7 +2616,6 @@ the other packages and classes.
 \end{commands}
 
 \subsection{Defined by \cnltxdoc}
-
 \begin{commands}
   \command{cnltx\at doc\at error}[\marg{message}]
     Issue an error message using \cs*{ClassError}\Marg{cnltx-doc}.
@@ -2595,7 +2642,6 @@ the other packages and classes.
 \end{environments}
 
 \subsection{Defined by \cnltxexample}
-
 \begin{commands}
   \command{cnltx\at example\at error}[\marg{message}]
     Issue an error message using \cs*{PackageError}\Marg{cnltx-example}.
@@ -2646,7 +2692,6 @@ the other packages and classes.
 \end{commands}
 
 \subsection{Defined by \cnltxlistings}
-
 \begin{commands}
   \command{cnltx\at listings\at error}[\marg{message}]
     Issue an error message using \cs*{PackageError}\Marg{cnltx-listings}.
@@ -2687,7 +2732,6 @@ the other packages and classes.
 \end{options}
 
 \subsection{Defined by \cnltxtools}
-
 \begin{commands}
   \command{cnltx\at tools\at error}[\marg{message}]
     Issue an error message using \cs*{PackageError}\Marg{cnltx-tools}.
