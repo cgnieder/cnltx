@@ -266,7 +266,10 @@ files:
     schemes for the \cnltxdoc\ class.  All other packages and classes of the
     \cnltx\ bundle load this package.  This package can be used
     stand-alone. \\
-    \verbcode+\usepackage{cnltx-base}+
+    \verbcode+\usepackage{cnltx-base}+\\
+    The packages commands are not described in the main part of this
+    documentation but only in section~\ref{sec:defined-cnltxbase}, \ie, in the
+    appendix.
   \item \cnltxdoc\ -- a class for writing package manuals.  Loads
     \cnltxexample\ and \cnltxtools\ and implicitly all other files of the
     bundle. \\
@@ -1971,7 +1974,7 @@ This document uses the following call of \pkg{biblatex}:
   \usepackage[
     backend=biber,
     style=cnltx,
-    sortlocale=en_EN,
+    sortlocale=en_US,
     indexing=cite,
     useprefix]{biblatex}
   \addbibresource{cnltx.bib}
@@ -2001,7 +2004,7 @@ What this options does is including the following code:
   \RequirePackage[
     backend=biber,
     style=cnltx,
-    sortlocale=en_EN,
+    sortlocale=en_US,
     indexing=cite,
     useprefix]{biblatex}
   \addbibresource{cnltx.bib}
@@ -2239,6 +2242,13 @@ the actually used color names.  They are defined via the following command:
     \cs*{colorlet} command.  How to input \meta{color assignments} will be
     immediately clear from the examples below.
 \end{commands}
+
+To activate a color scheme for a document it is simply selected through an
+option:
+\begin{options}
+  \keyval{color-scheme}{color scheme name}\Default{default}
+    Activate a color scheme previously defined with \cs{definecolorscheme}.
+\end{options}
 
 The `default' color scheme is defined as follows:
 \begin{sourcecode}
@@ -2557,6 +2567,28 @@ the other packages and classes.
       \item \code{f} means braced group expanded with \cs*{romannumeral}, and
       \item \code{x} means braced group expanded with \cs*{edef}.
     \end{itemize}
+\end{commands}
+
+\paragraph{Category Code Stuff}
+\begin{commands}
+  \command{cnltx\at save\at catcode}[\marg{token}]
+    \sinceversion{0.11}Saves the current category code of \meta{token}.
+  \command{cnltx\at restore\at catcode}[\marg{token}]
+    \sinceversion{0.11}Restores the category code of \meta{token} as
+    previously saved with \cs{cnltx\at save\at catcode}.
+  \command{cnltx\at set\at catcode}[\marg{token}\marg{catcode}]
+    \sinceversion{0.11}Sets the category code of \meta{token} to
+    \meta{catcode}.  This is a wrapper for
+    \code{\cs*{catcode}`\meta{token}=\meta{catcode}\cs*{relax}}.
+  \command{cnltx\at save\at catcodes}[\marg{tokenlist}]
+    \sinceversion{0.11}Maps \cs{cnltx\at save\at catcode} to all tokens in
+    \meta{tokenlist}.
+  \command{cnltx\at restore\at catcodes}[\marg{tokenlist}]
+    \sinceversion{0.11}Maps \cs{cnltx\at restore\at catcode} to all tokens in
+    \meta{tokenlist}.
+  \command{cnltx\at set\at catcodes}[\marg{tokenlist}\marg{catcode}]
+    \sinceversion{0.11}Maps \cs{cnltx\at set\at catcode} to all tokens in
+    \meta{tokenlist}, \ie, all tokens get category code \meta{catcode}.
 \end{commands}
 
 \paragraph{Token List Manipulation}

@@ -203,7 +203,7 @@
   \RequirePackage[
     backend=biber,
     style=cnltx,
-    sortlocale=en_EN,
+    sortlocale=en_US,
     indexing=cite,
     useprefix]{biblatex}
   \addbibresource{cnltx.bib}
@@ -921,50 +921,51 @@
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/08 v0.1  - first working version
-2013/09/10 v0.2  - added optional argument to \license
-                 - \newname got moved to `cnltx-tools'
-                 - added possibility for internationalization
-                 - new macros \needpackage and \needclass
-                 - option for formatting the document title
-2013/09/12 v0.3  - new class options `add-index', `load-preamble+' and
-                   `scrartcl'
-                 - new options `index-prologue' and `index-space'
-                 - new file `cnltx.ist'
-                 - added \Module
-                 - added optional ! to the \Default command
-                 - add safety net: provide necessary commands in the aux-file
-                   if they're not defined at begin document
-2013/09/12 v0.3a - automatic preamble detects xelatex and lualatex and selects
-                   the fonts accordingly
-2013/09/15 v0.4  - possiblity to add an email address for each author, written
-                   as footnote; they get symbols if the `load-preamble'
-                   options is not used
-                 - fixed bug in index setup mechanism
-                 - added biblatex entry type `package' and biblatex style
-                   `cnltx'
-2013/09/20 v0.5  - new commands \expandable and \unexpandable
-                 - new environment `cnltxquote', formatting via options
-                   `quote-format' and `quote-author-format'
-                 - changed scaling of `beramono' from `.83' to `.81' -- seems
-                   a better fit in relation to Linux Libertine
-2013/09/24 v0.6  - workaround for footnotes in minipages => libertine does not
-                   have superior letters
-                 - new options `abstract-format' and `abstract-width'
-2013/09/30 v0.7  - added better microtype settings to the predefined preamble
-                 - replaced \def's with \newcommand or \newrobustcmd
-2013/10/04 v0.7a - renamed \cnltx@package@name@format into
-                   \cnltxpackagenameformat
-                 - added \cnltxpackagenameformat to the disabled pdfstring
-                   commands
-                 - added possibility to define a opitonal argument with
-                   \newnote
-2013/10/21 v0.8  - disable ligatures for teletype font
-                 - extended preamble loading
-                   * choice if fonts are loaded
-                   * choice if microtype is loaded
-                 - \visualizespaces and \visiblespace
-2014/01/05 v0.10 - adapt to KOMA-Script v3.12
+2013/09/08 v0.1   - first working version
+2013/09/10 v0.2   - added optional argument to \license
+                  - \newname got moved to `cnltx-tools'
+                  - added possibility for internationalization
+                  - new macros \needpackage and \needclass
+                  - option for formatting the document title
+2013/09/12 v0.3   - new class options `add-index', `load-preamble+' and
+                    `scrartcl'
+                  - new options `index-prologue' and `index-space'
+                  - new file `cnltx.ist'
+                  - added \Module
+                  - added optional ! to the \Default command
+                  - add safety net: provide necessary commands in the aux-file
+                    if they're not defined at begin document
+2013/09/12 v0.3a  - automatic preamble detects xelatex and lualatex and selects
+                    the fonts accordingly
+2013/09/15 v0.4   - possiblity to add an email address for each author, written
+                    as footnote; they get symbols if the `load-preamble'
+                    options is not used
+                  - fixed bug in index setup mechanism
+                  - added biblatex entry type `package' and biblatex style
+                    `cnltx'
+2013/09/20 v0.5   - new commands \expandable and \unexpandable
+                  - new environment `cnltxquote', formatting via options
+                    `quote-format' and `quote-author-format'
+                  - changed scaling of `beramono' from `.83' to `.81' -- seems
+                    a better fit in relation to Linux Libertine
+2013/09/24 v0.6   - workaround for footnotes in minipages => libertine does not
+                    have superior letters
+                  - new options `abstract-format' and `abstract-width'
+2013/09/30 v0.7   - added better microtype settings to the predefined preamble
+                  - replaced \def's with \newcommand or \newrobustcmd
+2013/10/04 v0.7a  - renamed \cnltx@package@name@format into
+                    \cnltxpackagenameformat
+                  - added \cnltxpackagenameformat to the disabled pdfstring
+                    commands
+                  - added possibility to define a opitonal argument with
+                    \newnote
+2013/10/21 v0.8   - disable ligatures for teletype font
+                  - extended preamble loading
+                    * choice if fonts are loaded
+                    * choice if microtype is loaded
+                  - \visualizespaces and \visiblespace
+2014/01/23 v0.10  - adapt to KOMA-Script v3.12
+                  - change biblatex locale from en_EN to en_US
 
 % --------------------------------------------------------------------------
 TODO:

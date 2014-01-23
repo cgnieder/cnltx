@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2014/01/05}
+\def\cnltx@@date{2014/01/23}
 \def\cnltx@@version{v0.10}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
@@ -142,6 +142,32 @@
 \makeatletter
 \newrobustcmd*\cnltxbang{!}
 \newrobustcmd*\cnltxequal{=}
+
+% --------------------------------------------------------------------------
+% catcode stuff:
+\DeclareListParser*{\cnltx@map@tokenlist}{}
+
+\newrobustcmd*\cnltx@save@catcodes[1]{%
+  \cnltx@map@tokenlist\cnltx@save@catcode{#1}%
+}
+\newrobustcmd*\cnltx@save@catcode[1]{%
+  \csedef{cnltx@catcode@#1}{\the\catcode`#1}%
+}
+
+\newrobustcmd*\cnltx@restore@catcodes[1]{%
+  \cnltx@map@tokenlist\cnltx@restore@catcode{#1}%
+}
+\newrobustcmd*\cnltx@restore@catcode[1]{%
+  \catcode`#1=\csname cnltx@catcode@#1\endcsname
+  \csundef{cnltx@catcode@#1}%
+}
+
+\newrobustcmd*\cnltx@set@catcodes[2]{%
+  \cnltx@map@tokenlist{\cnltx@set@catcode{#2}}{#1}%
+}
+\newrobustcmd*\cnltx@set@catcode[2]{%
+  \catcode`#2=#1\relax
+}
 
 % --------------------------------------------------------------------------
 % generic conditionals
@@ -827,8 +853,11 @@ HISTORY:
                    \cnltx@gremove@once, \cnltx@gremove@all
                  - \cnltx@ifisnum now also returns <false> if the test
                    argument is `<num>!'
-2014/01/05 v0.10 - \expandtwice
+2014/01/23 v0.10 - \expandtwice
                  - \cnltx@ifstrequal
+                 - \cnltx@save@catcode, \cnltx@save@catcodes,
+                   \cnltx@set@catcode, \cnltx@set@catcodes,
+                   \cnltx@restore@catcode, \cnltx@restore@catcodes
 
 TODO:
   `color-scheme' Option dokumentieren
