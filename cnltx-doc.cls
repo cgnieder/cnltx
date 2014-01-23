@@ -965,7 +965,7 @@ HISTORY:
                     * choice if microtype is loaded
                   - \visualizespaces and \visiblespace
 2014/01/23 v0.10  - adapt to KOMA-Script v3.12
-                  - change biblatex locale from en_EN to en_US
+2014/01/23 v0.10a - change biblatex locale from en_EN to en_US
 
 % --------------------------------------------------------------------------
 TODO:

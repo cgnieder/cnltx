@@ -26,7 +26,7 @@
 % feel free to contact me.
 % --------------------------------------------------------------------------
 \def\cnltx@@date{2014/01/23}
-\def\cnltx@@version{v0.10}
+\def\cnltx@@version{v0.10a}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds,pdftexcmds}
@@ -827,37 +827,37 @@
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/08 v0.1  - first working version
-2013/09/10 v0.2  - added `cnltx-tools' to the bundle
-                 - extended the messaging creation to class messages
-2013/09/12 v0.3  - added index style file `cnltx.ist'
-                 - added color `module'
-                 - added \cnltx@remove@once and \cnltx@remove@all
-                 - added long versions of tokenlist manipulation macros
-2013/09/14 v0.4  - added \cnltx@fullexpand@afterarg
-                 - new colors `bibentry' and `bibentryfield'
-2013/09/20 v0.5  - added colors `expandable' and `unexpandable'
-                 - added \definecolorscheme
-2013/09/24 v0.6  - added \cnltx@ifisnum
-2013/09/30 v0.7  - added functionality to look for trailing punctuation
-                 - added colors `makeidxkey' and `makeidxstring'
-                 - added counter representation command facilities
-                 - generalized expansion helpers (by copying expl3's
-                   \exp_arg:N<spec> idea)
-                 - \iftest and \nottest
-2013/10/21 v0.8  - \cnltx@ifnextchars
-2013/11/22 v0.9  - \cnltx@modulo
-                 - scratch variables
-                 - \cnltx@ifshellescape
-                 - \cnltx@greplace@once, \cnltx@greplace@all,
-                   \cnltx@gremove@once, \cnltx@gremove@all
-                 - \cnltx@ifisnum now also returns <false> if the test
-                   argument is `<num>!'
-2014/01/23 v0.10 - \expandtwice
-                 - \cnltx@ifstrequal
-                 - \cnltx@save@catcode, \cnltx@save@catcodes,
-                   \cnltx@set@catcode, \cnltx@set@catcodes,
-                   \cnltx@restore@catcode, \cnltx@restore@catcodes
+2013/09/08 v0.1   - first working version
+2013/09/10 v0.2   - added `cnltx-tools' to the bundle
+                  - extended the messaging creation to class messages
+2013/09/12 v0.3   - added index style file `cnltx.ist'
+                  - added color `module'
+                  - added \cnltx@remove@once and \cnltx@remove@all
+                  - added long versions of tokenlist manipulation macros
+2013/09/14 v0.4   - added \cnltx@fullexpand@afterarg
+                  - new colors `bibentry' and `bibentryfield'
+2013/09/20 v0.5   - added colors `expandable' and `unexpandable'
+                  - added \definecolorscheme
+2013/09/24 v0.6   - added \cnltx@ifisnum
+2013/09/30 v0.7   - added functionality to look for trailing punctuation
+                  - added colors `makeidxkey' and `makeidxstring'
+                  - added counter representation command facilities
+                  - generalized expansion helpers (by copying expl3's
+                    \exp_arg:N<spec> idea)
+                   - \iftest and \nottest
+2013/10/21 v0.8   - \cnltx@ifnextchars
+2013/11/22 v0.9   - \cnltx@modulo
+                  - scratch variables
+                  - \cnltx@ifshellescape
+                  - \cnltx@greplace@once, \cnltx@greplace@all,
+                    \cnltx@gremove@once, \cnltx@gremove@all
+                  - \cnltx@ifisnum now also returns <false> if the test
+                    argument is `<num>!'
+2014/01/05 v0.10  - \expandtwice
+                  - \cnltx@ifstrequal
+2014/01/05 v0.10a - \cnltx@save@catcode, \cnltx@save@catcodes,
+                    \cnltx@set@catcode, \cnltx@set@catcodes,
+                    \cnltx@restore@catcode, \cnltx@restore@catcodes
 
 TODO:
   `color-scheme' Option dokumentieren
