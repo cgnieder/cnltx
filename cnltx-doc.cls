@@ -318,7 +318,7 @@
 }
 \def\cnltx@write@author@email#1][\q@stop{%
   \ifblank{#1}{}
-    {\footnote{\href{mailto:#1}{#1}}}%
+    {\footnote{\email{#1}}}%
 }
 \protected\def\cnltx@get@first@and@second@name#1 #2\q@stop{%
   \ifblank{#2}
@@ -595,6 +595,8 @@
 
 \newrobustcmd*\expandable{\cnltx@expandable@ornot\cnltx@expandable}
 \newrobustcmd*\unexpandable{\cnltx@expandable@ornot\cnltx@unexpandable}
+\newrobustcmd*\expandablesymbol{\textcolor{expandable}{\expandablesign}}
+\newrobustcmd*\unexpandablesymbol{\textcolor{unexpandable}{\expandablesign}}
 
 \newrobustcmd*\cnltx@expandable@ornot[1]{%
   \let\cnltx@item\item
@@ -607,14 +609,10 @@
   \endgroup
 }
 \newcommand*\cnltx@expandable{%
-  \cnltx@expandable@note{%
-    \textcolor{expandable}{\expandablesign}%
-  }%
+  \cnltx@expandable@note{\expandablesymbol}%
 }
 \newcommand*\cnltx@unexpandable{%
-  \cnltx@expandable@note{%
-    \textcolor{unexpandable}{\expandablesign}%
-  }%
+  \cnltx@expandable@note{\unexpandablesymbol}%
 }
 
 \newcommand*\expandablesign{\textasteriskcentered}
@@ -754,7 +752,7 @@
     \ifbool{cnltx@package@email}
       {%
         \par\vskip.5cm\relax
-        \href{mailto:\cnltx@package@email}{\cnltx@package@email}%  
+        \email{\cnltx@package@email}%  
       }{}%
     \ifbool{cnltx@package@abstract}
       {%
@@ -824,8 +822,14 @@
 % --------------------------------------------------------------------------
 % hyperlinks:
 \newrobustcmd*\CTANurl[2][macros/latex/contrib]{%
-  on \ctan\ as \code{#2}: \url{http://mirrors.ctan.org/#1/#2/}%
+  on \ctan\ as \cnltx@weblink@font{#2}: \url{http://mirrors.ctan.org/#1/#2/}%
 }
+
+\newcommand*\cnltx@weblink@font[1]{\texttt{#1}}
+
+\newrobustcmd*\email[1]{\cnltx@weblink@font{\href{mailto:#1}{#1}}}
+\newrobustcmd*\website[1]{\cnltx@weblink@font{\href{http://#1/}{#1}}}
+\newrobustcmd*\securewebsite[1]{\cnltx@weblink@font{\href{https://#1/}{#1}}}
 
 \newrobustcmd*\needpackage[2][macros/latex/contrib]{%
   \pkg{#2}\footnote{\CTANurl[#1]{#2}}%
@@ -911,6 +915,8 @@ HISTORY:
                   - some translations are now provided by the `tools' module
                     and by the `cnltx' bibliography style
                   - use \cnltx@load@modules
+                  - new commands \email, \website, \securewebsite
+                  - \expandablesymbol, \unexpandablesymbol
 
 
 % --------------------------------------------------------------------------

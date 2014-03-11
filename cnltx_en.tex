@@ -1,4 +1,4 @@
-% !arara: pdflatex: { shell: on }
+% arara: pdflatex: { shell: on }
 % arara: pdflatex
 % arara: biber
 % arara: pdflatex
@@ -108,6 +108,7 @@
     carlisle, cd, chead, circled,circlenumber, cnltx,
     foo, foothree,
     GetTranslation,
+    href,
     KOMAoptions,
     lipsum,
     minusone,multoffourrm,
@@ -527,6 +528,12 @@ world wide web.
     footnotes.  The predefined directory is \code{macros/latex/contrib}.  The
     link address will be:\par
     \code{http://mirrors.ctan.org/\meta{directory}/\meta{name}/}.
+  \command{email}[\marg{email address}]
+    \sinceversion{0.11}A wrapper for \verbcode+\href{mailto:#1}{#1}+.
+  \command{website}[\marg{web address}]
+    \sinceversion{0.11}A wrapper for \verbcode+\href{http://#1/}{#1}+.
+  \command{securewebsite}[\marg{web address}]
+    \sinceversion{0.11}A wrapper for \verbcode+\href{https://#1/}{#1}+.
   \command{needpackage}[\oarg{directory}\marg{name}]
     \sinceversion{0.2}A wrapper for
     \verbcode+\pkg{#2}\footnote{\CTANurl[#1]{#2}}+
@@ -672,18 +679,22 @@ section~\vref{sec:envs:description} items are input via the following command:
     The optional bang adds the information that an option is mandatory, \ie\
     has to be set.
   \command{expandable}
-    \sinceversion{0.5}Adds the symbol \textcolor{expandable}{\expandablesign}
-    to the left of a command in the margin to indicate that the command is
-    expandable.  This command should be used \emph{immediately} before
-    \cs{command}.
+    \sinceversion{0.5}Adds the symbol \expandablesymbol\ to the left of a
+    command in the margin to indicate that the command is expandable.  This
+    command should be used \emph{immediately} before \cs{command}.
   \command{unexpandable}
-    \sinceversion{0.5}Adds the symbol \textcolor{unexpandable}{\expandablesign}
-    to the left of a command in the margin to indicate that the command is not
-    expandable.  This command should be used \emph{immediately} before
-    \cs{command}.
+    \sinceversion{0.5}Adds the symbol \unexpandablesymbol\ to the left of a
+    command in the margin to indicate that the command is not expandable.
+    This command should be used \emph{immediately} before \cs{command}.
   \command{expandablesign}\Default{\cs*{textasteriskcentered}}
     \sinceversion{0.5}The macro that holds the sign used by \cs{expandable}
     and \cs{unexpandable}.
+  \command{expandablesymbol}
+    \sinceversion{0.11}The symbol \expandablesymbol, \ie, \cs{expandablesign}
+    formatted with the color \code{expandable}.
+  \command{unexpandablesymbol}
+    \sinceversion{0.11}The symbol \unexpandablesymbol, \ie,
+    \cs{expandablesign} formatted with the color \code{unexpandable}.
 \end{commands}
 
 \begin{example}
