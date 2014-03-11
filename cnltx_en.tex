@@ -1,8 +1,8 @@
-% arara: pdflatex: { shell: on }
-% !arara: pdflatex
+% !arara: pdflatex: { shell: on }
+% arara: pdflatex
 % arara: biber
-% !arara: pdflatex
-% !arara: pdflatex
+% arara: pdflatex
+% arara: pdflatex
 % --------------------------------------------------------------------------
 % the CNLTX bundle
 %
@@ -64,54 +64,43 @@
     % internal macros:
     cnltx@babel@options,
     cnltx@bibtex@listings@style,
-    cnltx@caption@font,cnltx@captionlabel@font,
+    cnltx@caption@font, cnltx@captionlabel@font,
     cnltx@define@colorscheme,
     cnltx@gobble,
+    cnltx@ifcounter,
     cnltx@ifisnum,
     cnltx@ifpunctuation,
     cnltx@ifsym,
-    cnltx@listings@style,
+    cnltx@listings@style, cnltx@load@module, cnltx@load@modules,
+    cnltx@make@active, cnltx@make@letter, cnltx@make@other,
     cnltx@makeindex@listings@style,
     cnltx@mdframed@options,
+    cnltx@restore@catcode, cnltx@restore@catcodes,
+    cnltx@save@catcode, cnltx@save@catcodes,
+    cnltx@set@catcode, cnltx@set@catcodes,
     cnltx@scrartcl@options,
     cnltx@trailpunct,
     cnltx@treat@lst@index,
     % official macros:
-    AD,AM,BC,
-    changedversion,cls,
-    cnltxacronym,
-    cnltxat,cnltxbang,cnltxequal,
-    code,codefont,command,cs,csidx,
-    ctan,CTAN,CTANurl,
-    darg,
-    DeclareCounterRepresentation,
-    Default,default,
-    definecolorscheme,
-    dsh,
-    eg,env,envidx,environment,
-    expandable,
-    iftest,
-    indexcs,
-    inputexample,inputsidebyside,inputsourcecode,
-    key,keybool,keychoice,keyval,
-    lppl,LPPL,
-    marg,Marg,module,Module,
-    newabbr,newarg,
-    newcounterrepresentation,
-    newname,
-    newnote,
-    newpackagename,
-    newinputsourcefilecmd,
-    newsourcecodeenv,
-    oarg,opt,option,
-    PM,pkg,
-    providecounterrepresentation,
+    AD, AM, BC,
+    changedversion, cls, cnltxacronym, cnltxat, cnltxbang, cnltxequal, code,
+      codefont, command, cs, csidx, ctan, CTAN, CTANurl,
+    darg, DeclareCounterRepresentation, Default, default, definecolorscheme,
+      dsh, 
+    eg, env, envidx, environment, expandable,
+    iftest, indexcs, inputexample, inputsidebyside, inputsourcecode, 
+    key, keybool, keychoice, keyval,
+    lppl, LPPL,
+    marg, Marg, module, Module,
+    name, newabbr, newarg, newcounterrepresentation, newname, newnote,
+      newpackagename, newinputsourcefilecmd, newsourcecodeenv,
+    oarg, opt, option,
+    PM, pkg, providecounterrepresentation,
     renewcounterrepresentation,
-    sarg,setcnltx,sinceversion,sourceformat,
-    unexpandable,
-    usf,usw,
-    vgl,Vgl,
-    zB,ZB
+    sarg, setcnltx, sinceversion, sourceformat,
+    unexpandable, usf, usw,
+    vgl, Vgl,
+    zB, ZB
   },
   add-silent-cmds = {
     @foo,
@@ -153,6 +142,7 @@
 \newpackagename\cnltxexample{cnltx\cnltxhyphen example}
 \newpackagename\cnltxlistings{cnltx\cnltxhyphen listings}
 \newpackagename\cnltxtools{cnltx\cnltxhyphen tools}
+\newpackagename\cnltxtranslations{cnltx\cnltxhyphen translations}
 
 \newnote*\bypackage[1]{provided by \csname cnltx#1\endcsname}
 \newnote*\byclass{provided by \cnltxdoc}
@@ -289,6 +279,9 @@ files:
     \cnltxdoc\ that are unrelated to \LaTeX\ documentation \latin{per se}.
     This package can be used stand-alone. \\
     \verbcode+\usepackage{cnltx-tools}+
+  \item \sinceversion{0.11}\cnltxtranslations\ -- a package that provides
+    translations needed by the other modules.  It makes no sense to use this
+    package standalone although it's possible.
   \item \file{cnltx.ist} -- an index style file that is used when the option
     \option{add-index} for \cnltxdoc\ is activated and the option
     \option{index-style} is not used.
@@ -314,8 +307,7 @@ The \cnltxbase\ package loads the following packages:
 \needpackage{xcolor}~\cite{pkg:xcolor}.
 
 The \cnltxdoc\ class loads the packages \cnltxbase, \cnltxexample,
-\needpackage{ulem}~\cite{pkg:ulem},
-\pkg{translations}~\cite{pkg:translations},
+\cnltxtranslations, \needpackage{ulem}~\cite{pkg:ulem},
 \needpackage[macros/latex/required/tools]{multicol}~\cite{pkg:multicol},
 \needpackage[macros/latex/contrib/ms]{ragged2e}~\cite{pkg:ragged2e},
 \needpackage{marginnote}~\cite{pkg:marginnote} and
@@ -326,8 +318,7 @@ class has the option \option{load-preamble} which when used will load
 additional packages, see section~\vref{sec:preamble} for details.
 
 The \cnltxexample\ package loads the packages: \cnltxbase, \cnltxlistings,
-\cnltxtools, \needpackage{translations},
-\needpackage{mdframed}~\cite{pkg:mdframed},
+\cnltxtools, \cnltxtranslations, \needpackage{mdframed}~\cite{pkg:mdframed},
 \needpackage{idxcmds}~\cite{pkg:idxcmds},
 \needpackage{ifxetex}~\cite{pkg:ifxetex},
 \needpackage{adjustbox}~\cite{pkg:adjustbox}.
@@ -336,8 +327,11 @@ The \cnltxlistings\ package loads the packages \cnltxbase,
 \needpackage{listings}~\cite{pkg:listings} and
 \needpackage{catchfile}~\cite{pkg:catchfile}.
 
-The \cnltxtools\ package loads the packages \cnltxbase\ and
+The \cnltxtools\ package loads the packages \cnltxbase, \cnltxtranslations and
 \pkg{accsupp}\oberdiekfn~\cite{pkg:accsupp}.
+
+\cnltxtranslations\ loads the \pkg{translations}
+package~\cite{pkg:translations}.
 
 All other packages that are loaded are loaded by the mentioned packages and
 not directly by any of the packages or classes of the \cnltx\ bundle.  Like
@@ -354,8 +348,8 @@ The intended use of this bundle is three-fold:
     \end{sourcecode}
     and actually loads most if not all of the bundle.
   \item The module \cnltxbase\ is also intended as a programming tools package
-    that will be used in other packages eventually.  It is already used by the
-    \pkg{cntformats} package from the \bnd{exsheets}
+    that will be used in other packages eventually.  For example it is used by
+    the \pkg{cntformats} package from the \bnd{exsheets}
     bundle~\cite{bnd:exsheets}.
   \item In case parts of this bundle prove useful to be used in a document the
     recommended way is to add
@@ -369,6 +363,11 @@ The intended use of this bundle is three-fold:
       \usepackage[example]{cnltx}
     \end{sourcecode}
     would load \cnltxexample.
+  \item Parts of the bundle -- especially \cnltxbase\ -- may prove useful in
+    other packages.  The loading the packages directly as indicated in
+    section~\ref{sec:license} seems the best way.  After loading \cnltxbase\
+    the other modules can also be loaded with \verbcode+\cnltx@load@module+,
+    see section~\ref{sec:related-bundle} for details.
 \end{itemize}
 
 \part{Details of Available Commands, Environments and Options}
@@ -495,7 +494,9 @@ world wide web.
     Defines a note like \cs{sinceversion}.  The syntax of the command is the
     same as the one of \cs*{newcommand}.  \cs{sinceversion} was defined as
     follows:\\
-    \verbcode+\newnote*\sinceversion[1]{Introduced in version~#1}+
+    \verbcode+\newnote*\sinceversion[1]{Introduced in version~#1}+\\
+    or actually like this:\\
+    \verbcode+\newnote*\sinceversion[1]{\GetTranslation{cnltx-introduced}~#1}+
   \command{newpackagename}[\marg{cs}\marg{name}]
     Define a comand \meta{cs} that prints \meta{name} formatted like \cnltx,
     \ie\ in small caps and colored with the color \code{cnltx} (see
@@ -1172,6 +1173,7 @@ manual setup could then look something like this:
   \documentclass[load-preamble]{cnltx-doc}
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
+  \usepackage{mypackage}
   \setcnltx{
     package  = mypackage ,
     authors  = John Doe ,
@@ -1372,10 +1374,18 @@ The \cnltxtools\ package defines some additional macros which provide useful
 functionality also in contexts \emph{not} documenting a \LaTeX\ package.
 
 \begin{commands}
-  \command{newname}[\marg{cs}\marg{first name}\marg{second name}]
+  \command{newname}[\marg{cs}\marg{first name}\marg{last name}]
     Defines \meta{cs} to write out the full name and add an index entry sorted
     by the last name.  Also defines a starred variant of \meta{cs} that only
     writes the last name but still adds the full index entry.
+  \command{name}[\sarg\oarg{first name}\marg{last name}]
+    \sinceversion{0.11}Typesets a name according to the same specs as the
+    names defined with \cs{newname}.  Also adds the name to the index.  The
+    starred version only writes the name but doesn't add the name to the
+    index.  Index entries either have the form \meta{last name} or
+    \code{\meta{last name}, \meta{first name}} depending on the usage of the
+    optional argument.  It's safer to define a dedicated macro with
+    \cs{newname} to get consistent index entries.
   \command{cnltxacronym}[\marg{pdf and sort string}\marg{acronym}]
     Typesets \meta{acronym} with small caps and uses \meta{pdf and sort
       string} as \PDF\ string and for sorting the index entry that is added.
@@ -1407,6 +1417,21 @@ functionality also in contexts \emph{not} documenting a \LaTeX\ package.
 \begin{options}
   \keyval{acronym-format}{definition}\Default{\cs*{scshape}}
     Formatting of the acronyms as typeset with \cs{cnltxacronym}.
+  \keyval{name-format}{formatting commands}\Default{\#1}
+    The formatting of names created with \cs{newname} or typeset with
+    \cs{name}.  Names typeset through the bibliography style \code{cnltx} are
+    also formatted according to this option.  \meta{formatting commands}
+    should contain \code{\#1} for the actual name.
+  \keyval{last-name-format}{formatting commands}\Default{\cs*{textsc}\Marg{\#1}}
+    The formatting of the last names created with \cs{newname} or typeset with
+    \cs{name}.  Names typeset through the bibliography style \code{cnltx} are
+    also formatted according to this option.  \meta{formatting commands}
+    should contain \code{\#1} for the actual name.
+  \keyval{first-name-format}{formatting commands}\Default{\#1}
+    The formatting of first names created with \cs{newname} or typeset with
+    \cs{name}.  Names typeset through the bibliography style \code{cnltx} are
+    also formatted according to this option.  \meta{formatting commands}
+    should contain \code{\#1} for the actual name.
 \end{options}
 
 A short example of the usage of \cs{newname} and \cs{cnltxacronym}:
@@ -1437,9 +1462,9 @@ reasoning is two-fold:
     following a small letter as the end of a sentence and a dot after a
     capital letter as a dot after an abbreviation inside of a sentence.
     Usually you solve this by adding \cs*{@} in the appropriate places:
-    \verbcode+e.\,g.\@+ for a intra-sentence space and \verbcode+NASA\@.+ for
+    \verbcode+e.\,g.\@+ for a intra-sentence space and \verbcode+NSA\@.+ for
     a inter-sentence space.  The dot added by \cnltxtools\ always will be
-    followed by a intra-sentence space.  If you add a dot explicitly it will
+    followed by an intra-sentence space.  If you add a dot explicitly it will
     be your responsibility.  Per default it will then act like a dot after a
     small letter.
 \end{itemize}
@@ -1501,7 +1526,7 @@ All of these macros add a final dot followed by \cs*{@} \emph{except} if a dot
 
 \minisec{German Abbreviations}\label{sec:german-abbreviations}
 
-The following abbreviations are not sensitive to localization are and only of
+The following abbreviations are not sensitive to localization and are only of
 use in a German text.  Although they're defined: \emph{please} do not use
 abbreviations at the start of a sentence!
 \begin{commands}
@@ -2326,20 +2351,25 @@ Finally the `formal' color scheme is defined like this:
 
 \section{Language Support}\label{sec:language-support}
 \noindent\sinceversion{0.2}The \cnltxdoc, the \cnltxexample\ and the
-\cnltxtools\ package all rely on the \pkg{translations}
+\cnltxtools\ package as well as the \code{cnltx.ist} index style and the
+\code{cnltx} \pkg{biblatex} style all rely on the \pkg{translations}
 package~\cite{pkg:translations} for providing some document language dependent
 strings.  Currently only translations for English and German are provided.
-Others can be added and the existing ones changed with the following command
+Others can be added and the existing ones changed with the following commands
 provided by the \pkg{translations} package:
 
 \begin{commands}
   \command{DeclareTranslation}[\marg{language}\marg{keyword}\marg{translation}]
-    Provide translations for the string identified by the \textsc{id}
+    Define or redefine translations for the string identified by the
+    \textsc{id} \meta{keyword}.
+  \command{RenewTranslation}[\marg{language}\marg{keyword}\marg{translation}]
+    Renew translations for the string identified by the \textsc{id}
     \meta{keyword}.
 \end{commands}
 
-The defined strings are listed in table~\vref{tab:language:strings}.  They are
-used in indexing strings and in different parts of the document.
+The strings defined by \cnltx\ are listed in
+table~\vref{tab:language:strings}.  They are used in indexing strings and in
+different parts of the document.
 
 \begin{table}
   \centering\renewcommand\arraystretch{1.3}
@@ -2429,7 +2459,7 @@ with \textcolor{expandable}{\expandablesign}.
 Especially \cnltxbase\ defines some useful helper macros that are also used by
 the other packages and classes.
 
-\subsubsection{Related to the Bundle}
+\subsubsection{Related to the Bundle}\label{sec:related-bundle}
 
 \begin{commands}
   \expandable\command{cnltx\at\at date}
@@ -2454,6 +2484,12 @@ the other packages and classes.
     Issue a message using \cs*{PackageInfo}\Marg{cnltx-base}.
   \command{cnltx\at define\at colorscheme}[\marg{name}\marg{scheme definition}]
     Command that can be used to define a color scheme.
+  \command{cnltx\at load\at module}[\marg{\cnltx\ module}]
+    \sinceversion{0.11}Loads the package \code{cnltx-\meta{\cnltx\
+        module}.sty}.
+  \command{cnltx\at load\at modules}[\marg{\cnltx\ modules}]
+    \sinceversion{0.11}Maps the comma separated list \meta{\cnltx\ modules} to
+    \cs{cnltx\at load\at module}, leading and trailing spaces are trimmed.
 \end{commands}
 
 \subsubsection{Programming Tools}
@@ -2502,6 +2538,12 @@ the other packages and classes.
     This is a command in the spirit of \pkg{etoolbox}'s \cs*{notbool} that does
     the same for a boolean \meta{bool} defined with
     \cs*{newif}\cs*{if\meta{bool}} or \cs*{newbool}\marg{bool}.
+  \expandable\command{cnltx\at ifcounter}[\marg{counter}\marg{true}%
+    \marg{false}]
+    \sinceversion{0.11}Checks if \meta{counter} is a counter, \ie, if the
+    control sequence names \cs*{c@\meta{counter}}, \cs*{cl@\meta{counter}},
+    \cs*{p@\meta{counter}} \emph{and} \cs*{the\meta{counter}} exist and either
+    leaves \meta{true} or \meta{false} in the input stream.
   \command{cnltx\at ifnextchars}[\marg{list of
     tokens}\marg{true}\marg{false}\meta{trailing token}]
     \sinceversion{0.8}Tests if \meta{trailing token} is any of those in
@@ -2509,7 +2551,7 @@ the other packages and classes.
     input stream without removing \meta{trailing token}.
   \command{cnltx\at ifsym}[\marg{token}\marg{true}\marg{false}]
     A generic version of \LaTeX's \cs*{@ifstar} that checks if \meta{token}
-    follows if the input stream.  If yes it is removed and \meta{true} is
+    follows in the input stream.  If yes it is removed and \meta{true} is
     placed in the input stream else \meta{false}.
   \command{cnltx\at ifdash}[\marg{true}\marg{false}]
     A wrapper for \verbcode+\cnltx@ifsym{-}+.
@@ -2517,7 +2559,7 @@ the other packages and classes.
     \sinceversion{0.3}A wrapper for \verbcode+\cnltx@ifsym{!}+.
   \expandable\command{cnltx\at ifisnum}[\marg{token list}\marg{true}\marg{false}]
     \sinceversion{0.6}Checks if \meta{token list} is an integer zero or
-    greater and leaves \meta{true} in the input stream if it is an
+    greater and leaves \meta{true} in the input stream if it is and
     \meta{false} if it isn't.  There is one hopefully extremely unlikely case
     where the test fails: when \meta{token list} starts with
     ``\code{\meta{integer}\%}'' where \code{\%} has a category code different
@@ -2578,7 +2620,7 @@ the other packages and classes.
     previously saved with \cs{cnltx\at save\at catcode}.
   \command{cnltx\at set\at catcode}[\marg{token}\marg{catcode}]
     \sinceversion{0.11}Sets the category code of \meta{token} to
-    \meta{catcode}.  This is a wrapper for
+    \meta{catcode}.  This is a wrapper for \newline
     \code{\cs*{catcode}`\meta{token}=\meta{catcode}\cs*{relax}}.
   \command{cnltx\at save\at catcodes}[\marg{tokenlist}]
     \sinceversion{0.11}Maps \cs{cnltx\at save\at catcode} to all tokens in
@@ -2589,6 +2631,15 @@ the other packages and classes.
   \command{cnltx\at set\at catcodes}[\marg{tokenlist}\marg{catcode}]
     \sinceversion{0.11}Maps \cs{cnltx\at set\at catcode} to all tokens in
     \meta{tokenlist}, \ie, all tokens get category code \meta{catcode}.
+  \command{cnltx\at make\at letter}[\marg{token}]
+    \sinceversion{0.11}A wrapper for \cs{cnltx\at set\at
+      catcode}\marg{token}\Marg{11}.
+  \command{cnltx\at make\at other}[\marg{token}]
+    \sinceversion{0.11}A wrapper for \cs{cnltx\at set\at
+      catcode}\marg{token}\Marg{12}.
+  \command{cnltx\at make\at active}[\marg{token}]
+    \sinceversion{0.11}A wrapper for \cs{cnltx\at set\at
+      catcode}\marg{token}\Marg{13}.
 \end{commands}
 
 \paragraph{Token List Manipulation}
@@ -2775,8 +2826,9 @@ the other packages and classes.
     Issue a message using \cs*{PackageInfo}\Marg{cnltx-tools}.
   \command{cnltx\at accsupp}[\marg{actual text}\marg{additional
     options}\marg{\TeX\ text}]
-    A wrapper for package \pkg{accsupp}'s \cs*{BeginAccSupp}\Marg{ActualText
-      = \meta{actual text}} \meta{\TeX\ text} \cs*{EndAccSupp}\marg{}.
+    A wrapper for package \pkg{accsupp}'s\newline
+    \cs*{BeginAccSupp}\Marg{ActualText = \meta{actual text}} \meta{\TeX\ text}
+    \cs*{EndAccSupp}\marg{}.
 \end{commands}
 
 \section{List of Known \LaTeX\ Control Sequences}\label{sec:known:csnames}

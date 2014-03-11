@@ -25,11 +25,13 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\RequirePackage{cnltx-example}
+\RequirePackage{cnltx-base}
 \ProvidesFile{cnltx.bbx}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
+\cnltx@load@modules{example,tools,translations}
+
 \RequireBibliographyStyle{alphabetic}
-\ExecuteBibliographyOptions{block=ragged}
+\ExecuteBibliographyOptions{block=ragged,useprefix=true}
 
 \DeclareBibliographyDriver{latex}{%
   \usebibmacro{bibindex}%
@@ -77,13 +79,22 @@
   }%
 }
 
+\renewcommand*{\mkbibnamelast}[1]{\cnltx@name@last{#1}}
+\renewcommand*{\mkbibnamefirst}[1]{\cnltx@name@first{#1}}
+\renewcommand*{\mkbibnameprefix}[1]{\cnltx@name@last{#1}}
+
 \DeclareNameAlias[package]{maintainer}{default}
 \DeclareNameAlias[class]{maintainer}{default}
 \DeclareNameAlias[bundle]{maintainer}{default}
 
-\DeclareIndexNameAlias[package]{maintainer}{default}
-\DeclareIndexNameAlias[class]{maintainer}{default}
-\DeclareIndexNameAlias[bundle]{maintainer}{default}
+\RequirePackage{translations}
+\DeclareTranslationFallback{cnltx-maintainer}{current maintainer}
+\DeclareTranslation{English}{cnltx-maintainer}{current maintainer}
+\DeclareTranslation{German}{cnltx-maintainer}{aktueller Maintainer}
+
+\DeclareTranslationFallback{cnltx-maintainers}{current maintainers}
+\DeclareTranslation{English}{cnltx-maintainers}{current maintainers}
+\DeclareTranslation{German}{cnltx-maintainers}{aktuelle Maintainer}
 
 \DeclareFieldFormat[package]{title}{\pkg*{#1}}
 \DeclareFieldFormat[class]{title}{\cls*{#1}}
@@ -121,6 +132,32 @@
     {\bndidx{#1}}%
 }
 
+\DeclareIndexNameFormat{cnltx}{%
+  \usebibmacro{index:entry}{\index}{%
+    \ifblank{#5}{}{#5 }%
+    #1%
+    \ifblank{#3}{}{, #3}%
+    \actualoperator
+    \cnltx@name@base{\cnltx@name@last{%
+      \ifblank{#5}{}{#5 }%
+      #1%
+    }}%
+    \cnltx@name@base{\cnltx@name@first{%
+    \ifblank{#3}{}{, #3}%
+    }}%
+  }%
+}
+
+\DeclareIndexNameAlias{labelname}{cnltx}
+\DeclareIndexNameAlias{author}{cnltx}
+\DeclareIndexNameAlias{maintainer}{cnltx}
+\DeclareIndexNameAlias{labelname}{cnltx}
+\DeclareIndexNameAlias{author}{cnltx}
+\DeclareIndexNameAlias{maintainer}{cnltx}
+\DeclareIndexNameAlias{labelname}{cnltx}
+\DeclareIndexNameAlias{author}{cnltx}
+\DeclareIndexNameAlias{maintainer}{cnltx}
+
 \DeclareFieldFormat[package]{subtitle}{\mkbibemph{#1}}
 \DeclareFieldFormat[class]{subtitle}{\mkbibemph{#1}}
 \DeclareFieldFormat[bundle]{subtitle}{\mkbibemph{#1}}
@@ -143,8 +180,12 @@
 \endinput
 
 HISTORY:
-2013/09/14 v0.4  - first version added to the bundle
-2013/10/04 v0.7a - added drivers `@class' and `@bundle'
-2013/11/22 v0.9  - made independent from the `cnltx-doc' class
-
+2013/09/14 v0.4   - first version added to the bundle
+2013/10/04 v0.7a  - added drivers `@class' and `@bundle'
+2013/11/22 v0.9   - made independent from the `cnltx-doc' class
+2014/03/11 v0.11  - change name format so that names are printed according to
+                    the format of the \newname commands from the `tools'
+                    module;
+                    this is going to need tests if it really is consistent
+                    for different types of name formats (prefixes, affixes...)
 

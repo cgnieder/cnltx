@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2014/01/23}
-\def\cnltx@@version{v0.10a}
+\def\cnltx@@date{2014/03/11}
+\def\cnltx@@version{v0.11}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds,pdftexcmds}
@@ -115,6 +115,12 @@
 \cnltx@create@bundle@message{base}{Info}
 
 % --------------------------------------------------------------------------
+% modules
+\newcommand*\cnltx@load@module[1]{\RequirePackage{cnltx-\trim@spaces{#1}}}
+\newcommand*\cnltx@load@modules[1]{\forcsvlist{\cnltx@load@module}{#1}}
+
+
+% --------------------------------------------------------------------------
 % setup command
 \newrobustcmd\setcnltx[1]{\pgfqkeys{/cnltx}{#1}}
 
@@ -132,16 +138,6 @@
 \newcommand*\cnltx@tmpa{}
 \newcommand*\cnltx@tmpb{}
 \newcommand*\cnltx@tmpc{}
-
-% --------------------------------------------------------------------------
-% who knows what they might be good for -- well, for indexing:
-\newrobustcmd*\cnltxat{@}
-\let\cnltxletterat\cnltxat
-\makeatother
-\newrobustcmd*\cnltxotherat{@}
-\makeatletter
-\newrobustcmd*\cnltxbang{!}
-\newrobustcmd*\cnltxequal{=}
 
 % --------------------------------------------------------------------------
 % catcode stuff:
@@ -166,8 +162,22 @@
   \cnltx@map@tokenlist{\cnltx@set@catcode{#2}}{#1}%
 }
 \newrobustcmd*\cnltx@set@catcode[2]{%
-  \catcode`#2=#1\relax
+  \catcode`#1=#2\relax
 }
+
+\newrobustcmd*\cnltx@make@letter[1]{\cnltx@set@catcode{#1}{11}}
+\newrobustcmd*\cnltx@make@other[1]{\cnltx@set@catcode{#1}{12}}
+\newrobustcmd*\cnltx@make@active[1]{\cnltx@set@catcode{#1}{13}}
+
+% --------------------------------------------------------------------------
+% who knows what they might be good for -- well, for indexing:
+\newrobustcmd*\cnltxat{@}
+\let\cnltxletterat\cnltxat
+\makeatother
+\newrobustcmd*\cnltxotherat{@}
+\makeatletter
+\newrobustcmd*\cnltxbang{!}
+\newrobustcmd*\cnltxequal{=}
 
 % --------------------------------------------------------------------------
 % generic conditionals
@@ -187,6 +197,15 @@
   \else
     \expandafter\@firstoftwo
   \fi
+}
+
+\newcommand*\cnltx@ifcounter[1]{%
+  \ifboolexpe{
+    test {\ifcsdef{c@#1}} and
+    test {\ifcsdef{cl@#1}} and
+    test {\ifcsdef{p@#1}} and
+    test {\ifcsdef{the#1}}
+  }%
 }
 
 \newrobustcmd*\cnltx@ifsym[2]{\@ifnextchar#1{\@firstoftwo{#2}}}
@@ -855,10 +874,10 @@ HISTORY:
                     argument is `<num>!'
 2014/01/05 v0.10  - \expandtwice
                   - \cnltx@ifstrequal
-2014/01/05 v0.10a - \cnltx@save@catcode, \cnltx@save@catcodes,
+2014/03/11 v0.11  - \cnltx@save@catcode, \cnltx@save@catcodes,
                     \cnltx@set@catcode, \cnltx@set@catcodes,
                     \cnltx@restore@catcode, \cnltx@restore@catcodes
+                  - \cnltx@make@letter, \cnltx@make@other, \cnltx@make@active
+                  - \cnltx@load@module, \cnltx@load@modules
 
-TODO:
-  `color-scheme' Option dokumentieren
 

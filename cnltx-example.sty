@@ -27,7 +27,7 @@
 % --------------------------------------------------------------------------
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx-example}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
-\RequirePackage{cnltx-listings}
+\cnltx@load@modules{listings,translations}
 
 \cnltx@create@bundle@message{example}{Error}
 \cnltx@create@bundle@message{example}{Warning}
@@ -35,7 +35,6 @@
 \cnltx@create@bundle@message{example}{Info}
 
 % --------------------------------------------------------------------------
-\RequirePackage{translations}
 \PassOptionsToPackage{framemethod=tikz}{mdframed}
 \RequirePackage{mdframed}
 \RequirePackage{idxcmds}
@@ -207,7 +206,7 @@
 }
 
 \lst@RequireAspects{writefile}
-\providecommand*\MakePercentComment{\catcode`\%14\relax}
+\providecommand*\MakePercentComment{\cnltx@set@catcode{\%}{14}}
 
 \def\cnltx@gobble{2}
 
@@ -967,22 +966,6 @@
   }%
 }
 
-\DeclareTranslationFallback{cnltx-package}{package}
-\DeclareTranslation{English}{cnltx-package}{package}
-\DeclareTranslation{German}{cnltx-package}{Paket}
-
-\DeclareTranslationFallback{cnltx-environment}{environment}
-\DeclareTranslation{English}{cnltx-environment}{environment}
-\DeclareTranslation{German}{cnltx-environment}{Umgebung}
-
-\DeclareTranslationFallback{cnltx-class}{class}
-\DeclareTranslation{English}{cnltx-class}{class}
-\DeclareTranslation{German}{cnltx-class}{Klasse}
-
-\DeclareTranslationFallback{cnltx-bundle}{bundle}
-\DeclareTranslation{English}{cnltx-bundle}{bundle}
-\DeclareTranslation{German}{cnltx-bundle}{Bundle}
-
 \endinput
 
 % --------------------------------------------------------------------------
@@ -1030,6 +1013,7 @@ HISTORY:
                  - new command \parg for an optional + argument
                  - new option `outside' for non-`compiled' examples
                  - new option `float-env'
+2014/03/11 v0.11 - \cnltx@load@modules
 
 TODO:
 

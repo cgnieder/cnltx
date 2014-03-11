@@ -94,7 +94,7 @@
 }
 
 
-\RequirePackage{cnltx-tools,cnltx-example,cnltx-listings,translations}
+\cnltx@load@modules{tools,example,listings,translations}
 
 \newcommand*\cnltx@caption@font{\normalfont\small\sffamily}
 \newcommand*\cnltx@captionlabel@font{\cnltx@caption@font\scshape}
@@ -199,13 +199,12 @@
   \setkomafont{captionlabel}{\cnltx@captionlabel@font}
 }{}
 
-\ifbool{cnltx@add@index}{
+\ifbool{cnltx@add@bib}{
   \RequirePackage[
     backend=biber,
     style=cnltx,
     sortlocale=en_US,
-    indexing=cite,
-    useprefix]{biblatex}
+    indexing=cite]{biblatex}
   \addbibresource{cnltx.bib}
   \AtEndDocument{\printbibliography}
 }{}
@@ -324,11 +323,11 @@
 \protected\def\cnltx@get@first@and@second@name#1 #2\q@stop{%
   \ifblank{#2}
     {%
-      \cnltx@name[]{#1}%
+      \cnltx@name{}{#1}%
       \listgadd\cnltx@package@author@pdflist{#1}%
     }
     {%
-      \cnltx@name[#1]{\trim@spaces{#2}}%
+      \cnltx@name{#1}{\trim@spaces{#2}}%
       \listgadd\cnltx@package@author@pdflist{#1 \trim@spaces{#2}}%
     }%
 }
@@ -858,64 +857,6 @@
     }%
 }
 
-% --------------------------------------------------------------------------
-% localization strings:
-\DeclareTranslationFallback{cnltx-default}{Default}
-\DeclareTranslation{English}{cnltx-default}{Default}
-\DeclareTranslation{German}{cnltx-default}{Voreinstellung}
-
-\DeclareTranslationFallback{cnltx-required}{required}
-\DeclareTranslation{English}{cnltx-required}{required}
-\DeclareTranslation{German}{cnltx-required}{erforderlich}
-
-\DeclareTranslationFallback{cnltx-empty}{initially empty}
-\DeclareTranslation{English}{cnltx-empty}{initially empty}
-\DeclareTranslation{German}{cnltx-empty}{zun\"achst leer}
-
-\DeclareTranslationFallback{cnltx-toc}{Table of Contents}
-\DeclareTranslation{English}{cnltx-toc}{Table of Contents}
-\DeclareTranslation{German}{cnltx-toc}{Inhaltsverzeichnis}
-
-\DeclareTranslationFallback{cnltx-license}{%
-  Permission is granted to copy, distribute and/or modify this software under
-  the terms of the \LPPL\ (\lppl), version 1.3 or later
-  (\url{http://www.latex-project.org/lppl.txt}).  The software has the status%
-}
-\DeclareTranslation{English}{cnltx-license}{%
-  Permission is granted to copy, distribute and/or modify this software under
-  the terms of the \LPPL\ (\lppl), version 1.3 or later
-  (\url{http://www.latex-project.org/lppl.txt}).  The software has the status%
-}
-\DeclareTranslation{German}{cnltx-license}{%
-  Es ist erlaubt, diese Software unter den  Bedingungen der \LPPL\ (\lppl),
-  Version 1.3 oder sp\"ater, zu kopieren und zu verteilen
-  (\url{http://www.latex-project.org/lppl.txt}).  Sie hat den Status%
-}
-
-\DeclareTranslationFallback{cnltx-introduced}{Introduced in version}
-\DeclareTranslation{English}{cnltx-introduced}{Introduced in version}
-\DeclareTranslation{German}{cnltx-introduced}{Eingef\"uhrt in Version}
-
-\DeclareTranslationFallback{cnltx-changed}{Changed in version}
-\DeclareTranslation{English}{cnltx-changed}{Changed in version}
-\DeclareTranslation{German}{cnltx-changed}{Ge\"andert in Version}
-
-\DeclareTranslationFallback{cnltx-f.}{f.}
-\DeclareTranslation{English}{cnltx-f.}{f.}
-\DeclareTranslation{German}{cnltx-f.}{f.}
-
-\DeclareTranslationFallback{cnltx-ff.}{ff.}
-\DeclareTranslation{English}{cnltx-ff.}{ff.}
-\DeclareTranslation{German}{cnltx-ff.}{ff.}
-
-\DeclareTranslationFallback{cnltx-maintainer}{current maintainer}
-\DeclareTranslation{English}{cnltx-maintainer}{current maintainer}
-\DeclareTranslation{German}{cnltx-maintainer}{aktueller Maintainer}
-
-\DeclareTranslationFallback{cnltx-maintainers}{current maintainers}
-\DeclareTranslation{English}{cnltx-maintainers}{current maintainers}
-\DeclareTranslation{German}{cnltx-maintainers}{aktuelle Maintainer}
-
 \endinput
 
 % --------------------------------------------------------------------------
@@ -965,7 +906,12 @@ HISTORY:
                     * choice if microtype is loaded
                   - \visualizespaces and \visiblespace
 2014/01/23 v0.10  - adapt to KOMA-Script v3.12
-2014/01/23 v0.10a - change biblatex locale from en_EN to en_US
+2014/03/11 v0.11  - change biblatex locale from en_EN to en_US
+                  - fix bug: wrong boolean used for option `add-bib'
+                  - some translations are now provided by the `tools' module
+                    and by the `cnltx' bibliography style
+                  - use \cnltx@load@modules
+
 
 % --------------------------------------------------------------------------
 TODO:

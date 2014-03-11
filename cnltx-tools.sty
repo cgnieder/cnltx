@@ -34,6 +34,8 @@
 \cnltx@create@bundle@message{tools}{WarningNoLine}
 \cnltx@create@bundle@message{tools}{Info}
 
+\cnltx@load@module{translations}
+
 % --------------------------------------------------------------------------
 \newcommand*\cnltx@name@first[1]{#1}
 \newcommand*\cnltx@name@last[1]{\textsc{#1}}
@@ -46,25 +48,42 @@
     name-format/.code = \def\cnltx@name@base##1{#1}
 }
 
-\newcommand*\cnltx@name@idx[1]{\index{#1@#1}}
-\newrobustcmd*\cnltx@name@star[2][]{%
+\newcommand*\cnltx@name@idx[2]{\index{#1@#2}}
+\newrobustcmd*\cnltx@name@star[2]{%
   \ifblank{#1}
     {\cnltx@name@base{\cnltx@name@last{#2}}}
     {\cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}}%
 }
-\newrobustcmd*\cnltx@name@nostar[2][]{%
+\newrobustcmd*\cnltx@name@nostar[2]{%
   \ifblank{#1}
-    {\cnltx@name@base{\cnltx@name@last{#2}}\cnltx@name@idx{#2}}
+    {%
+      \cnltx@name@base{\cnltx@name@last{#2}}%
+      \cnltx@name@idx{#2}{\cnltx@name@base{\cnltx@name@last{#2}}}%
+    }
     {%
       \cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}%
-      \cnltx@name@idx{#2, #1}%
+      \cnltx@name@idx{#2, #1}{%
+        \cnltx@name@base{\cnltx@name@last{#2}},
+        \cnltx@name@base{\cnltx@name@first{#1}}%
+      }%
     }%
 }
-\def\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
+\newrobustcmd*\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
 
 \newrobustcmd*\cnltx@newname[3]{%
-  \csdef{\cnltx@stripbs#1@short}{\cnltx@name@base{#3}\cnltx@name@idx{#3, #2}}%
-  \csdef{\cnltx@stripbs#1@long}{\cnltx@name@base{#2 #3}\cnltx@name@idx{#3, #2}}%
+  \csdef{\cnltx@stripbs#1@short}{%
+    \cnltx@name@base{\cnltx@name@last{#3}}%
+    \cnltx@name@idx{#3, #2}{%
+      \cnltx@name@base{\cnltx@name@last{#3}, \cnltx@name@first{#2}}%
+    }%
+  }%
+  \csdef{\cnltx@stripbs#1@long}{%
+    \cnltx@name@base{\cnltx@name@first{#2} \cnltx@name@last{#3}}%
+    \cnltx@name@idx{#3, #2}{%
+      \cnltx@name@base{\cnltx@name@last{#3}},
+      \cnltx@name@base{\cnltx@name@first{#2}}%
+    }%
+  }%
   \newrobustcmd*#1{%
     \@ifstar
       {\csuse{\cnltx@stripbs#1@short}}
@@ -73,6 +92,14 @@
 }
 
 \newrobustcmd*\newname{\cnltx@newname}
+
+\newrobustcmd*\name{%
+  \@ifstar
+    {\@testopt{\cnltx@name@user*}{}}
+    {\@testopt{\cnltx@name@user{}}{}}%
+}
+\def\cnltx@name@user#1[#2]#3{\cnltx@name#1{#2}{#3}}
+
 
 % --------------------------------------------------------------------------
 \PassOptionsToPackage{space=true}{accsupp}
@@ -91,7 +118,10 @@
 \AtBeginDocument{%
   \@ifpackageloaded{hyperref}
     {}
-    {\providecommand\texorpdfstring[2]{#1}}%
+    {%
+      \providecommand\nohyperpage[1]{#1}%
+      \providecommand\texorpdfstring[2]{#1}%
+    }%
 }
 
 \def\cnltx@acronym@format{\scshape}
@@ -173,22 +203,6 @@
 
 \newcommand*\cnltxlatin[1]{\textit{#1}}
 
-\DeclareTranslationFallback{cnltx-i.e.}{\cnltxlatin{i.\,e}}
-\DeclareTranslation{English}{cnltx-i.e.}{\cnltxlatin{i.\,e}}
-\DeclareTranslation{German}{cnltx-i.e.}{d.\,h}
-
-\DeclareTranslationFallback{cnltx-e.g.}{\cnltxlatin{e.\,g}}
-\DeclareTranslation{English}{cnltx-e.g.}{\cnltxlatin{e.\,g}}
-\DeclareTranslation{German}{cnltx-e.g.}{z.\,B}
-
-\DeclareTranslationFallback{cnltx-cf.}{\cnltxlatin{cf}}
-\DeclareTranslation{English}{cnltx-cf.}{\cnltxlatin{cf}}
-\DeclareTranslation{German}{cnltx-cf.}{vgl}
-
-\DeclareTranslationFallback{cnltx-etc.}{\cnltxlatin{etc}}
-\DeclareTranslation{English}{cnltx-etc.}{\cnltxlatin{etc}}
-\DeclareTranslation{German}{cnltx-etc.}{etc}
-
 \newabbr\ie{\GetTranslation{cnltx-i.e.}}
 \newabbr\eg{\GetTranslation{cnltx-e.g.}}
 \newabbr\cf{\GetTranslation{cnltx-cf.}}
@@ -219,4 +233,7 @@ HISTORY:
 2013/09/10 v0.2  - first published version
 2013/09/30 v0.7  - added abbreviations
 2013/11/22 v0.9  - \bzw
+2014/03/11 v0.11 - bug fixes in the \newname definitions
+                 - new command \name
+                 - use \cnltx@load@module
 

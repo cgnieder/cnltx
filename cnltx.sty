@@ -29,18 +29,20 @@
 \ProvidesPackage{cnltx}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
 \newcommand*\cnltx@register@module[1]{%
-  \DeclareOption{#1}{\AtEndOfPackage{\RequirePackage{cnltx-#1}}}%
+  \DeclareOption{#1}{\AtEndOfPackage{\cnltx@load@module{#1}}}%
 }
 
 \cnltx@register@module{listings}
 \cnltx@register@module{example}
 \cnltx@register@module{tools}
+\cnltx@register@module{translations}
 
 \ProcessOptions*
 
 \endinput
 
 HISTORY:
-2013/11/22 v0.9 - first added to the bundle
+2013/11/22 v0.9  - first added to the bundle
+2014/03/11 v0.11 - use \cnltx@load@module
 
 

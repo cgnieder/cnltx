@@ -1,5 +1,5 @@
 --------------------------------------------------------------------------
-the CNLTX bundle v0.10a 2014/01/23
+the CNLTX bundle v0.11 2014/03/11
 
   LaTeX tools and documenting facilities
 
@@ -24,7 +24,7 @@ The Current Maintainer of this work is Clemens Niederberger.
 --------------------------------------------------------------------------
 The cnltx bundle consists of the files
  - cnltx-base.sty, cnltx-doc.cls, cnltx-example.sty, cnltx-listings.sty,
-   cnltx-tools.sty, cnltx.sty,
+   cnltx-tools.sty, cnltx-translations.sty, cnltx.sty,
  - cnltx.ist, cnltx.bib, cnltx.bbx, cnltx.cbx, cnltx.dbx,
  - cnltx_en.tex, cnltx_en.pdf,
  - README
