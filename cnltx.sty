@@ -28,12 +28,9 @@
 \RequirePackage{cnltx-base}
 \ProvidesPackage{cnltx}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
-\newcommand*\cnltx@register@module[1]{%
-  \DeclareOption{#1}{\AtEndOfPackage{\cnltx@load@module{#1}}}%
-}
-
 \cnltx@register@module{listings}
 \cnltx@register@module{example}
+\cnltx@register@module{names}
 \cnltx@register@module{tools}
 \cnltx@register@module{translations}
 
@@ -44,5 +41,6 @@
 HISTORY:
 2013/11/22 v0.9  - first added to the bundle
 2014/03/11 v0.11 - use \cnltx@load@module
-
+2014/04/04 v0.12 - move definition of \cnltx@register@module in base module
+2014/07/07 v0.13 - add `names' module
 

@@ -37,68 +37,68 @@
 \cnltx@load@module{translations}
 
 % --------------------------------------------------------------------------
-\newcommand*\cnltx@name@first[1]{#1}
-\newcommand*\cnltx@name@last[1]{\textsc{#1}}
-\newcommand*\cnltx@name@base[1]{#1}
+% \newcommand*\cnltx@name@first[1]{#1}
+% \newcommand*\cnltx@name@last[1]{\textsc{#1}}
+% \newcommand*\cnltx@name@base[1]{#1}
 
-\pgfkeys{
-  cnltx/.cd,
-    last-name-format/.code = \def\cnltx@name@last##1{#1} ,
-    first-name-format/.code = \def\cnltx@name@first##1{#1} ,
-    name-format/.code = \def\cnltx@name@base##1{#1}
-}
+% \pgfkeys{
+%   cnltx/.cd,
+%     last-name-format/.code = \def\cnltx@name@last##1{#1} ,
+%     first-name-format/.code = \def\cnltx@name@first##1{#1} ,
+%     name-format/.code = \def\cnltx@name@base##1{#1}
+% }
 
-\newcommand*\cnltx@name@idx[2]{\index{#1@#2}}
-\newrobustcmd*\cnltx@name@star[2]{%
-  \ifblank{#1}
-    {\cnltx@name@base{\cnltx@name@last{#2}}}
-    {\cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}}%
-}
-\newrobustcmd*\cnltx@name@nostar[2]{%
-  \ifblank{#1}
-    {%
-      \cnltx@name@base{\cnltx@name@last{#2}}%
-      \cnltx@name@idx{#2}{\cnltx@name@base{\cnltx@name@last{#2}}}%
-    }
-    {%
-      \cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}%
-      \cnltx@name@idx{#2, #1}{%
-        \cnltx@name@base{\cnltx@name@last{#2}},
-        \cnltx@name@base{\cnltx@name@first{#1}}%
-      }%
-    }%
-}
-\newrobustcmd*\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
+% \newcommand*\cnltx@name@idx[2]{\index{#1@#2}}
+% \newrobustcmd*\cnltx@name@star[2]{%
+%   \ifblank{#1}
+%     {\cnltx@name@base{\cnltx@name@last{#2}}}
+%     {\cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}}%
+% }
+% \newrobustcmd*\cnltx@name@nostar[2]{%
+%   \ifblank{#1}
+%     {%
+%       \cnltx@name@base{\cnltx@name@last{#2}}%
+%       \cnltx@name@idx{#2}{\cnltx@name@base{\cnltx@name@last{#2}}}%
+%     }
+%     {%
+%       \cnltx@name@base{\cnltx@name@first{#1} \cnltx@name@last{#2}}%
+%       \cnltx@name@idx{#2, #1}{%
+%         \cnltx@name@base{\cnltx@name@last{#2}},
+%         \cnltx@name@base{\cnltx@name@first{#1}}%
+%       }%
+%     }%
+% }
+% \newrobustcmd*\cnltx@name{\@ifstar{\cnltx@name@star}{\cnltx@name@nostar}}
 
-\newrobustcmd*\cnltx@newname[3]{%
-  \csdef{\cnltx@stripbs#1@short}{%
-    \cnltx@name@base{\cnltx@name@last{#3}}%
-    \cnltx@name@idx{#3, #2}{%
-      \cnltx@name@base{\cnltx@name@last{#3}, \cnltx@name@first{#2}}%
-    }%
-  }%
-  \csdef{\cnltx@stripbs#1@long}{%
-    \cnltx@name@base{\cnltx@name@first{#2} \cnltx@name@last{#3}}%
-    \cnltx@name@idx{#3, #2}{%
-      \cnltx@name@base{\cnltx@name@last{#3}},
-      \cnltx@name@base{\cnltx@name@first{#2}}%
-    }%
-  }%
-  \newrobustcmd*#1{%
-    \@ifstar
-      {\csuse{\cnltx@stripbs#1@short}}
-      {\csuse{\cnltx@stripbs#1@long}}%
-    }%
-}
+% \newrobustcmd*\cnltx@newname[3]{%
+%   \csdef{\cnltx@stripbs#1@short}{%
+%     \cnltx@name@base{\cnltx@name@last{#3}}%
+%     \cnltx@name@idx{#3, #2}{%
+%       \cnltx@name@base{\cnltx@name@last{#3}, \cnltx@name@first{#2}}%
+%     }%
+%   }%
+%   \csdef{\cnltx@stripbs#1@long}{%
+%     \cnltx@name@base{\cnltx@name@first{#2} \cnltx@name@last{#3}}%
+%     \cnltx@name@idx{#3, #2}{%
+%       \cnltx@name@base{\cnltx@name@last{#3}},
+%       \cnltx@name@base{\cnltx@name@first{#2}}%
+%     }%
+%   }%
+%   \newrobustcmd*#1{%
+%     \@ifstar
+%       {\csuse{\cnltx@stripbs#1@short}}
+%       {\csuse{\cnltx@stripbs#1@long}}%
+%     }%
+% }
 
-\newrobustcmd*\newname{\cnltx@newname}
+% \newrobustcmd*\newname{\cnltx@newname}
 
-\newrobustcmd*\name{%
-  \@ifstar
-    {\@testopt{\cnltx@name@user*}{}}
-    {\@testopt{\cnltx@name@user{}}{}}%
-}
-\def\cnltx@name@user#1[#2]#3{\cnltx@name#1{#2}{#3}}
+% \newrobustcmd*\name{%
+%   \@ifstar
+%     {\@testopt{\cnltx@name@user*}{}}
+%     {\@testopt{\cnltx@name@user{}}{}}%
+% }
+% \def\cnltx@name@user#1[#2]#3{\cnltx@name#1{#2}{#3}}
 
 
 % --------------------------------------------------------------------------
@@ -207,6 +207,7 @@
 \newabbr\eg{\GetTranslation{cnltx-e.g.}}
 \newabbr\cf{\GetTranslation{cnltx-cf.}}
 \newabbr\etc{\GetTranslation{cnltx-etc.}}
+\newabbr\vs{\GetTranslation{cnltx-vs.}}
 
 \newabbr\zB{z.\,B}
 \newabbr\ZB{Z.\,B}
@@ -236,4 +237,5 @@ HISTORY:
 2014/03/11 v0.11 - bug fixes in the \newname definitions
                  - new command \name
                  - use \cnltx@load@module
+2014/??/?? v0.?? - \vs
 

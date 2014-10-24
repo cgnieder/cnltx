@@ -79,9 +79,9 @@
   }%
 }
 
-\renewcommand*{\mkbibnamelast}[1]{\cnltx@name@last{#1}}
-\renewcommand*{\mkbibnamefirst}[1]{\cnltx@name@first{#1}}
-\renewcommand*{\mkbibnameprefix}[1]{\cnltx@name@last{#1}}
+\renewcommand*{\mkbibnamelast}[1]{\cnltx@write@lastname{#1}}
+\renewcommand*{\mkbibnamefirst}[1]{\cnltx@write@firstname{#1}}
+\renewcommand*{\mkbibnameprefix}[1]{\cnltx@write@lastname{#1}}
 
 \DeclareNameAlias[package]{maintainer}{default}
 \DeclareNameAlias[class]{maintainer}{default}
@@ -132,20 +132,34 @@
     {\bndidx{#1}}%
 }
 
+\def\cnltx@onlyonefirstname#1\bibnamedelima#2\q@stop{#1}
+
 \DeclareIndexNameFormat{cnltx}{%
-  \usebibmacro{index:entry}{\index}{%
-    \ifblank{#5}{}{#5 }%
-    #1%
-    \ifblank{#3}{}{, #3}%
-    \actualoperator
-    \cnltx@name@base{\cnltx@name@last{%
-      \ifblank{#5}{}{#5 }%
-      #1%
-    }}%
-    \cnltx@name@base{\cnltx@name@first{%
-    \ifblank{#3}{}{, #3}%
-    }}%
-  }%
+  \cnltx@if@in{#3}{\bibnamedelima}
+    {%
+      \usebibmacro{index:entry}{\index}{%
+        \ifblank{#5}{}{#5 }%
+        \@firstofone#1%
+        \ifblank{#3}{}{, \cnltx@onlyonefirstname#3\q@stop}%
+        \actualoperator
+        \ifblank{#5}
+          {\cnltx@write@lastname{#1}}
+          {\cnltx@write@lastname{#5 #1}}%
+        \ifblank{#3}{}{, \cnltx@write@firstname{\cnltx@onlyonefirstname#3\q@stop}}%
+      }%
+    }
+    {%
+      \usebibmacro{index:entry}{\index}{%
+        \ifblank{#5}{}{#5 }%
+        \@firstofone#1%
+        \ifblank{#3}{}{, #3}%
+        \actualoperator
+        \ifblank{#5}
+          {\cnltx@write@lastname{#1}}
+          {\cnltx@write@lastname{#5 #1}}%
+        \ifblank{#3}{}{, \cnltx@write@firstname{#3}}%
+      }%
+    }%
 }
 
 \DeclareIndexNameAlias{labelname}{cnltx}

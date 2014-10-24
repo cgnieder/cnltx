@@ -94,7 +94,7 @@
 }
 
 
-\cnltx@load@modules{tools,example,listings,translations}
+\cnltx@load@modules{tools,names,example,listings,translations}
 
 \newcommand*\cnltx@caption@font{\normalfont\small\sffamily}
 \newcommand*\cnltx@captionlabel@font{\cnltx@caption@font\scshape}
@@ -113,6 +113,9 @@
         {\RequirePackage[T1]{fontenc}}
         {\RequirePackage{fontspec}}
       \RequirePackage[oldstyle]{libertine}
+      \ifboolexpr{not bool{xetex} and not bool{luatex}}
+        {}
+        {}
       \RequirePackage{libertinehologopatch}
       \RequirePackage[supstfm=libertinesups]{superiors}
       % libertine does not have superior letters:
@@ -178,7 +181,7 @@
           \setmonofont[
             Scale = MatchLowercase ,
             Ligatures = {NoCommon,NoRequired,NoContextual}
-          ]{Bitstream Vera Sans Mono}
+          ]{DejaVu Sans Mono}
         }
       \recalctypearea
     }
@@ -323,11 +326,11 @@
 \protected\def\cnltx@get@first@and@second@name#1 #2\q@stop{%
   \ifblank{#2}
     {%
-      \cnltx@name{}{#1}%
+      \name*{#1}%
       \listgadd\cnltx@package@author@pdflist{#1}%
     }
     {%
-      \cnltx@name{#1}{\trim@spaces{#2}}%
+      \name*{#1 #2}%
       \listgadd\cnltx@package@author@pdflist{#1 \trim@spaces{#2}}%
     }%
 }
@@ -760,8 +763,10 @@
         \cnltx@package@abstract
       }{}%
   \end{center}
-  \begin{multicols}{2}[\section*{\GetTranslation{cnltx-toc}}]
-    \cnltx@tableofcontents
+  \begin{multicols}{2}[{%
+    \pdfbookmark[1]{\GetTranslation{cnltx-toc}}{toc}%
+    \section*{\GetTranslation{cnltx-toc}}
+    }]\cnltx@tableofcontents
   \end{multicols}%
 }
 

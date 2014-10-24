@@ -38,6 +38,7 @@
 \PassOptionsToPackage{framemethod=tikz}{mdframed}
 \RequirePackage{mdframed}
 \RequirePackage{idxcmds}
+\RequirePackage{textcomp}
 \RequirePackage{adjustbox}
 \RequirePackage{ifxetex}
 
@@ -57,7 +58,7 @@
 \newidxcmd\cs{\code{\textbackslash\textcolor{cs}{#1}}}
 
 % \env
-\newidxcmd\env{\code{#1}}[\ (\GetTranslation{cnltx-environment})]
+\newidxcmd\env{\code{\textcolor{env}{#1}}}[\ (\GetTranslation{cnltx-environment})]
 
 % \begin, \end
 \newidxcmd\beginend{\code{\textbackslash\textcolor{beginend}{#1}}}
@@ -228,7 +229,9 @@
     {Ä}{{\"A}}1
     {Ö}{{\"O}}1
     {Ü}{{\"U}}1
-    {ß}{{\ss}}1 ,
+    {ß}{{\ss}}1
+    {`}{\`{}}1
+    {'}{\textquotesingle}1 ,
   breaklines       = true,
   keepspaces       = true,
   breakindent      = 1em,
@@ -241,6 +244,7 @@
       center,
       description,document,
       end,enumerate,
+      equation,eqnarray,
       figure,flushleft,flushright,
       itemize,list,
       otherlanguage,
@@ -253,6 +257,7 @@
       center,
       description,document,
       end,enumerate,
+      equation,eqnarray,
       figure,flushleft,flushright,
       itemize,list,
       otherlanguage,
@@ -263,20 +268,20 @@
   index            = [2][texcs2],
   indexstyle       = [2]\@gobble,
   moretexcs        = [2]{begin,end},
-  % added environments that'll be indexed:
-  texcsstyle       = [3]\color{env},
+  % control sequences that'll be indexed:
+  texcsstyle       = [3]\color{cs},
   index            = [3][texcs3],
-  indexstyle       = [3]\indexenv,
-  % environments that won't be indexed:
-  texcsstyle       = [4]\color{env},
+  indexstyle       = [3]\indexcs,
+  % control sequences that won't be indexed:
+  texcsstyle       = [4]\color{cs},
   index            = [4][texcs4],
   indexstyle       = [4]\@gobble,
-  % control sequences that'll be indexed:
-  texcsstyle       = [5]\color{cs},
+  % added environments that'll be indexed:
+  texcsstyle       = [5]\color{env},
   index            = [5][texcs5],
-  indexstyle       = [5]\indexcs,
-  % control sequences that won't be indexed:
-  texcsstyle       = [6]\color{cs},
+  indexstyle       = [5]\indexenv,
+  % environments that won't be indexed:
+  texcsstyle       = [6]\color{env},
   index            = [6][texcs6],
   indexstyle       = [6]\@gobble,
   moredelim        = *[s][\color{math}]{$}{$}
@@ -356,18 +361,18 @@
 \def\cnltx@addcmds#1{%
   \cnltx@expandargs(nx)\lstdefinestyle
     {cnltx}
-    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}}%
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}%
   }%
 }
 
 \def\cnltx@addsilentcmds#1{%
   \cnltx@expandargs(nx)\lstdefinestyle
     {cnltx}
-    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
   }%
 }
 
@@ -376,18 +381,18 @@
 \def\cnltx@addenvs#1{%
   \cnltx@expandargs(nx)\lstdefinestyle
     {cnltx}
-    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}}%
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[3]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[5]#1}}%
   }%
 }
 
 \def\cnltx@addsilentenvs#1{%
   \cnltx@expandargs(nx)\lstdefinestyle
     {cnltx}
-    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}}%
+    {\expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}}%
   \edef\cnltx@listings@style{%
-    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[4]#1}}%
+    \expandonce\cnltx@listings@style,\unexpanded{moretexcs={[6]#1}}%
   }%
 }
 
@@ -414,17 +419,20 @@
     listings-options/.code       = \lstdefinestyle{cnltx}{#1} ,
     add-envs/.code               = \cnltx@addenvs{#1} ,
     add-silent-envs/.code        = \cnltx@addsilentenvs{#1} ,
-    add-sourcecode-options/.code = \def\cnltx@local@listings@options{#1} ,
+    add-sourcecode-options/.code =
+      \edef\cnltx@local@listings@options{\trim@spaces@noexp{#1}} ,
     sourcecode-options/.code     =
       \booltrue{cnltx@local@sourcecode@overwrite}
-      \def\cnltx@local@listings@options{#1}
+      \edef\cnltx@local@listings@options{\trim@spaces@noexp{#1}}
 }
 
 \def\cnltx@mdframed@options
   {
     backgroundcolor = cnltxbg ,
     linecolor       = cnltx ,
-    roundcorner     = 5pt
+    roundcorner     = 5pt ,
+    skipabove       = .5\baselineskip ,
+    skipbelow       = .5\baselineskip
   }
 \cnltx@expandargs(nx)\mdfdefinestyle
   {cnltx}
@@ -449,6 +457,10 @@
 \newbool {cnltx@outside}% use this to allow floating material in the examples
 
 \newsavebox\cnltx@example@box
+
+\newlength\cnltx@sidebysidewidth
+\newlength\cnltx@before@skip
+\newlength\cnltx@after@skip
 
 \newcommand*\cnltx@examplesep{\hrulefill}
 \newcommand*\cnltx@pre@source@hook{}
@@ -528,8 +540,13 @@
     add-frame/.is choice ,
     add-frame/true/.code       = \def\cnltx@adjustbox@frame{frame} ,
     add-frame/false/.code      = \def\cnltx@adjustbox@frame{} ,
-    add-frame/.default         = true
+    add-frame/.default         = true ,
+    before-skip/.code          = \setlength\cnltx@before@skip{#1} ,
+    after-skip/.code           = \setlength\cnltx@after@skip{#1}         
 }
+
+\setlength\cnltx@before@skip{\baselineskip}
+\setlength\cnltx@after@skip{\baselineskip}
 
 \newcommand*\cnltx@get@page@list[1]{%
   \forcsvlist{\cnltx@read@page@list@item}{#1}%
@@ -613,29 +630,43 @@
   \endgroup
 }
 
-\newcommand*\cnltx@source@input@start[1]{%
+\newrobustcmd*\cnltx@source@input@start[1]{%
   \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
-    {\setbox\cnltx@example@box=\hbox\bgroup}{\cnltx@pre@source@hook}%
-    \lst@BeginAlsoWriteFile{#1}%
+    {%
+      \adjustbox{
+        % discard,
+        trim= 0pt 0pt \linewidth{} 0pt,
+        valign=c,
+        gstore=\cnltx@example@box,
+        discard
+      }\bgroup
+    }
+    {\cnltx@pre@source@hook}%
+  \lst@BeginAlsoWriteFile{#1}%
 }
 
-\newcommand*\cnltx@source@input@end{%
+\newrobustcmd*\cnltx@source@input@end{%
   \lst@EndWriteFile
   \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
     {\egroup}{\cnltx@after@source@hook}%
 }
 
-\newcommand*\cnltx@example@start[1]{%
+\newrobustcmd*\cnltx@example@start[1]{%
   \pgfqkeys{/cnltx}{#1}%
   \ifbool{cnltx@local@sourcecode@overwrite}
     {%
       \cnltx@expandargs(x)\lstset{
+        \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+          {linewidth=\cnltx@sidebysidewidth,}{}%
+        moretexcs=[3], moretexcs=[5],
         \expandonce\cnltx@local@listings@options
       }%
     }
     {%
       \cnltx@expandargs(x)\lstset{
         style=cnltx,
+        \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+          {linewidth=\cnltx@sidebysidewidth,}{}%
         \expandonce\cnltx@local@listings@options
         % no idea why this is necessary:
         % \ifcsdef{lst@gtexcs3}{}{,moretexcs=[3]}%
@@ -644,7 +675,7 @@
   \ifbool{cnltx@local@frame@overwrite}
     {%
       \cnltx@expandargs(nxx)%
-      \ifbool{cnltx@sidebyside}
+      \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
         {%
           \noexpand\mdframed[
             \expandonce\cnltx@local@frame@options,
@@ -658,7 +689,7 @@
     }
     {%
       \cnltx@expandargs(nxx)%
-      \ifbool{cnltx@sidebyside}
+      \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
         {%
           \noexpand\mdframed[
             style=cnltx,
@@ -679,7 +710,7 @@
 % #1: filename
 % #2: number of pages
 % #3: current page
-\newcommand*\cnltx@print@documentpage[3]{%
+\newrobustcmd*\cnltx@print@documentpage[3]{%
   \cnltx@expandargs(x)\setlength\cnltx@tmpa@length{%
     \strip@pt\dimexpr1pt/%
     \ifnumgreater{#2}{\value{cnltx@maxpages}}
@@ -727,11 +758,11 @@
   }%
 }
 
-\newcommand*\cnltx@stepcounter@ifnotempty[2]{%
+\newrobustcmd*\cnltx@stepcounter@ifnotempty[2]{%
   \ifblank{#2}{}{\stepcounter{#1}}%
 }
 
-\newcommand*\cnltx@example@end[1]{%
+\newrobustcmd*\cnltx@example@end[1]{%
   \ifblank{#1}{\booltrue{cnltx@codeonly}}{}
   \ifboolexpr
     {
@@ -741,48 +772,32 @@
     }
     {}
     {% direct input of code example
+      % \showthe\wd\cnltx@example@box
+      % \showthe\linewidth
       \ifbool{cnltx@sidebyside}
         {% side-by-side
           \ifbool{cnltx@codeleft}
             {% code on the left
-              \minipage[c]{%
-                \dimexpr
-                  .49\linewidth
-                  -.75\lst@xleftmargin
-                \relax
-              }%
+              \noindent
+              \minipage[c]{\cnltx@sidebysidewidth}%
                 \cnltx@pre@source@hook
                 \unhbox\cnltx@example@box
                 \cnltx@after@source@hook
               \endminipage\hfill
-              \minipage[c]{%
-                \dimexpr
-                  .49\linewidth
-                  -.75\lst@xleftmargin
-                \relax
-              }%
+              \minipage[c]{\cnltx@sidebysidewidth}%
                 \cnltx@pre@example@hook
                 \cnltx@example@input{#1.code}%
                 \cnltx@after@example@hook
               \endminipage
             }
             {% code on the right
-              \minipage[c]{%
-                \dimexpr
-                  .49\linewidth
-                  -.75\lst@xleftmargin
-                \relax
-              }%
+              \noindent
+              \minipage[c]{\cnltx@sidebysidewidth}%
                 \cnltx@pre@example@hook
                 \cnltx@example@input{#1.code}%
                 \cnltx@after@example@hook
               \endminipage\hfill
-              \minipage[c]{%
-                \dimexpr
-                  .49\linewidth
-                  -.75\lst@xleftmargin
-                \relax
-              }%
+              \minipage[c]{\cnltx@sidebysidewidth}%
                 \cnltx@pre@source@hook
                 \unhbox\cnltx@example@box
                 \cnltx@after@source@hook
@@ -864,12 +879,13 @@
             {%
               \cnltx@after@example@hook
               \endmdframed
+              \par
             }%
         }
-        {\endmdframed}%
+        {\endmdframed\par}%
     }% 
     {%
-      \endmdframed
+      \endmdframed\par
       \ifbool{cnltx@outside}
         {%
           \cnltx@pre@example@hook
@@ -884,6 +900,12 @@
 \def\cnltx@new@sourcecode@env#1#2{%
   \lstnewenvironment{#2}[1][]
     {%
+      \vskip\cnltx@before@skip
+      \setlength\cnltx@sidebysidewidth
+        {\dimexpr .45\columnwidth -\lst@xleftmargin -\lst@xrightmargin\relax}%
+      \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+        {\cnltx@addlistingsoptions{linewidth=\cnltx@sidebysidewidth}}
+        {}%
       \cnltx@example@start{##1,#1}%
       \ifbool{cnltx@compile}{%
         \stepcounter{cnltx@filenumber}%
@@ -900,6 +922,8 @@
       \if@nobreak
         \@nobreakfalse
       \fi
+      \csname par\endcsname
+      \vskip\cnltx@after@skip
     }%
 }
 \newrobustcmd\newsourcecodeenv[2][]{%
@@ -1014,7 +1038,7 @@ HISTORY:
                  - new option `outside' for non-`compiled' examples
                  - new option `float-env'
 2014/03/11 v0.11 - \cnltx@load@modules
-
+2014/04/09 v0.12 - improvements on the sidebyside examples
 TODO:
 
 

@@ -1,6 +1,6 @@
-% arara: pdflatex: { shell: on }
-% arara: pdflatex
-% arara: biber
+% !arara: pdflatex: { shell: on }
+% !arara: pdflatex
+% !arara: biber
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -320,6 +320,7 @@ additional packages, see section~\vref{sec:preamble} for details.
 
 The \cnltxexample\ package loads the packages: \cnltxbase, \cnltxlistings,
 \cnltxtools, \cnltxtranslations, \needpackage{mdframed}~\cite{pkg:mdframed},
+\needpackage{textcomp}~\cite{pkg:textcomp},
 \needpackage{idxcmds}~\cite{pkg:idxcmds},
 \needpackage{ifxetex}~\cite{pkg:ifxetex},
 \needpackage{adjustbox}~\cite{pkg:adjustbox}.
@@ -439,6 +440,13 @@ provided macros, options and the like.
     \Darg{arg}.
   \command{sarg}
     An optional star argument, \cs{sarg}: \sarg.
+  \command{newarg}[\oarg{arg formatting}\marg{cs}\marg{left delim}\marg{right delim}]%
+    \Default{\cs{meta}}
+    \changedversion{0.2}Command used to define the argument commands:
+    \verbcode+\newarg\marg{\{}{\}}+.  The optional argument determines how the
+    argument of the new command will be formatted.  This is done with
+    \cs{meta} per default.  \cs{Marg} is defined
+    \verbcode+\newarg[\code]\Marg{\{}{\}}+.
   \command{option}[\sarg\marg{name}]
     An option \meta{name}, \cs{option}\Marg{name}: \option{name}.  Adds a
     corresponding index entry.  The starred form does not add an index entry.
@@ -2365,9 +2373,10 @@ Finally the `formal' color scheme is defined like this:
 \cnltxtools\ package as well as the \code{cnltx.ist} index style and the
 \code{cnltx} \pkg{biblatex} style all rely on the \pkg{translations}
 package~\cite{pkg:translations} for providing some document language dependent
-strings.  Currently only translations for English and German are provided.
-Others can be added and the existing ones changed with the following commands
-provided by the \pkg{translations} package:
+strings\footnote{Actually they depend on \cnltxtranslations\ which in turn
+  loads \pkg{translations}.}.  Currently only translations for English and
+German are provided.  Others can be added and the existing ones changed with
+the following commands provided by the \pkg{translations} package:
 
 \begin{commands}
   \command{DeclareTranslation}[\marg{language}\marg{keyword}\marg{translation}]
@@ -2462,8 +2471,9 @@ different parts of the document.
 \section{Internal Helper Commands}
 
 The commands in this section are only described for the sake of completeness.
-They are not meant to be used in a document.  Expandable commands are marked
-with \textcolor{expandable}{\expandablesign}.
+They are not meant to be used in a document.  Some of them might be useful in
+\LaTeX\ programming, though.  Expandable commands are marked with
+\textcolor{expandable}{\expandablesign}.
 
 \subsection{Defined by \cnltxbase}\label{sec:defined-cnltxbase}
 
@@ -2765,13 +2775,6 @@ the other packages and classes.
     \sinceversion{0.7a}This command was used to define \cs{indexcs} and
     \cs{indexenv}:\\
     \verbcode+\cnltx@treat@lst@index{\indexcs}{\csidx}+
-  \command{newarg}[\oarg{arg formatting}\marg{cs}\marg{left delim}\marg{right delim}]%
-    \Default{\cs{meta}}
-    \changedversion{0.2}Command used to define the argument commands:
-    \verbcode+\newarg\marg{\{}{\}}+.  The optional argument determines how the
-    argument of the new command will be formatted.  This is done with
-    \cs{meta} per default.  \cs{Marg} is defined
-    \verbcode+\newarg[\code]\Marg{\{}{\}}+
   \command{MakePercentComment}
     Sets the category code of \code{\%} to 14.
   \command{cnltx\at copyablespace}
@@ -2838,13 +2841,13 @@ the other packages and classes.
   \command{cnltx\at accsupp}[\marg{actual text}\marg{additional
     options}\marg{\TeX\ text}]
     A wrapper for package \pkg{accsupp}'s\newline
-    \cs*{BeginAccSupp}\Marg{ActualText = \meta{actual text}} \meta{\TeX\ text}
+    \cs*{BeginAccSupp}\Marg{ActualText = \meta{actual text}}\meta{\TeX\ text}%
     \cs*{EndAccSupp}\marg{}.
 \end{commands}
 
 \section{List of Known \LaTeX\ Control Sequences}\label{sec:known:csnames}
 
-Below are listed all \emph{predefined} control sequence names that are treated
+Below all \emph{predefined} control sequence names are listed that are treated
 as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
 
 \begin{multicols}{3}\small
@@ -2853,8 +2856,8 @@ as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
 
 \section{List of Known \LaTeX\  Environments}\label{sec:known:environments}
 
-Below are listed all \emph{predefined} control sequence names that are treated
-as ``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
+Below all \emph{predefined} environment names are listed that are treated as
+``silent'' names by \cnltx, that is, those defined by \cnltxlistings.
 
 \begin{multicols}{3}\small
   \RaggedRight\listsilentenvs

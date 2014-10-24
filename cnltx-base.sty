@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2014/03/11}
-\def\cnltx@@version{v0.11}
+\def\cnltx@@date{2014/04/09}
+\def\cnltx@@version{v0.12}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds,pdftexcmds}
@@ -116,9 +116,12 @@
 
 % --------------------------------------------------------------------------
 % modules
-\newcommand*\cnltx@load@module[1]{\RequirePackage{cnltx-\trim@spaces{#1}}}
-\newcommand*\cnltx@load@modules[1]{\forcsvlist{\cnltx@load@module}{#1}}
+\newrobustcmd*\cnltx@load@module[1]{\RequirePackage{cnltx-\trim@spaces{#1}}}
+\newrobustcmd*\cnltx@load@modules[1]{\forcsvlist{\cnltx@load@module}{#1}}
 
+\newrobustcmd*\cnltx@register@module[1]{%
+  \DeclareOption{#1}{\AtEndOfPackage{\cnltx@load@module{#1}}}%
+}
 
 % --------------------------------------------------------------------------
 % setup command
@@ -168,6 +171,16 @@
 \newrobustcmd*\cnltx@make@letter[1]{\cnltx@set@catcode{#1}{11}}
 \newrobustcmd*\cnltx@make@other[1]{\cnltx@set@catcode{#1}{12}}
 \newrobustcmd*\cnltx@make@active[1]{\cnltx@set@catcode{#1}{13}}
+
+% --------------------------------------------------------------------------
+% damit wir beim Definieren der vielen assoziierten Makros nichts
+% überschreiben:
+\newrobustcmd*\cnltx@robust@cs[1]{%
+  \expandafter\newrobustcmd\expandafter*\csname#1\endcsname
+}
+\newrobustcmd*\cnltx@new@cs[1]{%
+  \expandafter\newcommand\expandafter*\csname#1\endcsname
+}
 
 % --------------------------------------------------------------------------
 % who knows what they might be good for -- well, for indexing:
@@ -221,7 +234,10 @@
 %   make the test character an (hopefully extremely) unlikely % with
 %   catcode!=14;  let's make & a temporary comment char
 %   save both catcodes just in case someone changed the defaults:
-\edef\cnltx@tmpa{\catcode`\%=\the\catcode`\% \catcode`\&=\the\catcode`\&}
+\edef\cnltx@tmpa{
+  \catcode`\noexpand\%=\the\catcode`\noexpand\%
+  \catcode`\noexpand\&=\the\catcode`\noexpand\&
+}
 \catcode`\%=3
 \catcode`\&=14
 & the test:
@@ -415,7 +431,7 @@
 \newrobustcmd\cnltx@remove@all[2]{\cnltx@replace@all#1{#2}{}}
 
 % --------------------------------------------------------------------------
-% an equivalent of \newcommand that where the macro with the optional argument
+% an equivalent of \newcommand where the macro with the optional argument
 % is expandable.  For this to work the newly defined macro /needs/ to eat the
 % first following token!
 \def\cnltx@num@to@args#1{%
@@ -879,5 +895,5 @@ HISTORY:
                     \cnltx@restore@catcode, \cnltx@restore@catcodes
                   - \cnltx@make@letter, \cnltx@make@other, \cnltx@make@active
                   - \cnltx@load@module, \cnltx@load@modules
-
+2014/04/09 v0.12  - updating the bundle
 
