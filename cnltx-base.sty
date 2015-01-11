@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2014 Clemens Niederberger
+% Copyright 2013-2015 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -25,7 +25,7 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2014/04/09}
+\def\cnltx@@date{2015/01/11}
 \def\cnltx@@version{v0.12}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
@@ -235,8 +235,8 @@
 %   catcode!=14;  let's make & a temporary comment char
 %   save both catcodes just in case someone changed the defaults:
 \edef\cnltx@tmpa{
-  \catcode`\noexpand\%=\the\catcode`\noexpand\%
-  \catcode`\noexpand\&=\the\catcode`\noexpand\&
+  \catcode`\noexpand\%=\the\catcode`\%
+  \catcode`\noexpand\&=\the\catcode`\&
 }
 \catcode`\%=3
 \catcode`\&=14
@@ -895,5 +895,6 @@ HISTORY:
                     \cnltx@restore@catcode, \cnltx@restore@catcodes
                   - \cnltx@make@letter, \cnltx@make@other, \cnltx@make@active
                   - \cnltx@load@module, \cnltx@load@modules
-2014/04/09 v0.12  - updating the bundle
+2015/01/11 v0.12  - updating the bundle to CTAN
+                  - more security for \cnltx@ifisnum
 

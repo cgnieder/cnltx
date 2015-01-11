@@ -13,7 +13,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2014 Clemens Niederberger
+% Copyright 2013-2015 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -148,12 +148,12 @@
 \newnote*\bypackage[1]{provided by \csname cnltx#1\endcsname}
 \newnote*\byclass{provided by \cnltxdoc}
 
-\newname\oberdiek{Heiko}{Oberdiek}
-\newname\egreg{Enrico}{Gregorio}
-\newname\heinz{Carsten}{Heinz}
-\newname\moses{Brooks}{Moses}
-\newname\hoffmann{Jobst}{Hoffmann}
-\newname\daniel{Marco}{Daniel}
+\newname\oberdiek{Heiko Oberdiek}
+\newname\egreg{Enrico Gregorio}
+\newname\heinz{Carsten Heinz}
+\newname\moses{Brooks Moses}
+\newname\hoffmann{Jobst Hoffmann}
+\newname\daniel{Marco Daniel}
 
 \usepackage{fixfoot}
 \DeclareFixedFootnote\oberdiekfn{\CTANurl{oberdiek}}
@@ -1393,11 +1393,11 @@ The \cnltxtools\ package defines some additional macros which provide useful
 functionality also in contexts \emph{not} documenting a \LaTeX\ package.
 
 \begin{commands}
-  \command{newname}[\marg{cs}\marg{first name}\marg{last name}]
+  \command{newname}[\marg{cs}\Marg{\meta{first name} \meta{last name}}]
     Defines \meta{cs} to write out the full name and add an index entry sorted
     by the last name.  Also defines a starred variant of \meta{cs} that only
     writes the last name but still adds the full index entry.
-  \command{name}[\sarg\oarg{first name}\marg{last name}]
+  \command{name}[\sarg\Marg{\meta{first name} \meta{last name}}]
     \sinceversion{0.11}Typesets a name according to the same specs as the
     names defined with \cs{newname}.  Also adds the name to the index.  The
     starred version only writes the name but doesn't add the name to the
@@ -1455,7 +1455,7 @@ functionality also in contexts \emph{not} documenting a \LaTeX\ package.
 
 A short example of the usage of \cs{newname} and \cs{cnltxacronym}:
 \begin{example}
-  \newname\carlisle{David}{Carlisle}%
+  \newname\carlisle{David Carlisle}%
   \carlisle\ is a well-known member of the \LaTeX\ community.  \carlisle* is
   the author of many packages such as \pkg*{longtable}.  Take a look in the
   index where you'll find \carlisle* mentioned.
