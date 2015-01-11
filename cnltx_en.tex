@@ -1,6 +1,6 @@
-% !arara: pdflatex: { shell: on }
-% !arara: pdflatex
-% !arara: biber
+% arara: pdflatex: { shell: on }
+% arara: pdflatex
+% arara: biber
 % arara: pdflatex
 % arara: pdflatex
 % --------------------------------------------------------------------------
@@ -1394,11 +1394,12 @@ functionality also in contexts \emph{not} documenting a \LaTeX\ package.
 
 \begin{commands}
   \command{newname}[\marg{cs}\Marg{\meta{first name} \meta{last name}}]
-    Defines \meta{cs} to write out the full name and add an index entry sorted
-    by the last name.  Also defines a starred variant of \meta{cs} that only
-    writes the last name but still adds the full index entry.
+    Defines \meta{cs}\changedversion{0.12} to write out the full name and add
+    an index entry sorted by the last name.  Also defines a starred variant of
+    \meta{cs} that only writes the last name but still adds the full index
+    entry.
   \command{name}[\sarg\Marg{\meta{first name} \meta{last name}}]
-    \sinceversion{0.11}Typesets a name according to the same specs as the
+    \changedversion{0.12}Typesets a name according to the same specs as the
     names defined with \cs{newname}.  Also adds the name to the index.  The
     starred version only writes the name but doesn't add the name to the
     index.  Index entries either have the form \meta{last name} or
