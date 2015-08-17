@@ -25,8 +25,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\def\cnltx@@date{2015/01/11}
-\def\cnltx@@version{v0.12}
+\def\cnltx@@date{2015/08/17}
+\def\cnltx@@version{v0.13}
 \def\cnltx@@info{LaTeX tools and documenting facilities (CN)}
 \ProvidesPackage{cnltx-base}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 \RequirePackage{pgfopts,etoolbox,ltxcmds,pdftexcmds}
@@ -546,13 +546,6 @@
 \newcommand*\cnltx@punctuation@ifpar{%
   \iftest{\expandafter\ifx\cnltx@trailpunct\par}%
 }
-% \def\cnltx@punctuation@ifpar{%
-%   \expandafter\ifx\cnltx@trailpunct\par
-%     \expandafter\@firstoftwo
-%   \else
-%     \expandafter\@secondoftwo
-%   \fi
-% }
 
 % --------------------------------------------------------------------------
 % per case list:
@@ -897,4 +890,5 @@ HISTORY:
                   - \cnltx@load@module, \cnltx@load@modules
 2015/01/11 v0.12  - updating the bundle to CTAN
                   - more security for \cnltx@ifisnum
+2015/08/17 v0.13  - resolve long overdue issues with cnltx-doc
 

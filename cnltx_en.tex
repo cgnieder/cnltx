@@ -30,7 +30,8 @@
 % If you have any ideas, questions, suggestions or bugs to report, please
 % feel free to contact me.
 % --------------------------------------------------------------------------
-\documentclass[load-preamble+,babel-options={ngerman,english}]{cnltx-doc}
+\PassOptionsToPackage{ngerman,english}{babel}
+\documentclass[load-preamble+]{cnltx-doc}
 \usepackage[utf8]{inputenc}
 
 \usepackage{varioref}
@@ -1716,12 +1717,18 @@ The \cnltxdoc\ class only knows a few options:
     See section~\vref{sec:predefined-indexing} for details.
   \keybool{add-index}\Default{false}
     See section~\vref{sec:predefined-indexing} for details.
+  \keybool{adapt-layout}\Default{true}
+    \sinceversion{0.13}If set to true \cnltxdoc\ will make some changes to the
+    section and part formats, it will redefine the footnote format, set the
+    header and footer and adapt the caption format.
   \keyval{babel-options}{options}\Default{english}
     Options given to the \needpackage[macros/latex/required]{babel} package.
     This option only has an effect if \keyis-{load-preamble}{true}.
   \keyval{scrartcl}{options}\Default
-    Options that are passed to the underlying class \cls{scrartcl}.  \emph{All
-    global options you want to use should be given here.}
+    \changedversion{0.13}Options that are passed to the underlying class
+    \cls{scrartcl}.  Can be used to pass options to \cls{scrartcl} when
+    \option{load-preamble} is used.  Not really necessary since unknown
+    options are passed to \cls{scrartcl}, anyway.
 \end{options}
 
 
@@ -1851,59 +1858,124 @@ passing an option as class option.
     Class option that preloads part of my custom preamble.
 \end{options}
 
-Using the option will include the following code:\changedversion{0.10}
+Using the option will include the following code:\changedversion{0.13}
 
 \begin{sourcecode}
   \RequirePackage{ifxetex,ifluatex}
-  \ifboolexpr{not bool{xetex} and not bool{luatex}}
-    {\RequirePackage[T1]{fontenc}}
-    {\RequirePackage{fontspec}}
-  \RequirePackage[oldstyle]{libertine}
-  % `libertinehologopatch' is not on CTAN, yet!
-  % you can get it at https://bitbucket.org/cgnieder/libertinehologopatch/
-  \RequirePackage{libertinehologopatch}
-  \RequirePackage[supstfm=libertinesups]{superiors}
-  % libertine does not have superior letters:
-  \def\@makefnmark{%
-    \hbox{%
-      \cnltx@ifisnum{\@thefnmark}
-        {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
-        {\@textsuperscript{\normalfont\@thefnmark}}%
-    }%
-  }
-  \RequirePackage{microtype}
-  \ifboolexpr
+  \ifbool{cnltx@load@fonts}
     {
-      test {\ifcsdef{MT@pr@set@@romansans}} and
-      test {\ifcsdef{MT@ex@set@@romansans}}
+      \ifboolexpr{not bool{xetex} and not bool{luatex}}
+        {\RequirePackage[T1]{fontenc}}
+        {\RequirePackage{fontspec}}
+      \RequirePackage[oldstyle]{libertine}
+      \RequirePackage{libertinehologopatch}
+      \RequirePackage[supstfm=libertinesups]{superiors}
+      % libertine does not have superior letters:
+      \def\@makefnmark{%
+        \hbox{%
+          \cnltx@ifisnum{\@thefnmark}
+            {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
+            {\@textsuperscript{\normalfont\@thefnmark}}%
+        }%
+      }
     }
     {}
+  \ifbool{cnltx@microtype}
+    {\RequirePackage{microtype}}
+    {}
+  \ifboolexpr
+    {
+      bool {cnltx@microtype} and
+      not test {\ifcsdef{MT@pr@set@@romansans}} and
+      not test {\ifcsdef{MT@ex@set@@romansans}} and
+      bool {cnltx@load@fonts}
+    }
     {
       \DeclareMicrotypeSet{romansans}{
         encoding = {*},
         family   = {rm*,sf*}
       }
     }
-  \ifcsdef{MT@tr@set@@scshape}
     {}
+  \ifboolexpr
+    {
+      bool {cnltx@microtype} and
+      not test {\ifcsdef{MT@tr@set@@scshape}} and
+      bool {cnltx@load@fonts}
+    }
     {
       \DeclareMicrotypeSet[tracking]{scshape}{
         encoding = {*} ,
         shape    = {sc,scit,si}
       }
     }
-  \microtypesetup{
-    tracking   = scshape ,
-    protrusion = romansans ,
-    expansion  = romansans
-  }
-  \ifboolexpr{not bool{xetex} and not bool{luatex}}
-    {\RequirePackage[scaled=.79]{beramono}}
-    {\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}}
+    {}
+  \ifboolexpr
+    {
+      not bool {xetex} and
+      bool {cnltx@load@fonts} and
+      bool {cnltx@microtype}
+    }
+    {
+      \microtypesetup{
+        tracking   = scshape ,
+        protrusion = romansans ,
+        expansion  = romansans
+      }
+      \DisableLigatures{ family = tt* }
+    }
+    {}
+  \ifbool{cnltx@load@fonts}
+    {
+      \ifboolexpr{not bool{xetex} and not bool{luatex}}
+        {\RequirePackage[scaled=.81]{beramono}}
+        {
+          \setmonofont[
+            Scale = MatchLowercase ,
+            Ligatures = {NoCommon,NoRequired,NoContextual}
+          ]{DejaVu Sans Mono}
+        }
+      \KOMAoptions{DIV=last}
+      \recalctypearea
+    }
+    {}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
-  \renewcommand*\othersectionlevelsformat[3]{%
-    \textcolor{cnltx}{#3\autodot}\enskip}
+\end{sourcecode}
+
+The effect of this preamble is demonstrated by the document you're reading at
+this moment.
+
+\begin{options}
+  \keybool{load-preamble-}\Default{false}
+    This option has the same effect as adding using \option{load-preamble} but
+    without making any font decisions.
+\end{options}
+
+Another option affects the layout of the document:
+\begin{options}
+  \keybool{adapt-layout}\Default{true}
+    \sinceversion{0.13}If set to true \cnltxdoc\ will make some changes to the
+    section and part formats, it will redefine the footnote format, set the
+    header and footer and adapt the caption format.
+\end{options}
+
+Using the option will include the following code:
+
+\begin{sourcecode}
+  \renewcommand*\sectionformat{%
+    \textcolor{cnltx}{\thesection\autodot}\enskip
+  }
+  \renewcommand*\subsectionformat{%
+    \textcolor{cnltx}{\thesubsection\autodot}\enskip
+  }
+  \renewcommand*\subsubsectionformat{%
+    \textcolor{cnltx}{\thesubsubsection\autodot}\enskip
+  }
+  \setkomafont{subsubsection}{\normalfont\normalsize\itshape}
+  \renewcommand*\partformat{%
+    \textcolor{cnltx}{\partname~\thepart\autodot}%
+  }
   \renewcommand*\partformat{%
     \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
@@ -1915,9 +1987,6 @@ Using the option will include the following code:\changedversion{0.10}
   \setkomafont{caption}{\cnltx@caption@font}
   \setkomafont{captionlabel}{\cnltx@captionlabel@font}
 \end{sourcecode}
-
-The effect of this preamble is demonstrated by the document you're reading at
-this moment.
 
 \subsection{Predefined Indexing}\label{sec:predefined-indexing}
 \cnltxdoc\ allows the automated creation of an index.  This is done with the
@@ -1986,8 +2055,8 @@ packages in \file{bib} files:
   @class{cls:exam,
     title      = {exam},
     author     = {Philip Hirschhorn},
-    date       = {2011-05-22},
-    version    = {2.4},
+    date       = {2015-05-07},
+    version    = {2.5},
     url        = {http://mirror.ctan.org/macros/latex/contrib/exam/}
   }
   @bundle{bnd:koma-script,
@@ -1995,9 +2064,9 @@ packages in \file{bib} files:
     sorttitle      = {KOMA-Script} ,
     indextitle     = {\KOMAScript} ,
     indexsorttitle = {KOMA-Script} ,
-    author         = {Markus Kohm and Frank Neukahm},
-    date           = {2012-07-29} ,
-    version        = {3.11b} ,
+    author         = {Markus Kohm},
+    date           = {2015-07-02} ,
+    version        = {3.18} ,
     url            = {http://mirror.ctan.org/macros/latex/contrib/koma-script/}
   }
 \end{sourcecode}

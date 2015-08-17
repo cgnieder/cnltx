@@ -39,6 +39,9 @@
 \newbool{cnltx@add@bib}
 \newbool{cnltx@load@fonts}
 \newbool{cnltx@microtype}
+\newbool{cnltx@layout}
+
+\booltrue{cnltx@layout}
 
 \newcommand*\cnltx@scrartcl@options{}
 \newcommand*\cnltx@babel@options{english}
@@ -65,13 +68,15 @@
       \booltrue{cnltx@microtype}
       \booltrue{cnltx@add@index}
       \booltrue{cnltx@add@bib} ,
-    babel-options/.code  = \def\cnltx@babel@options{#1}
+    babel-options/.code    = \def\cnltx@babel@options{#1} ,
+    adapt-layout/.is if    = cnltx@layout ,
+    unknown/.code          =
+      \edef\cnltx@scrartcl@options{\cnltx@scrartcl@options,\pgfkeyscurrentname}
 }
 
 \ProcessPgfOptions{/cnltx-doc}
 
-\let\@classoptionslist\relax
-\LoadClass{scrartcl}
+\LoadClass[\cnltx@scrartcl@options]{scrartcl}
 
 
 \newcommand*\cnltx@index@prologue{}
@@ -113,9 +118,6 @@
         {\RequirePackage[T1]{fontenc}}
         {\RequirePackage{fontspec}}
       \RequirePackage[oldstyle]{libertine}
-      \ifboolexpr{not bool{xetex} and not bool{luatex}}
-        {}
-        {}
       \RequirePackage{libertinehologopatch}
       \RequirePackage[supstfm=libertinesups]{superiors}
       % libertine does not have superior letters:
@@ -183,13 +185,29 @@
             Ligatures = {NoCommon,NoRequired,NoContextual}
           ]{DejaVu Sans Mono}
         }
+      \KOMAoptions{DIV=last}
       \recalctypearea
     }
     {}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
-  \renewcommand*\othersectionlevelsformat[3]{%
-    \textcolor{cnltx}{#3\autodot}\enskip}
+  % \RequirePackage{babel}
+}{}
+
+\ifbool{cnltx@layout}{
+  \renewcommand*\sectionformat{%
+    \textcolor{cnltx}{\thesection\autodot}\enskip
+  }
+  \renewcommand*\subsectionformat{%
+    \textcolor{cnltx}{\thesubsection\autodot}\enskip
+  }
+  \renewcommand*\subsubsectionformat{%
+    \textcolor{cnltx}{\thesubsubsection\autodot}\enskip
+  }
+  \setkomafont{subsubsection}{\normalfont\normalsize\itshape}
+  \renewcommand*\partformat{%
+    \textcolor{cnltx}{\partname~\thepart\autodot}%
+  }
   \renewcommand*\partformat{%
     \textcolor{cnltx}{\partname~\thepart\autodot}}
   \deffootnote{2em}{1em}{\llap{\thefootnotemark. }}%
@@ -280,6 +298,7 @@
 \newcommand*\cnltx@package@title{??}
 \newcommand*\cnltx@title@format{\bfseries\scshape}
 \newbool{cnltx@package@title}
+\newbool{cnltx@build@title}
 \newcommand*\cnltx@package@subtitle{??}
 \newbool{cnltx@package@subtitle}
 \newcommand*\cnltx@package@url{??}
@@ -288,8 +307,7 @@
 \newbool{cnltx@package@email}
 \newcommand*\cnltx@package@abstract{??}
 \newbool{cnltx@package@abstract}
-\newlength\cnltx@package@abstract@width
-\setlength\cnltx@package@abstract@width{.75\linewidth}
+\newcommand*\cnltx@package@abstract@width{.75\linewidth}
 \newcommand*\cnltx@package@abstract@format{\setlength\parskip{.333\baselineskip}}
 
 \newrobustcmd*\cnltxpackagenameformat[1]{\textcolor{cnltx}{\textsc{#1}}}
@@ -360,24 +378,27 @@
       \@ifpackageloaded{#1}
         {\cnltx@getfileinfo{#1}{sty}}
         {\cnltx@doc@warning{Package `#1' is not loaded, yet!}}
-      \booltrue{cnltx@package@name} ,
+      \booltrue{cnltx@package@name}
+      \booltrue{cnltx@build@title} ,
     class/.code =
       \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
       \@ifclassloaded{#1}
         {\cnltx@getfileinfo{#1}{cls}}
         {\cnltx@doc@warning{Class `#1' is not loaded, yet!}}
-      \booltrue{cnltx@package@name} ,
+      \booltrue{cnltx@package@name}
+      \booltrue{cnltx@build@title} ,
     name/.code =
       \ifcsdef{#1}{}{\expandafter\newpackagename\csname#1\endcsname{#1}}
       \gdef\cnltx@package@name{#1}
-      \booltrue{cnltx@package@name} ,
+      \booltrue{cnltx@package@name}
+      \booltrue{cnltx@build@title} ,
     title/.code =
       \gdef\cnltx@package@title{#1}
       \booltrue{cnltx@package@title} ,
     title-format/.code =
       \def\cnltx@title@format{#1} ,
-    build-title/.is if = cnltx@package@title ,
+    build-title/.is if = cnltx@build@title ,
     subtitle/.code =
       \gdef\cnltx@package@subtitle{#1}
       \booltrue{cnltx@package@subtitle} ,
@@ -659,7 +680,7 @@
 \newcommand*\cnltx@module@text[2]{%
   \begingroup
     \reversemarginpar
-    \marginnote{\hfill\module#1{#2}\cnltx@module@sep}%
+    \marginnote{\hfill\llap{\module#1{#2}}\cnltx@module@sep}%
   \endgroup
 }
   
@@ -710,14 +731,16 @@
   }%
   \RequirePackage{multicol}
   \AtBeginDocument{%
-    \ifbool{cnltx@package@name}
-      {\cnltx@title@information}
-      {%
-        \cnltx@doc@warning{%
-          No package/class name given. Hence I won't create an
-          automatic title%
+    \ifbool{cnltx@build@title}{%
+      \ifbool{cnltx@package@name}
+        {\cnltx@title@information}
+        {%
+          \cnltx@doc@warning{%
+            No package/class name given. Hence I won't create an
+            automatic title%
+          }%
         }%
-      }%
+    }{}%
   }%
 }
 
