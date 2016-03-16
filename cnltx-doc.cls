@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2015 Clemens Niederberger
+% Copyright 2013-2016 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -751,11 +751,14 @@
       {\renewcommand\thefootnote{\@fnsymbol\c@footnote}}%
     \Huge
     \scalebox{1.5}{%
-      \color{cnltx}%
-      \cnltx@title@format
-      \ifbool{cnltx@package@title}
-        {\cnltx@package@title}
-        {\cnltx@package@name}%
+      \begin{minipage}{.6\linewidth}
+        \centering
+        \color{cnltx}%
+        \cnltx@title@format
+        \ifbool{cnltx@package@title}
+          {\cnltx@package@title}
+          {\cnltx@package@name}%
+      \end{minipage}
     }%
     \par\vskip.5cm\relax
     \large
@@ -945,7 +948,8 @@ HISTORY:
                   - use \cnltx@load@modules
                   - new commands \email, \website, \securewebsite
                   - \expandablesymbol, \unexpandablesymbol
-
+2015/08/17 v0.13  - resolve long overdue issues with cnltx-doc
+2015/03/11 v0.13a - wrap title in minipage in order to enable linebreaks
 
 % --------------------------------------------------------------------------
 TODO:

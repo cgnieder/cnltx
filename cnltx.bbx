@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2014 Clemens Niederberger
+% Copyright 2013-2016 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -30,6 +30,7 @@
 
 \cnltx@load@modules{example,tools,translations}
 
+\RequireBiber
 \RequireBibliographyStyle{alphabetic}
 \ExecuteBibliographyOptions{block=ragged,useprefix=true}
 
@@ -79,8 +80,8 @@
   }%
 }
 
-\renewcommand*{\mkbibnamelast}[1]{\cnltx@write@lastname{#1}}
-\renewcommand*{\mkbibnamefirst}[1]{\cnltx@write@firstname{#1}}
+\renewcommand*{\mkbibnamefamily}[1]{\cnltx@write@lastname{#1}}
+\renewcommand*{\mkbibnamegiven}[1]{\cnltx@write@firstname{#1}}
 \renewcommand*{\mkbibnameprefix}[1]{\cnltx@write@lastname{#1}}
 
 \DeclareNameAlias[package]{maintainer}{default}
@@ -132,34 +133,28 @@
     {\bndidx{#1}}%
 }
 
-\def\cnltx@onlyonefirstname#1\bibnamedelima#2\q@stop{#1}
-
 \DeclareIndexNameFormat{cnltx}{%
-  \cnltx@if@in{#3}{\bibnamedelima}
-    {%
-      \usebibmacro{index:entry}{\index}{%
-        \ifblank{#5}{}{#5 }%
-        \@firstofone#1%
-        \ifblank{#3}{}{, \cnltx@onlyonefirstname#3\q@stop}%
-        \actualoperator
-        \ifblank{#5}
-          {\cnltx@write@lastname{#1}}
-          {\cnltx@write@lastname{#5 #1}}%
-        \ifblank{#3}{}{, \cnltx@write@firstname{\cnltx@onlyonefirstname#3\q@stop}}%
-      }%
-    }
-    {%
-      \usebibmacro{index:entry}{\index}{%
-        \ifblank{#5}{}{#5 }%
-        \@firstofone#1%
-        \ifblank{#3}{}{, #3}%
-        \actualoperator
-        \ifblank{#5}
-          {\cnltx@write@lastname{#1}}
-          {\cnltx@write@lastname{#5 #1}}%
-        \ifblank{#3}{}{, \cnltx@write@firstname{#3}}%
-      }%
+  \nameparts{#1}%
+  \expandafter\notblank\expandafter{\namepartgiven}{%
+    \usebibmacro{index:entry}{\index}{%
+      \namepartfamily, \namepartgiven
+      \actualoperator
+      \expandafter\notblank\expandafter{\namepartprefix}
+        {\cnltx@write@lastname\namepartprefix\space}
+        {}%
+      \cnltx@write@lastname\namepartfamily,
+      \cnltx@write@firstname\namepartgiven
     }%
+  }{%
+    \usebibmacro{index:entry}{\index}{%
+      \namepartfamily
+      \actualoperator
+      \expandafter\notblank\expandafter{\namepartprefix}
+        {\cnltx@write@lastname\namepartprefix\space}
+        {}%
+      \cnltx@write@lastname\namepartfamily
+    }%
+  }%
 }
 
 \DeclareIndexNameAlias{labelname}{cnltx}
@@ -202,4 +197,5 @@ HISTORY:
                     module;
                     this is going to need tests if it really is consistent
                     for different types of name formats (prefixes, affixes...)
-
+2016/03/11 v0.13b - adapt bib style to biblatex v3.3
+                    

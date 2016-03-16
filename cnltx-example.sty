@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2015 Clemens Niederberger
+% Copyright 2013-2016 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -101,10 +101,15 @@
     {\cnltx@key@aux{#1}\Marg}%
 }
 
-
+\newlength\cnltx@choice@sep@stretch
+\setlength\cnltx@choice@sep@stretch{\z@\@plus.5em}
 % \DeclareListParser*\cnltx@choices{|}
 \newrobustcmd*\choices[1]{%
-  \def\cnltx@choice@sep{\def\cnltx@choice@sep{|\hskip\z@}}%
+  \def\cnltx@choice@sep{%
+    \def\cnltx@choice@sep{%
+      \hskip\cnltx@choice@sep@stretch|\hskip\cnltx@choice@sep@stretch
+    }%
+  }%
   \forcsvlist{\cnltx@choice@sep\code}{#1}%
 }
 
@@ -512,7 +517,7 @@
       \cnltx@get@page@list{#1}
       \booltrue{cnltx@pagelist} ,
     runs/.code                 = \setcounter{cnltx@runs}{#1} ,
-    program/.code              = \def\cnltx@compilation@method{#1} ,
+    program/.code              = \def\cnltx@compilation@methods{#1} ,
     file-ext/.code             = \def\cnltx@example@fileext{#1} ,
     exe-with/.code             = \def\cnltx@compilation@options{#1} ,
     graphics/.code             = \def\cnltx@image@options{#1} ,
@@ -596,10 +601,17 @@
 }
 
 \newcommand*\cnltx@exe{\immediate\write18}
-\newcommand*\cnltx@program@pdflatex{pdflatex}
-\newcommand*\cnltx@program@lualatex{lualatex}
-\newcommand*\cnltx@program@xelatex {xelatex}
-\newcommand*\cnltx@program@arara   {arara}
+\newrobustcmd*\cnltx@add@program[1]{%
+  \expandafter\newcommand
+  \expandafter*\csname cnltx@program@#1\endcsname{#1}%
+}
+\cnltx@add@program{pdflatex}
+\cnltx@add@program{lualatex}
+\cnltx@add@program{xelatex}
+\cnltx@add@program{arara}
+\cnltx@add@program{biber}
+\cnltx@add@program{bibtex}
+
 \newcommand*\cnltx@compile[3]{%
   \ifcsdef{cnltx@program@#1}
     {%
@@ -613,8 +625,15 @@
     }
     {\cnltx@example@error{Unknown compilation method `#1'}}%
 }
-\newcommand*\cnltx@compilation@method{pdflatex}
+\newcommand*\cnltx@compilation@methods{pdflatex}
 \newcommand*\cnltx@compilation@options{}
+
+\newrobustcmd*\cnltx@compilation@process[2]{
+  \cnltx@expandargs(oo)\cnltx@compile
+    {#2}
+    {\cnltx@compilation@options}
+    {#1}%
+}
 
 \newrobustcmd*\cnltx@get@pdfpages[1]{%
   \begingroup
@@ -819,12 +838,11 @@
             {%
               Compiling example `#1.tex' \arabic{cnltx@runs}
               time\ifnum\value{cnltx@runs}>1s\fi\space with
-              \cnltx@compilation@method
+              \cnltx@compilation@methods
             }%
-          \cnltx@expandargs(oo)\cnltx@compile
-            {\cnltx@compilation@method}
-            {\cnltx@compilation@options}
-            {#1.tex}%
+          \cnltx@expandargs(no)\forcsvlist
+            {\cnltx@compilation@process{#1}}
+            {\cnltx@compilation@methods}%
         }
         {%
           \cnltx@example@warning
@@ -995,50 +1013,54 @@
 % --------------------------------------------------------------------------
 HISTORY:
 
-2013/09/08 v0.1  - first working version
-2013/09/10 v0.2  - added \keyis
-                 - lot's of improvements on the source code example
-                   environments
-                 - disable indexing commands in PDF strings
-                 - added hooks to the source example environments
-                 - added possibility for internationalization
-                 - new macro \verbcode
-                 - added optional argument to \newarg
-                 - new macros \Marg, \Oarg, \Darg
-                 - option for formatting the \default command
-2013/09/12 v0.3  - added \module
-                 - added \newsourcecodeenv and \newinputsourcefilecmd
-                 - added \inputexample, \inputsidebyside and \inputsourcecode
-                 - renamed `example*' into `sidebyside'
-2013/09/15 v0.4  - new listings style `cnltx-bibtex'
-2013/09/20 v0.5  - new command \implementation
-                 - fixed wrong indexing behaviour: keywords in the silent lists
-                   are now correctly indexed if added with `add-cmds' or
-                   `add-envs'
-2013/09/30 v0.7  - added listings style `cnltx-makeindex'
-2013/10/04 v0.7a - new command \cnltx@treat@lst@index
-                 - changed \envidx in listings into \indexenv
-                 - added \bnd for package bundles
-2013/11/22 v0.9  - new option `compile' that allows to compile source code
-                   examples (which need to be complete, of course) with
-                   pdflatex and include the documents afterwards
-                 - new options `max-pages' that determines the maximum number
-                   of pages before a line break if documents are included with
-                   `compile'
-                 - new option `graphics'
-                 - new option `runs' that specifies the number of compilation
-                   runs of the included example
-                 - new options `program' and `exe-with'
-                 - new option `float', `float-pos' and `caption'
-2014/01/05 v0.10 - sometimes there is a spurious `undefined control sequence
-                   \lst@gtexcs3' error: added hack to fix this => find out
-                   where this comes from!
-                 - new option `add-frame' for `compile'd examples
-                 - new command \parg for an optional + argument
-                 - new option `outside' for non-`compiled' examples
-                 - new option `float-env'
-2014/03/11 v0.11 - \cnltx@load@modules
-2014/04/09 v0.12 - improvements on the sidebyside examples
+2013/09/08 v0.1   - first working version
+2013/09/10 v0.2   - added \keyis
+                  - lot's of improvements on the source code example
+                    environments
+                  - disable indexing commands in PDF strings
+                  - added hooks to the source example environments
+                  - added possibility for internationalization
+                  - new macro \verbcode
+                  - added optional argument to \newarg
+                  - new macros \Marg, \Oarg, \Darg
+                  - option for formatting the \default command
+2013/09/12 v0.3   - added \module
+                  - added \newsourcecodeenv and \newinputsourcefilecmd
+                  - added \inputexample, \inputsidebyside and \inputsourcecode
+                  - renamed `example*' into `sidebyside'
+2013/09/15 v0.4   - new listings style `cnltx-bibtex'
+2013/09/20 v0.5   - new command \implementation
+                  - fixed wrong indexing behaviour: keywords in the silent
+                    lists are now correctly indexed if added with `add-cmds'
+                    or `add-envs'
+2013/09/30 v0.7   - added listings style `cnltx-makeindex'
+2013/10/04 v0.7a  - new command \cnltx@treat@lst@index
+                  - changed \envidx in listings into \indexenv
+                  - added \bnd for package bundles
+2013/11/22 v0.9   - new option `compile' that allows to compile source code
+                    examples (which need to be complete, of course) with
+                    pdflatex and include the documents afterwards
+                  - new options `max-pages' that determines the maximum number
+                    of pages before a line break if documents are included
+                    with `compile'
+                  - new option `graphics'
+                  - new option `runs' that specifies the number of compilation
+                    runs of the included example
+                  - new options `program' and `exe-with'
+                  - new option `float', `float-pos' and `caption'
+2014/01/05 v0.10  - sometimes there is a spurious `undefined control sequence
+                    \lst@gtexcs3' error: added hack to fix this => find out
+                    where this comes from!
+                  - new option `add-frame' for `compile'd examples
+                  - new command \parg for an optional + argument
+                  - new option `outside' for non-`compiled' examples
+                  - new option `float-env'
+2014/03/11 v0.11  - \cnltx@load@modules
+2014/04/09 v0.12  - improvements on the sidebyside examples
+2015/08/29 v0.13a - enable \choices list to stretch
+2016/03/16 v0.13b - `program' may now be a csv list of programs to be
+                    executed
+
 TODO:
 
 
