@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2016 Clemens Niederberger
+% Copyright 2013--2019 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -107,7 +107,7 @@
 \pgfkeys{
   cnltx/.cd,
     caption-font/.code = \def\cnltx@caption@font{#1} ,
-    caption-label-font/.code = \def\cnltx@captionlabel@font{#1}
+    caption-label-font/.code = \def\cnltx@captionlabel@font{\cnltx@caption@font#1}
 }
 
 \ifbool{cnltx@load@preamble}{
@@ -119,12 +119,13 @@
         {\RequirePackage{fontspec}}
       \RequirePackage[oldstyle]{libertine}
       \RequirePackage{libertinehologopatch}
-      \RequirePackage[supstfm=libertinesups]{superiors}
+      % \RequirePackage{superiors}
+      % \setkeys{superiors}{supstfm=libertinesups}
       % libertine does not have superior letters:
       \def\@makefnmark{%
         \hbox{%
           \cnltx@ifisnum{\@thefnmark}
-            {\textsu{\hspace*{\superiors@spaced}\@thefnmark}}
+            {\textsu{\hspace*{.04em}\@thefnmark}}
             {\@textsuperscript{\normalfont\@thefnmark}}%
         }%
       }
@@ -429,35 +430,36 @@
 }
 % --------------------------------------------------------------------------
 % command descriptions:
-\newcommand*\cnltx@command{%
-  \@ifstar
-    {\cnltx@command@star}
-    {\cnltx@command@nostar}%
-}
-
-\newrobustcmd*\cnltx@command@star[1]{%
-  \@ifnextchar[
-    {\cnltx@command@star@opt{#1}}
-    {\cnltx@command@star@opt{#1}[]}%
-}
-
-\newrobustcmd*\cnltx@command@nostar[1]{%
-  \@ifnextchar[
-    {\cnltx@command@nostar@opt{#1}}
-    {\cnltx@command@nostar@opt{#1}[]}%
-}
-
-\def\cnltx@command@star@opt#1[#2]{%
-  \ifblank{#2}
-    {\item\cs*{#1}}
-    {\item\cs*{#1}#2}%
-  \cnltx@checkdefault{\hfill\newline}%
-}
-\def\cnltx@command@nostar@opt#1[#2]{%
-  \ifblank{#2}
-    {\item\cs{#1}}
-    {\item\cs{#1}#2}%
-  \cnltx@checkdefault{\hfill\newline}%
+% #1: command in the list which places the item
+% #2: formatting command taking one mandatory argument and a star form
+\newrobustcmd*\cnltx@deflistitem[2]{%
+  \protected\csdef{\cnltx@stripbs#1}{%
+    \@ifstar
+      {\csuse{\cnltx@stripbs#1@star}}
+      {\csuse{\cnltx@stripbs#1@nostar}}%
+  }%
+  \protected\csdef{\cnltx@stripbs#1@star}##1{%
+    \@ifnextchar[%]
+      {\csuse{\cnltx@stripbs#1@star@opt}{##1}}
+      {\csuse{\cnltx@stripbs#1@star@opt}{##1}[]}%
+  }%
+  \protected\csdef{\cnltx@stripbs#1@nostar}##1{%
+    \@ifnextchar[%]
+      {\csuse{\cnltx@stripbs#1@nostar@opt}{##1}}
+      {\csuse{\cnltx@stripbs#1@nostar@opt}{##1}[]}%
+  }%
+  \protected\csdef{\cnltx@stripbs#1@star@opt}##1[##2]{%
+    \ifblank{##2}
+      {\item#2*{##1}}
+      {\item#2*{##1}##2}%
+    \cnltx@checkdefault{\hfill\newline}%
+  }%
+  \protected\csdef{\cnltx@stripbs#1@nostar@opt}##1[##2]{%
+    \ifblank{##2}
+      {\item#2{##1}}
+      {\item#2{##1}##2}%
+    \cnltx@checkdefault{\hfill\newline}%
+  }%
 }
 
 \newcommand\cnltx@checkdefault[1]{%
@@ -490,6 +492,8 @@
   {\list{}{\cmltx@list@setup}}
   {\endlist}
 
+\cnltx@deflistitem{\cnltx@command}{\cs}
+  
 \newenvironment{commands}
   {%
     \let\command\cnltx@command
@@ -726,11 +730,12 @@
   \newrobustcmd*\cnltx@tableofcontents{%
     \begingroup
       \let\tocbasic@listhead\@gobble
+      \RaggedRight
       \tableofcontents
     \endgroup
   }%
-  \RequirePackage{multicol}
-  \AtBeginDocument{%
+  \RequirePackage{multicol,ragged2e}
+  \AfterEndPreamble{%
     \ifbool{cnltx@build@title}{%
       \ifbool{cnltx@package@name}
         {\cnltx@title@information}
@@ -870,27 +875,29 @@
   \cls{#2}\footnote{\CTANurl[#1]{#2}}%
 }
 
-\AtEndPreamble{%
-  \RequirePackage{hyperref}%
-  \pdfstringdefDisableCommands{%
-    \def\cnltx@name[#1]#2{#1 #2, }%
-    \def\cnltxpackagenameformat#1{#1}%
-  }%
-  \hypersetup
-    {
-      colorlinks         = true,
-      allcolors          = link ,
-      plainpages         = false,
-      bookmarksopen      = true,
-      bookmarksopenlevel = 1,
-      bookmarksnumbered  = true,
-      pdfauthor          = {\forlistloop{}\cnltx@package@author@pdflist},
-      pdftitle           =
-        {\cnltx@package@name\space\cnltx@package@version\space Manual},
-      pdfsubject         = {\cnltx@package@info},
-      pdfstartview       = FitH
+\ifbool{cnltx@load@preamble}{%
+  \AtEndPreamble{%
+    \RequirePackage{hyperref}%
+    \pdfstringdefDisableCommands{%
+      \def\cnltx@name[#1]#2{#1 #2, }%
+      \def\cnltxpackagenameformat#1{#1}%
     }%
-}
+    \hypersetup
+      {
+        colorlinks         = true,
+        allcolors          = link ,
+        plainpages         = false,
+        bookmarksopen      = true,
+        bookmarksopenlevel = 1,
+        bookmarksnumbered  = true,
+        pdfauthor          = {\forlistloop{}\cnltx@package@author@pdflist},
+        pdftitle           =
+          {\cnltx@package@name\space\cnltx@package@version\space Manual},
+        pdfsubject         = {\cnltx@package@info},
+        pdfstartview       = FitH
+      }%
+  }%
+}{}%
 
 \endinput
 
@@ -950,6 +957,8 @@ HISTORY:
                   - \expandablesymbol, \unexpandablesymbol
 2015/08/17 v0.13  - resolve long overdue issues with cnltx-doc
 2015/03/11 v0.13a - wrap title in minipage in order to enable linebreaks
+2016/03/17 v0.13b - ragged right toc
+2017/02/04 v0.14  - load `hyperref' only with `load-preample = true'
 
 % --------------------------------------------------------------------------
 TODO:

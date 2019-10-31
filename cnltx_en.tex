@@ -13,7 +13,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2016 Clemens Niederberger
+% Copyright 2013--2019 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -131,6 +131,7 @@
   }
 }
 
+\usepackage{csquotes}
 \defbibheading{bibliography}[\bibname]{\section{#1}}
 
 \makeatletter
@@ -352,8 +353,7 @@ The intended use of this bundle is three-fold:
     and actually loads most if not all of the bundle.
   \item The module \cnltxbase\ is also intended as a programming tools package
     that will be used in other packages eventually.  For example it is used by
-    the \pkg{cntformats} package from the \bnd{exsheets}
-    bundle~\cite{bnd:exsheets}.
+    the \pkg{cntformats} package.
   \item In case parts of this bundle prove useful to be used in a document the
     recommended way is to add
     \begin{sourcecode}[gobble=6]

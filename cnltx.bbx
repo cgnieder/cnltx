@@ -8,7 +8,7 @@
 % Web:    https://github.com/cgnieder/cnltx/
 % E-Mail: contact@mychemistry.eu
 % --------------------------------------------------------------------------
-% Copyright 2013-2016 Clemens Niederberger
+% Copyright 2013--2019 Clemens Niederberger
 %
 % This work may be distributed and/or modified under the
 % conditions of the LaTeX Project Public License, either version 1.3
@@ -41,9 +41,7 @@
   \usebibmacro{maintainer}%
   \setunit{\labelnamepunct}\newblock
   \usebibmacro{title+subtitle}%
-  \printfield{version}%
-  \setunit{\addcomma\addspace}%
-  \usebibmacro{date}%
+  \usebibmacro{version+date}%
   \newunit\newblock
   \usebibmacro{url+urldate}%
   \newunit\newblock
@@ -53,7 +51,7 @@
 \DeclareBibliographyAlias{class}{latex}
 \DeclareBibliographyAlias{bundle}{latex}
 
-\newbibmacro{title+subtitle}{%
+\newbibmacro*{title+subtitle}{%
   \iffieldundef{title}{}{%
     \printfield{title}%
     \ifbibindex{\indexfield{title}}{}%
@@ -63,6 +61,31 @@
       \setunit{\adddot\addspace}%
     }%
   }%
+}
+
+\NewBibliographyString{version}
+\NewBibliographyString{or-newer}
+\DefineBibliographyStrings{english}{
+  version = {version} ,
+  or-newer = {or newer}
+}
+
+\DefineBibliographyStrings{german}{
+  version = {Version} ,
+  or-newer = {oder neuer}
+}
+
+\newbibmacro*{version+date}{%
+  \iffieldundef{version}{}{%
+    \bibstring{version}%
+    \addspace
+    \printfield{version}%
+    \addcomma\addspace
+  }%
+  \usebibmacro{date}%
+  \addspace
+  \bibstring[\mkbibparens]{or-newer}%
+  \setunit{\adddot\addspace}%
 }
 
 \newbibmacro*{maintainer}{%
@@ -100,6 +123,10 @@
 \DeclareFieldFormat[package]{title}{\pkg*{#1}}
 \DeclareFieldFormat[class]{title}{\cls*{#1}}
 \DeclareFieldFormat[bundle]{title}{\bnd*{#1}}
+
+\DeclareFieldFormat[package]{version}{#1}
+\DeclareFieldFormat[class]{version}{#1}
+\DeclareFieldFormat[bundle]{version}{#1}
 
 \DeclareIndexFieldFormat[package]{title}{%
   \ifstrequal{#1}{\KOMAScript}
@@ -198,4 +225,5 @@ HISTORY:
                     this is going to need tests if it really is consistent
                     for different types of name formats (prefixes, affixes...)
 2016/03/11 v0.13b - adapt bib style to biblatex v3.3
-                    
+2017/02/04 v0.14 - new bibmacro `version+date', use said macro in the `latex'
+                    driver
