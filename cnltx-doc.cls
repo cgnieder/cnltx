@@ -192,7 +192,6 @@
     {}
   \RequirePackage{fnpct}
   \expandafter\RequirePackage\expandafter[\cnltx@babel@options]{babel}
-  % \RequirePackage{babel}
 }{}
 
 \ifbool{cnltx@layout}{

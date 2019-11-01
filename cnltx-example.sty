@@ -318,6 +318,7 @@
   keywordstyle     = \color{bibentry} ,
   keywordstyle     = [2]\color{bibentryfield}\itshape ,
   showstringspaces = false ,
+  deleteindex      = [3][texcs3] ,
   deleteindex      = [5][keyword5] ,
   deleteindex      = [6][keyword6]
 }
@@ -346,6 +347,9 @@
   keywordstyle     = \color{makeidxkey}\bfseries ,
   stringstyle      = \color{makeidxstring} ,
   showstringspaces = false ,
+  deleteindex      = [3][texcs3] ,
+  deleteindex      = [5][keyword5] ,
+  deleteindex      = [6][keyword6]
 }
 
 \def\cnltx@bash@listings@style{
@@ -373,7 +377,10 @@
   keywordstyle     = \color{black}\bfseries ,
   stringstyle      = \color{black} ,
   showstringspaces = false ,
-  morekeywords     = texdoc
+  morekeywords     = texdoc ,
+  deleteindex      = [3][texcs3] ,
+  deleteindex      = [5][keyword5] ,
+  deleteindex      = [6][keyword6]
 }
 
 \newcommand*\cnltx@prompt{}
@@ -719,8 +726,7 @@
     {%
       \cnltx@expandargs(x)\lstset{
         \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
-          {linewidth=\cnltx@sidebysidewidth,}{}%
-        moretexcs=[3], moretexcs=[5],
+        {linewidth=\cnltx@sidebysidewidth,}{}%
         \expandonce\cnltx@local@listings@options
       }%
     }
@@ -730,8 +736,6 @@
         \ifboolexpe{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
           {linewidth=\cnltx@sidebysidewidth,}{}%
         \expandonce\cnltx@local@listings@options
-        % no idea why this is necessary:
-        % \ifcsdef{lst@gtexcs3}{}{,moretexcs=[3]}%
       }%
     }%
   \ifbool{cnltx@local@frame@overwrite}
@@ -987,6 +991,7 @@
       \vskip\cnltx@after@skip
     }%
 }
+  
 \newrobustcmd\newsourcecodeenv[2][]{%
   \cnltx@new@sourcecode@env{#1}{#2}%
 }
@@ -1111,7 +1116,9 @@ HISTORY:
 2017/02/04 v0.14  - exchange literate={`}{\`{}}{1}{'}{\textquotesingle}{1} for
                     listings' upquote option
                   - new sourcecode environment `bash'
-
+2019/11/01 v0.15  - fix `undefined control sequence \lst@gtexcs3' error
+                  - fix `undefined control sequence \lst@gkeyword3' error
+                  - fix `undefined control sequence \lst@gkeyword3' error
 TODO:
 
 

@@ -28,7 +28,7 @@
 \RequirePackage{cnltx-base}
 \ProvidesFile{cnltx.bbx}[\cnltx@@date\space \cnltx@@version\space \cnltx@@info]
 
-\cnltx@load@modules{example,tools,translations}
+\cnltx@load@modules{example,tools,translations,names}
 
 \RequireBiber
 \RequireBibliographyStyle{alphabetic}
@@ -103,11 +103,9 @@
   }%
 }
 
-\RequirePackage{cnltx-names}
-
-\renewcommand*{\mkbibnamefamily}[1]{\cnltx@write@lastname{#1}}
-\renewcommand*{\mkbibnamegiven}[1]{\cnltx@write@firstname{#1}}
-\renewcommand*{\mkbibnameprefix}[1]{\cnltx@write@lastname{#1}}
+\renewcommand*\mkbibnamefamily[1]{\cnltx@write@lastname{#1}}
+\renewcommand*\mkbibnamegiven[1]{\cnltx@write@firstname{#1}}
+\renewcommand*\mkbibnameprefix[1]{\cnltx@write@lastname{#1}}
 
 \DeclareNameAlias[package]{maintainer}{default}
 \DeclareNameAlias[class]{maintainer}{default}
@@ -227,5 +225,6 @@ HISTORY:
                     this is going to need tests if it really is consistent
                     for different types of name formats (prefixes, affixes...)
 2016/03/11 v0.13b - adapt bib style to biblatex v3.3
-2017/02/04 v0.14 - new bibmacro `version+date', use said macro in the `latex'
+2017/02/04 v0.14  - new bibmacro `version+date', use said macro in the `latex'
                     driver
+2019/11/01 v0.15  - fix problems with name format
