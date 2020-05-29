@@ -1,0 +1,9 @@
+*.aux
+*.code
+*.log
+*.out
+
+*-cnltx-?.pdf
+*-cnltx-?.tex
+
+examples/cnltx-example.sty
