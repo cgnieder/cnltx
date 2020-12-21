@@ -35,6 +35,7 @@
   day,
   month,
   year,
+  date,
   addendum,
   language,
   note,

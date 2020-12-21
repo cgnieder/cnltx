@@ -475,7 +475,7 @@
     }%
 }
 
-\newcommand*\cmltx@list@setup{%
+\newcommand*\cnltx@list@setup{%
   \leftmargin=0pt
   \labelwidth=2em
   \labelsep=0pt
@@ -484,11 +484,11 @@
 
 \pgfkeys{
   cnltx/.cd,
-    list-setup/.code = \def\cmltx@list@setup{#1}
+    list-setup/.code = \def\cnltx@list@setup{#1}
 }
 
 \newenvironment{cnltxlist}
-  {\list{}{\cmltx@list@setup}}
+  {\list{}{\cnltx@list@setup}}
   {\endlist}
 
 \cnltx@deflistitem{\cnltx@command}{\cs}
@@ -725,7 +725,7 @@
 
 % --------------------------------------------------------------------------
 % document title:
-\AfterPackage!{hyperref}{%
+% \AfterPackage!{hyperref}{%
   \newrobustcmd*\cnltx@tableofcontents{%
     \begingroup
       \let\tocbasic@listhead\@gobble
@@ -746,7 +746,7 @@
         }%
     }{}%
   }%
-}
+% }
 
 \newrobustcmd*\cnltx@title@information{%
   \thispagestyle{plain}
