@@ -734,7 +734,7 @@
     \endgroup
   }%
   \RequirePackage{multicol,ragged2e}
-  \AfterEndPreamble{%
+  \AddToHook{begindocument/end}{%
     \ifbool{cnltx@build@title}{%
       \ifbool{cnltx@package@name}
         {\cnltx@title@information}
