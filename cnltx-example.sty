@@ -503,6 +503,8 @@
 \newbool{cnltx@local@frame@overwrite}
 
 \newbool {cnltx@sidebyside}
+\newbool {cnltx@codeabove}
+\booltrue{cnltx@codeabove}
 \newbool {cnltx@codeleft}
 \booltrue{cnltx@codeleft}
 \newbool {cnltx@codeonly}
@@ -547,6 +549,7 @@
   cnltx/.cd,
     side-by-side/.is if        = cnltx@sidebyside ,
     code-only/.is if           = cnltx@codeonly ,
+    code-above/.is if          = cnltx@codeabove ,
     code-left/.is if           = cnltx@codeleft ,
     compile/.is if             = cnltx@compile ,
     code-sep/.code             = \def\cnltx@examplesep{#1} ,
@@ -700,7 +703,7 @@
 }
 
 \newrobustcmd*\cnltx@source@input@start[1]{%
-  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} or not bool {cnltx@codeabove} }
     {%
       \adjustbox{
         % discard,
@@ -716,7 +719,7 @@
 
 \newrobustcmd*\cnltx@source@input@end{%
   \lst@EndWriteFile
-  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} }
+  \ifboolexpr{ bool {cnltx@sidebyside} and not bool {cnltx@codeonly} or not bool {cnltx@codeabove} }
     {\egroup}{\cnltx@after@source@hook}%
 }
 
@@ -870,11 +873,23 @@
               \endminipage
             }%
         }
-        {% example below
-          \par\noindent\cnltx@examplesep
-          \cnltx@pre@example@hook
-          \cnltx@example@input{#1.code}%
-          \cnltx@after@example@hook
+        {% example and code stacked
+          \ifbool{cnltx@codeabove}
+            {% code above example
+              \par\noindent\cnltx@examplesep
+              \cnltx@pre@example@hook
+              \cnltx@example@input{#1.code}%
+              \cnltx@after@example@hook
+            }
+            {% example above code
+              \cnltx@pre@example@hook
+              \cnltx@example@input{#1.code}%
+              \cnltx@after@example@hook%
+              \vspace{-\baselineskip}\noindent\cnltx@examplesep\par
+              \cnltx@pre@source@hook
+              \unhbox\cnltx@example@box
+              \cnltx@after@source@hook
+            }%
         }%
     }%
   \ifbool{cnltx@compile}
@@ -905,7 +920,11 @@
               \endmdframed
               \cnltx@float@start
             }
-            {\par\noindent\cnltx@examplesep\par}%
+            {%
+              \ifbool{cnltx@codeabove}%
+                {\par\noindent\cnltx@examplesep\par}
+                {}
+            }%
           \cnltx@pre@example@hook
           \ifbool{cnltx@pagelist}
             {%
@@ -934,6 +953,15 @@
                   \stepcounter{cnltx@tmpa}%
                   \setcounter{cnltx@tmpb}{\numexpr\value{cnltx@tmpb}-1\relax}%
                 }
+            }%
+          \ifbool{cnltx@codeabove}%
+            {}
+            {%
+              \flushleft
+              \vspace{-\baselineskip}\par\noindent\cnltx@examplesep\par
+              \cnltx@pre@source@hook
+              \hspace{1em}\unhbox\cnltx@example@box
+              \cnltx@after@source@hook
             }%
           \ifbool{cnltx@float}
             {%
@@ -1119,6 +1147,7 @@ HISTORY:
 2019/11/01 v0.15  - fix `undefined control sequence \lst@gtexcs3' error
                   - fix `undefined control sequence \lst@gkeyword3' error
                   - fix `undefined control sequence \lst@gkeyword3' error
-TODO:
+2020/??           - new option `code-above`
 
+TODO:
 
